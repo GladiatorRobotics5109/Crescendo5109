@@ -25,6 +25,6 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState state) {
-        SwerveModuleState optimizedState = RevOptomizer.optimize(state, new Rotation2d(m_turningEncoderRelative.getPosition()))
+        // SwerveModuleState optimizedState = RevOptimizer.optimize(state, new Rotation2d(m_turningEncoderRelative.getPosition()));
     }
 }

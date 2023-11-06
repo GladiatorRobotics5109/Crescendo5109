@@ -1,12 +1,15 @@
 package frc.robot.subsystems.swerve;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.SwerveConstants;
+import frc.robot.Constants;
 import frc.robot.SwerveModule;
+import frc.robot.Constants.SwerveConstants;
 
 public class SwerveSubsystem extends SubsystemBase {
     // swerve constants
@@ -18,7 +21,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule m_moduleBL;
     private final SwerveModule m_moduleBR;
 
-    private final double m_maxSpeed;
+    private double m_maxSpeed;
 
     private final SwerveDriveKinematics m_kinematics;
 
@@ -52,5 +55,33 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFR.setDesiredState(swerveModuleStates[1]);
         m_moduleBL.setDesiredState(swerveModuleStates[2]);
         m_moduleBR.setDesiredState(swerveModuleStates[3]);
+    }
+
+    public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
+        Rotation2d navXVal = new Rotation2d((m_navX.getAngle()% 360) * Math.PI / 180);
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, navXVal) : desiredSpeeds);
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
+        
+        m_moduleFL.setDesiredState(swerveModuleStates[0]);
+        m_moduleFR.setDesiredState(swerveModuleStates[1]);
+        m_moduleBL.setDesiredState(swerveModuleStates[2]);
+        m_moduleBR.setDesiredState(swerveModuleStates[3]);
+    }
+
+    public void setMaxSpeed(double speed) {
+        m_maxSpeed = speed;
+    }
+
+    public void brake() {
+
+    }
+
+    public void coast() {
+
+    }
+
+    public void brakeAndX() {
+
     }
 }
