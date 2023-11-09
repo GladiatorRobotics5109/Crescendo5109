@@ -40,10 +40,17 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    SwerveModule frontLeft = new SwerveModule(new Translation2d(0.2921, 0.2921), "frontLeft", 0);
-    SwerveModule frontRight = new SwerveModule(new Translation2d(0.2921, -0.2921), "frontLeft", 0);
-    SwerveModule backLeft = new SwerveModule(new Translation2d(-0.2921, 0.2921), "frontLeft", 0);
-    SwerveModule backRight = new SwerveModule(new Translation2d(-0.2921, -0.2921), "frontLeft", 0);
+    m_swerve = new SwerveSubsystem(getSwerveConstants());
+  }
+
+  private SwerveConstants getSwerveConstants() {
+    // construct swerve modules
+    SwerveModule frontLeft = new SwerveModule(new Translation2d(0.2921, 0.2921), "frontLeft", 0, 0, 0);
+    SwerveModule frontRight = new SwerveModule(new Translation2d(0.2921, -0.2921), "frontLeft", 0, 0, 0);
+    SwerveModule backLeft = new SwerveModule(new Translation2d(-0.2921, 0.2921), "frontLeft", 0, 0, 0);
+    SwerveModule backRight = new SwerveModule(new Translation2d(-0.2921, -0.2921), "frontLeft", 0, 0, 0);
+
+    AHRS navX = new AHRS(SPI.Port.kMXP);
 
     SwerveConstants swerveConstants = new Constants.SwerveConstants(
       3 * Math.PI, 
@@ -52,10 +59,10 @@ public class RobotContainer {
       frontRight, 
       backLeft, 
       backRight, 
-      new AHRS(SPI.Port.kMXP));
+      navX);
 
-    m_swerve = new SwerveSubsystem(swerveConstants);
-}
+    return swerveConstants;
+  }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the

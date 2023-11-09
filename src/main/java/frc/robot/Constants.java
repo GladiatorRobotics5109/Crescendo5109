@@ -15,6 +15,8 @@ import com.kauailabs.navx.frc.AHRS;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final double kTurnMotorGearRatio = 12.8;
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
@@ -26,7 +28,7 @@ public final class Constants {
     private final SwerveModule m_backRight;
 
     private final double m_maxAngularSpeed;
-    private final double m_maxSpeed;
+    private final double m_maxSpeed; // m/s
 
     private final AHRS m_navX;
 
@@ -49,7 +51,6 @@ public final class Constants {
             m_navX = navX;
     }
 
-
     public SwerveModule getFrontLeft() {
         return m_frontLeft;
     }
@@ -65,6 +66,13 @@ public final class Constants {
 
     public AHRS getNavX() {
         return m_navX;
+    }
+
+    public double getMaxSpeed() {
+      return m_maxSpeed;
+    }
+    public double getMaxAngluarSpeed() {
+      return m_maxAngularSpeed;
     }
   }
 }
