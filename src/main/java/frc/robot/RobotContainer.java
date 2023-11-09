@@ -41,6 +41,14 @@ public class RobotContainer {
     configureBindings();
 
     m_swerve = new SwerveSubsystem(getSwerveConstants());
+
+    m_swerve.setDefaultCommand(
+      m_swerve.getDriveWithJoystickCommand(
+        () -> m_driverController.getLeftX(), // l/r
+        () -> m_driverController.getLeftY(), // f/b
+        () -> m_driverController.getRightX(), // rot
+        () -> true) // field relative
+    );
   }
 
   private SwerveConstants getSwerveConstants() {

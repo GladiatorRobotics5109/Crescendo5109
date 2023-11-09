@@ -17,6 +17,8 @@ import com.kauailabs.navx.frc.AHRS;
 public final class Constants {
   public static final double kTurnMotorGearRatio = 12.8;
 
+  public static final double kJoystickDeadzone = 0.1;
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }

@@ -1,11 +1,16 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SwerveModule;
@@ -22,6 +27,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule m_moduleBR;
 
     private double m_maxSpeed;
+    private double m_maxAngularSpeed;
 
     private final SwerveDriveKinematics m_kinematics;
 
@@ -42,6 +48,7 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBR.getPos());
 
             m_maxSpeed = swerveConstants.getMaxSpeed();
+            m_maxAngularSpeed = swerveConstants.getMaxAngluarSpeed();
         
             m_navX = swerveConstants.getNavX();
     }
@@ -83,5 +90,25 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void brakeAndX() {
 
+    }
+
+    public Command getDriveWithJoystickCommand(
+        DoubleSupplier joyLeftX, 
+        DoubleSupplier joyLeftY, 
+        DoubleSupplier joyRightX, 
+        BooleanSupplier fieldRelative) {
+            return run(() -> {
+                // get joystick axises
+                double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.kJoystickDeadzone);
+                double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
+                double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
+
+                // apply max speeds
+                vx *= m_maxSpeed;
+                vy *= m_maxSpeed;
+                rot *= m_maxAngularSpeed;
+
+                drive(vx, vy, rot, fieldRelative.getAsBoolean());
+            }).withName("DriveWithJoystick");
     }
 }
