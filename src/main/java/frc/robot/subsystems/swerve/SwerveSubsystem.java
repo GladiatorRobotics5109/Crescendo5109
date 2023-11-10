@@ -7,13 +7,13 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.SwerveModule;
 import frc.robot.Constants.SwerveConstants;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -31,10 +31,11 @@ public class SwerveSubsystem extends SubsystemBase {
     private AHRS m_navX;
 
     public SwerveSubsystem() {
-        m_moduleFL = SwerveConstants.kFLModule;
-        m_moduleFR = SwerveConstants.kFRModule;
-        m_moduleBL = SwerveConstants.kBLModule;
-        m_moduleBR = SwerveConstants.kBRModule;
+        // TODO: select right cain ids for motors
+        m_moduleFL = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(0.2921, 0.2921), "frontLeft", 0, 0, 0);
+        m_moduleFR = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(0.2921, -0.2921), "frontRight", 0, 0, 0);;
+        m_moduleBL = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(-0.2921, 0.2921), "backLeft", 0, 0, 0);;
+        m_moduleBR = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(-0.2921, -0.2921), "backRight", 0, 0, 0);;
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 

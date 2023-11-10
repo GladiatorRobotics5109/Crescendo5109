@@ -8,6 +8,8 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.SPI;
+import frc.robot.subsystems.swerve.SwerveModule;
+import frc.robot.subsystems.swerve.SwerveModuleKrakenTurnNeoDrive;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -25,12 +27,6 @@ public final class Constants {
   public static class SwerveConstants {
     public static final double kMaxSpeed = 15;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
-    
-    // TODO: select right CAN ids for motors
-    public static final SwerveModule kFLModule = new SwerveModule(new Translation2d(0.2921, 0.2921), "frontLeft", 0, 0, 0);
-    public static final SwerveModule kFRModule = new SwerveModule(new Translation2d(0.2921, -0.2921), "frontRight", 0, 0, 0);
-    public static final SwerveModule kBLModule = new SwerveModule(new Translation2d(-0.2921, 0.2921), "backLeft", 0, 0, 0);
-    public static final SwerveModule kBRModule = new SwerveModule(new Translation2d(-0.2921, -0.2921), "backRight", 0, 0, 0);
 
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
   }
