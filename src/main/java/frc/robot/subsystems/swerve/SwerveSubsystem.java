@@ -81,7 +81,29 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void brake() {
+        SwerveModuleState flbr = new SwerveModuleState();
+        flbr.speedMetersPerSecond = 0.0;
+        flbr.angle = Rotation2d.fromRadians(-Math.PI / 4);
 
+        m_moduleFL.setDesiredState(flbr);
+        m_moduleBR.setDesiredState(flbr);
+
+        SwerveModuleState frbl = new SwerveModuleState();
+        frbl.speedMetersPerSecond = 0.0;
+        frbl.angle = Rotation2d.fromRadians(Math.PI / 4);
+
+        m_moduleFR.setDesiredState(frbl);
+        m_moduleBL.setDesiredState(frbl);
+
+        brakeAll();
+    }
+
+    // sets idle state to brake on turn and drive motors for every swerve module
+    private void brakeAll() {
+        m_moduleFL.brakeAll();
+        m_moduleFL.brakeAll();
+        m_moduleFL.brakeAll();
+        m_moduleFL.brakeAll();
     }
 
     public void coast() {

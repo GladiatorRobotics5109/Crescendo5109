@@ -3,6 +3,7 @@ package frc.robot;
 import javax.sql.rowset.spi.TransactionalWriter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -37,6 +38,7 @@ public class SwerveModule {
         m_turnMotor = new WPI_TalonFX(turnMotorPort);
 
         m_driveMotor.setIdleMode(IdleMode.kCoast);
+        m_turnMotor.setNeutralMode(NeutralMode.Coast);
 
         m_driveEncoder = m_driveMotor.getEncoder();
 
@@ -66,5 +68,10 @@ public class SwerveModule {
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnMotor.set(ControlMode.Position, Conversions.degToKraken(state.angle.getRadians(), Constants.kTurnMotorGearRatio));
+    }
+
+    public void brakeAll() {
+        m_driveMotor.setIdleMode(IdleMode.kBrake);
+        m_turnMotor.setNeutralMode(NeutralMode.Brake);
     }
 }

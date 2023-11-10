@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
@@ -31,7 +31,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+      new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
 
   private final SwerveSubsystem m_swerve;
 
@@ -52,11 +52,12 @@ public class RobotContainer {
   }
 
   private SwerveConstants getSwerveConstants() {
-    // construct swerve modules
+    // construct SwerveModule objects
+    // TODO: select right CAN ids for motors
     SwerveModule frontLeft = new SwerveModule(new Translation2d(0.2921, 0.2921), "frontLeft", 0, 0, 0);
-    SwerveModule frontRight = new SwerveModule(new Translation2d(0.2921, -0.2921), "frontLeft", 0, 0, 0);
-    SwerveModule backLeft = new SwerveModule(new Translation2d(-0.2921, 0.2921), "frontLeft", 0, 0, 0);
-    SwerveModule backRight = new SwerveModule(new Translation2d(-0.2921, -0.2921), "frontLeft", 0, 0, 0);
+    SwerveModule frontRight = new SwerveModule(new Translation2d(0.2921, -0.2921), "frontRight", 0, 0, 0);
+    SwerveModule backLeft = new SwerveModule(new Translation2d(-0.2921, 0.2921), "backLeft", 0, 0, 0);
+    SwerveModule backRight = new SwerveModule(new Translation2d(-0.2921, -0.2921), "backRight", 0, 0, 0);
 
     AHRS navX = new AHRS(SPI.Port.kMXP);
 

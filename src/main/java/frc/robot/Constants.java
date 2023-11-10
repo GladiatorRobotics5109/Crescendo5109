@@ -19,7 +19,7 @@ public final class Constants {
 
   public static final double kJoystickDeadzone = 0.1;
 
-  public static class OperatorConstants {
+  public static class DriveTeamConstants {
     public static final int kDriverControllerPort = 0;
   }
 
