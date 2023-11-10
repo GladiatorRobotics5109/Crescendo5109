@@ -43,16 +43,17 @@ public class SwerveSubsystem extends SubsystemBase {
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
-            m_moduleFR.getPos(), 
+            m_moduleFR.getPos(),
             m_moduleBL.getPos(), 
             m_moduleBR.getPos());
 
-            m_maxSpeed = swerveConstants.getMaxSpeed();
-            m_maxAngularSpeed = swerveConstants.getMaxAngluarSpeed();
-        
-            m_navX = swerveConstants.getNavX();
+        m_maxSpeed = swerveConstants.getMaxSpeed();
+        m_maxAngularSpeed = swerveConstants.getMaxAngluarSpeed();
+    
+        m_navX = swerveConstants.getNavX();
     }
 
+    /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double rot, boolean fieldRelative) {
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rot, navXVal) : new ChassisSpeeds(vx, vy, rot));
@@ -64,6 +65,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBR.setDesiredState(swerveModuleStates[3]);
     }
 
+    /** drive with desired chassis speeds */
     public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
         Rotation2d navXVal = new Rotation2d((m_navX.getAngle()% 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, navXVal) : desiredSpeeds);
@@ -80,7 +82,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_maxSpeed = speed;
     }
 
-    public void brake() {
+    /** Brake and X the wheels to stay still */
+    public void brakeAndX() {
         SwerveModuleState flbr = new SwerveModuleState();
         flbr.speedMetersPerSecond = 0.0;
         flbr.angle = Rotation2d.fromRadians(-Math.PI / 4);
@@ -98,7 +101,7 @@ public class SwerveSubsystem extends SubsystemBase {
         brakeAll();
     }
 
-    // sets idle state to brake on turn and drive motors for every swerve module
+    /** Brake on all motors on all swerve modules */
     private void brakeAll() {
         m_moduleFL.brakeAll();
         m_moduleFL.brakeAll();
@@ -106,31 +109,34 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFL.brakeAll();
     }
 
+    /** Coast on all motors on all swerve modules */
     public void coast() {
-
+        m_moduleFL.coastAll();
+        m_moduleFR.coastAll();
+        m_moduleBL.coastAll();
+        m_moduleBR.coastAll();
     }
-
-    public void brakeAndX() {
-
-    }
-
+    
+    /**
+     * @return a command object that drives with given joystick inputs
+     */
     public Command getDriveWithJoystickCommand(
         DoubleSupplier joyLeftX, 
         DoubleSupplier joyLeftY, 
         DoubleSupplier joyRightX, 
         BooleanSupplier fieldRelative) {
-            return run(() -> {
-                // get joystick axises
-                double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.kJoystickDeadzone);
-                double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
-                double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
+        return run(() -> {
+            // get joystick axises
+            double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.kJoystickDeadzone);
+            double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
+            double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
-                // apply max speeds
-                vx *= m_maxSpeed;
-                vy *= m_maxSpeed;
-                rot *= m_maxAngularSpeed;
+            // apply max speeds
+            vx *= m_maxSpeed;
+            vy *= m_maxSpeed;
+            rot *= m_maxAngularSpeed;
 
-                drive(vx, vy, rot, fieldRelative.getAsBoolean());
-            }).withName("DriveWithJoystick");
+            drive(vx, vy, rot, fieldRelative.getAsBoolean());
+        }).withName("DriveWithJoystickCommand");
     }
 }

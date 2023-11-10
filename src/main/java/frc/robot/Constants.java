@@ -23,6 +23,7 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  /** Constants used for a given swerve instance */
   public static class SwerveConstants {
     private final SwerveModule m_frontLeft;
     private final SwerveModule m_frontRight;

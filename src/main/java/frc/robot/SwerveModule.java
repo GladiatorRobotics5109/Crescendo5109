@@ -74,4 +74,9 @@ public class SwerveModule {
         m_driveMotor.setIdleMode(IdleMode.kBrake);
         m_turnMotor.setNeutralMode(NeutralMode.Brake);
     }
+
+    public void coastAll() {
+        m_driveMotor.setIdleMode(IdleMode.kCoast);
+        m_turnMotor.setNeutralMode(NeutralMode.Coast);
+    }
 }
