@@ -17,9 +17,6 @@ import frc.robot.SwerveModule;
 import frc.robot.Constants.SwerveConstants;
 
 public class SwerveSubsystem extends SubsystemBase {
-    // swerve constants
-    private final SwerveConstants m_swerveConstants;
-
     // swerve modules
     private final SwerveModule m_moduleFL;
     private final SwerveModule m_moduleFR;
@@ -33,13 +30,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private AHRS m_navX;
 
-    public SwerveSubsystem(SwerveConstants swerveConstants) {
-        m_swerveConstants = swerveConstants;
-
-        m_moduleFL = m_swerveConstants.getFrontLeft();
-        m_moduleFR = m_swerveConstants.getFrontRight();
-        m_moduleBL = m_swerveConstants.getBackLeft();
-        m_moduleBR = m_swerveConstants.getBackRight();
+    public SwerveSubsystem() {
+        m_moduleFL = SwerveConstants.kFLModule;
+        m_moduleFR = SwerveConstants.kFRModule;
+        m_moduleBL = SwerveConstants.kBLModule;
+        m_moduleBR = SwerveConstants.kBRModule;
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
@@ -47,10 +42,10 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBL.getPos(), 
             m_moduleBR.getPos());
 
-        m_maxSpeed = swerveConstants.getMaxSpeed();
-        m_maxAngularSpeed = swerveConstants.getMaxAngluarSpeed();
+        m_maxSpeed = SwerveConstants.kMaxSpeed;
+        m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
     
-        m_navX = swerveConstants.getNavX();
+        m_navX = SwerveConstants.kNavX;
     }
 
     /** drive with desired x/y/rot velocities */
@@ -84,19 +79,19 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Brake and X the wheels to stay still */
     public void brakeAndX() {
-        SwerveModuleState flbr = new SwerveModuleState();
-        flbr.speedMetersPerSecond = 0.0;
-        flbr.angle = Rotation2d.fromRadians(-Math.PI / 4);
+        SwerveModuleState flBr = new SwerveModuleState();
+        flBr.speedMetersPerSecond = 0.0;
+        flBr.angle = Rotation2d.fromRadians(-Math.PI / 4);
 
-        m_moduleFL.setDesiredState(flbr);
-        m_moduleBR.setDesiredState(flbr);
+        m_moduleFL.setDesiredState(flBr);
+        m_moduleBR.setDesiredState(flBr);
 
-        SwerveModuleState frbl = new SwerveModuleState();
-        frbl.speedMetersPerSecond = 0.0;
-        frbl.angle = Rotation2d.fromRadians(Math.PI / 4);
+        SwerveModuleState frBl = new SwerveModuleState();
+        frBl.speedMetersPerSecond = 0.0;
+        frBl.angle = Rotation2d.fromRadians(Math.PI / 4);
 
-        m_moduleFR.setDesiredState(frbl);
-        m_moduleBL.setDesiredState(frbl);
+        m_moduleFR.setDesiredState(frBl);
+        m_moduleBL.setDesiredState(frBl);
 
         brakeAll();
     }

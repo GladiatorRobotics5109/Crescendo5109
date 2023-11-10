@@ -5,19 +5,12 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveTeamConstants;
-import frc.robot.Constants.SwerveConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-import com.kauailabs.navx.frc.*;
-
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.SPI;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,10 +19,8 @@ import edu.wpi.first.wpilibj.SPI;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
 
@@ -37,10 +28,11 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
+    // Configure the controller bindings
     configureBindings();
 
-    m_swerve = new SwerveSubsystem(getSwerveConstants());
+    // instantiate swerve
+    m_swerve = new SwerveSubsystem();
 
     m_swerve.setDefaultCommand(
       m_swerve.getDriveWithJoystickCommand(
@@ -51,45 +43,11 @@ public class RobotContainer {
     );
   }
 
-  private SwerveConstants getSwerveConstants() {
-    // construct SwerveModule objects
-    // TODO: select right CAN ids for motors
-    SwerveModule frontLeft = new SwerveModule(new Translation2d(0.2921, 0.2921), "frontLeft", 0, 0, 0);
-    SwerveModule frontRight = new SwerveModule(new Translation2d(0.2921, -0.2921), "frontRight", 0, 0, 0);
-    SwerveModule backLeft = new SwerveModule(new Translation2d(-0.2921, 0.2921), "backLeft", 0, 0, 0);
-    SwerveModule backRight = new SwerveModule(new Translation2d(-0.2921, -0.2921), "backRight", 0, 0, 0);
-
-    AHRS navX = new AHRS(SPI.Port.kMXP);
-
-    SwerveConstants swerveConstants = new Constants.SwerveConstants(
-      3 * Math.PI, 
-      15, 
-      frontLeft, 
-      frontRight, 
-      backLeft, 
-      backRight, 
-      navX);
-
-    return swerveConstants;
-  }
-
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
+  /** 
+   * Configure button bindings for controllers
+  */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    
   }
 
   /**
