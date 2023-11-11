@@ -27,7 +27,7 @@ public final class Constants {
 
     public static final double kWheelRadius = 0.0508;
 
-    // l1 mk4 gear ratios
+    // L1 MK4 gear ratios
     public static final double kSwerveDriveGearRatio = 8.14 / 1;
     public static final double kSwerveTurnGearRatio = 4 / 15; // think this is right for l1
 
