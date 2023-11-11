@@ -30,6 +30,8 @@
     "AHRS",
     "Brushless",
     "Deadzone",
-    "revrobotics"
+    "revrobotics",
+    "teleop",
+    "teleoperated"
   ]
 }

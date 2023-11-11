@@ -59,10 +59,9 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         m_turnPIDController.setSmartMotionMaxAccel(Constants.SwerveConstants.kMaxAngularSpeed, 0);
         m_turnPIDController.setSmartMotionMaxVelocity(Constants.SwerveConstants.kMaxAngularSpeed, 0);
 
-        // TODO: velocity and position conversion factor
-        // m_driveEncoder.setVelocityConversionFactor(1 / (kTicksPerWheelRadian) * kWheelRadius);
-        // m_driveEncoder.setPositionConversionFactor(42 / (kTicksPerWheelRadian) * kWheelRadius);
-        // m_turningEncoderRelative.setPositionConversionFactor(1 /kTicksPerTurnerWheelRadian);
+        m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
+        m_driveEncoder.setPositionConversionFactor(42 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
+        m_turnEncoder.setPositionConversionFactor(1 / Constants.SwerveConstants.kNeoTicksPerTurnWheelRadian);
 
         m_turnPIDController.setOutputRange(-Math.PI, Math.PI);
     }
@@ -84,11 +83,14 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
 
     @Override
     public void brakeAll() {
-        
+        m_driveMotor.setIdleMode(IdleMode.kBrake);
+        m_turnMotor.setIdleMode(IdleMode.kBrake);
     }
 
     @Override
     public void coastAll() {
+        m_driveMotor.setIdleMode(IdleMode.kCoast);
+        m_turnMotor.setIdleMode(IdleMode.kCoast);
     }
     
 }
