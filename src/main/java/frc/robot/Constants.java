@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.SPI;
 
 /**
@@ -24,6 +25,11 @@ public final class Constants {
   public static class SwerveConstants {
     public static final double kMaxSpeed = 15;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
+
+    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921, 0.2921);
+    public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921, -0.2921);
+    public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921, 0.2921);
+    public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921, -0.2921);
 
     public static final double kWheelRadius = 0.0508;
 

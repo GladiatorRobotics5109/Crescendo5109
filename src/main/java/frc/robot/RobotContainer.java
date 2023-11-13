@@ -29,7 +29,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the controller bindings
-    configureBindings();
+    configureButtonBindings();
 
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
@@ -44,9 +44,9 @@ public class RobotContainer {
   }
 
   /** 
-   * Configure button bindings for controllers
+   * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
-  private void configureBindings() {
+  private void configureButtonBindings() {
     
   }
 

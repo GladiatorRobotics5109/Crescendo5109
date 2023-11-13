@@ -31,11 +31,11 @@ public class SwerveSubsystem extends SubsystemBase {
     private AHRS m_navX;
 
     public SwerveSubsystem() {
-        // TODO: select right cain ids for motors
-        m_moduleFL = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(0.2921, 0.2921), "frontLeft", 0, 0, 0);
-        m_moduleFR = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(0.2921, -0.2921), "frontRight", 0, 0, 0);;
-        m_moduleBL = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(-0.2921, 0.2921), "backLeft", 0, 0, 0);;
-        m_moduleBR = new SwerveModuleKrakenTurnNeoDrive(new Translation2d(-0.2921, -0.2921), "backRight", 0, 0, 0);;
+        // TODO: select right CAN ids for motors
+        m_moduleFL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14);
+        m_moduleFR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13);;
+        m_moduleBL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 18, 19);;
+        m_moduleBR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 16, 17);;
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
