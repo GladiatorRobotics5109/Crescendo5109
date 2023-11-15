@@ -8,7 +8,7 @@ import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.commands.Autos;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -24,30 +24,37 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
 
+  private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(10);
+  private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(10);
+  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(1);
+
+
+
   private final SwerveSubsystem m_swerve;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the controller bindings
-    configureButtonBindings();
-
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
 
     m_swerve.setDefaultCommand(
       m_swerve.getDriveWithJoystickCommand(
-        () -> m_driverController.getLeftX(), // l/r
-        () -> m_driverController.getLeftY(), // f/b
-        () -> m_driverController.getRightX(), // rot
+        () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
+        () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
+        () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
         () -> true) // field relative
     );
+
+    
+    // Configure the controller bindings
+    configureButtonBindings();
   }
 
   /** 
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    
+    m_driverController.a().onTrue(m_swerve.getAlignWheelCommand());
   }
 
   /**

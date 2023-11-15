@@ -47,6 +47,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
     
         m_navX = SwerveConstants.kNavX;
+
+        m_navX.setAngleAdjustment(90);
     }
 
     /** drive with desired x/y/rot velocities */
@@ -134,5 +136,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
             drive(vx, vy, rot, fieldRelative.getAsBoolean());
         }).withName("DriveWithJoystickCommand");
+    }
+
+    public Command getAlignWheelCommand() {
+        return this.runOnce(() -> {
+            SwerveModuleState state = new SwerveModuleState();
+            state.angle = Rotation2d.fromDegrees(0);
+            m_moduleFL.setDesiredState(state);
+            m_moduleFR.setDesiredState(state);
+            m_moduleBL.setDesiredState(state);
+            m_moduleBR.setDesiredState(state);
+        });
     }
 }
