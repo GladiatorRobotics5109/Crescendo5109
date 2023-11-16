@@ -11,4 +11,8 @@ public abstract class SwerveModule {
     public abstract void brakeAll();
    
     public abstract void coastAll();
+
+    public abstract String getName();
+
+    public abstract int getNumber();
 }

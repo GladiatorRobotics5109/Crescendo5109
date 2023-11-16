@@ -92,5 +92,14 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         m_driveMotor.setIdleMode(IdleMode.kCoast);
         m_turnMotor.setIdleMode(IdleMode.kCoast);
     }
-    
+
+    @Override
+    public String getName() {
+        return m_moduleName;
+    }
+
+    @Override
+    public int getNumber() {
+        return m_moduleNum;
+    }
 }
