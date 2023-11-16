@@ -47,7 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
     
         m_navX = SwerveConstants.kNavX;
-
+        //m_navX.reset(); <-- Test this?????
         m_navX.setAngleAdjustment(90);
     }
 

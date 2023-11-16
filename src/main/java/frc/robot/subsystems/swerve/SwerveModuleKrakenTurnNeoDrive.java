@@ -59,7 +59,7 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         m_turnMotor.config_kD(0, 0.0);
         
         m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
-        m_driveEncoder.setPositionConversionFactor(42 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
+        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kNeoTicksPerRevolution / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
         // unlike the SparkMAXes, we have to run kraken ticks -> radian conversion manually in our code.
         // m_turnMotor.getSelectedSensorPosition() should never really be used in this class to get encoder position
         // getTurnEncoderPositionRad() should be used instead.
@@ -75,7 +75,7 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         SwerveModuleState optimizedState = RevOptimizer.optimize(state, Rotation2d.fromRadians(getTurnEncoderPositionRad()));
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
-        m_turnMotor.set(ControlMode.Position, Conversions.degToKraken(state.angle.getRadians(), Constants.kTurnMotorGearRatio));
+        m_turnMotor.set(ControlMode.Position, Conversions.degToKraken(state.angle.getRadians(), Constants.SwerveConstants.kSwerveTurnGearRatio));
     }
 
     @Override
