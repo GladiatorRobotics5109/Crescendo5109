@@ -6,11 +6,15 @@ import java.util.function.DoubleSupplier;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -28,7 +32,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics m_kinematics;
 
-    private AHRS m_navX;
+    private final AHRS m_navX;
+
+    private final HolonomicDriveController m_holonomicDriveController;
 
     public SwerveSubsystem() {
         // TODO: select right CAN ids for motors
@@ -50,6 +56,11 @@ public class SwerveSubsystem extends SubsystemBase {
         m_navX = SwerveConstants.kNavX;
         //m_navX.reset(); <-- Test this?????
         m_navX.setAngleAdjustment(90);
+
+        m_holonomicDriveController = new HolonomicDriveController(
+            Constants.SwerveConstants.kPidControllerHolonomicX,
+            Constants.SwerveConstants.kPidControllerHolonomicY,
+            Constants.SwerveConstants.kPidControllerHolonomicRot);
     }
 
     /** drive with desired x/y/rot velocities */
@@ -77,25 +88,23 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBR.setDesiredState(swerveModuleStates[3]);
     }
 
+    public void stop() {
+        drive(0, 0, 0, true);
+    }
+
     public void setMaxSpeed(double speed) {
         m_maxSpeed = speed;
     }
 
     /** Brake and X the wheels to stay still */
     public void brakeAndX() {
-        SwerveModuleState flBr = new SwerveModuleState();
-        flBr.speedMetersPerSecond = 0.0;
-        flBr.angle = Rotation2d.fromRadians(-Math.PI / 4);
-
-        m_moduleFL.setDesiredState(flBr);
-        m_moduleBR.setDesiredState(flBr);
-
-        SwerveModuleState frBl = new SwerveModuleState();
-        frBl.speedMetersPerSecond = 0.0;
-        frBl.angle = Rotation2d.fromRadians(Math.PI / 4);
-
-        m_moduleFR.setDesiredState(frBl);
-        m_moduleBL.setDesiredState(frBl);
+        stop();
+        SwerveModuleState state = new SwerveModuleState(0, Rotation2d.fromRadians(Math.PI / 4));
+        
+        m_moduleFL.setDesiredState(state);
+        m_moduleFR.setDesiredState(state);
+        m_moduleBL.setDesiredState(state);
+        m_moduleBR.setDesiredState(state);
 
         brakeAll();
     }
@@ -109,11 +118,15 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /** Coast on all motors on all swerve modules */
-    public void coast() {
+    public void coastAll() {
         m_moduleFL.coastAll();
         m_moduleFR.coastAll();
         m_moduleBL.coastAll();
         m_moduleBR.coastAll();
+    }
+
+    private Pose2d getPose() {
+        return new Pose2d(0, 0, Rotation2d.fromDegrees(m_navX.getAltitude()));
     }
     
     /**
@@ -126,9 +139,9 @@ public class SwerveSubsystem extends SubsystemBase {
         BooleanSupplier fieldRelative) {
         return run(() -> {
             // get joystick axises
-            double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.kJoystickDeadzone);
-            double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
-            double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
+            double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.DriveTeamConstants.kJoystickDeadzone);
+            double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.DriveTeamConstants.kJoystickDeadzone);
+            double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.DriveTeamConstants.kJoystickDeadzone);
 
             // apply max speeds
             vx *= m_maxSpeed;
@@ -138,15 +151,30 @@ public class SwerveSubsystem extends SubsystemBase {
             drive(vx, vy, rot, fieldRelative.getAsBoolean());
         }).withName("DriveWithJoystickCommand");
     }
+    
+    public Command getDriveWithTrajectoryCommand(
+        DoubleSupplier time,
+        Trajectory trajectory) {
+        return this.run(() -> {
+            Trajectory.State desiredState = trajectory.sample(time.getAsDouble());
+            Pose2d pos = getPose();
 
+            ChassisSpeeds chassisSpeeds = m_holonomicDriveController.calculate(
+            pos, desiredState, Rotation2d.fromRotations(0));
+
+            drive(chassisSpeeds, true);
+        }).withName("HolonomicDriveCommand");
+    }
+    
     public Command getAlignWheelCommand() {
         return this.runOnce(() -> {
-            SwerveModuleState state = new SwerveModuleState();
-            state.angle = Rotation2d.fromDegrees(0);
+            SwerveModuleState state = new SwerveModuleState(0, Rotation2d.fromRadians(0));
+            
             m_moduleFL.setDesiredState(state);
             m_moduleFR.setDesiredState(state);
             m_moduleBL.setDesiredState(state);
             m_moduleBR.setDesiredState(state);
         });
     }
+
 }

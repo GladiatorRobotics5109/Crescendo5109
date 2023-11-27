@@ -6,7 +6,10 @@ package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.SPI;
 
 /**
@@ -18,21 +21,23 @@ import edu.wpi.first.wpilibj.SPI;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  
-  public static final double kJoystickDeadzone = 0.1;
-  
   public static class SwerveConstants {
-    public static final double kMaxSpeed = 5;
+    public static final boolean kFieldRelative = true;
+
+    public static final double kMaxSpeed = 15;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
+
+    public static final double kMaxAngularAcceleration = Math.PI;
     
     public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921, 0.2921);
     public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921, -0.2921);
     public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921, 0.2921);
     public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921, -0.2921);
     
+    // Swerve Module Constants
     public static final double kWheelRadius = 0.0508;
     
-    // L1 MK4 gear ratios
+    // MK4 L1 gear ratios
     public static final double kSwerveDriveGearRatio = 8.14;
     public static final double kSwerveTurnGearRatio = 12.8;
     
@@ -47,9 +52,14 @@ public final class Constants {
     public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
     
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
+
+    public static final PIDController kPidControllerHolonomicX = new PIDController(0.3, 0, 0);
+    public static final PIDController kPidControllerHolonomicY = new PIDController(0.3, 0, 0);
+    public static final ProfiledPIDController kPidControllerHolonomicRot = new ProfiledPIDController(1.5, 0, 0, new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAcceleration));
   }
 
   public static class DriveTeamConstants {
     public static final int kDriverControllerPort = 0;
+    public static final double kJoystickDeadzone = 0.1;
   }
 }

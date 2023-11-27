@@ -6,7 +6,11 @@ package frc.robot;
 
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+
+import java.sql.Time;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -35,7 +39,7 @@ public class RobotContainer {
         () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
         () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
-        () -> true) // field relative
+        () -> Constants.SwerveConstants.kFieldRelative) // field relative
     );
 
     
@@ -48,7 +52,9 @@ public class RobotContainer {
   */
   private void configureButtonBindings() {
     m_driverController.a().onTrue(m_swerve.getAlignWheelCommand());
+    m_driverController.x().onTrue(m_swerve.getDriveWithTrajectoryCommand(() -> Timer.getFPGATimestamp(), Common.currentAutonTrajectory));
   }
+
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
