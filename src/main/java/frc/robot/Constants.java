@@ -41,15 +41,15 @@ public final class Constants {
     public static final double kSwerveDriveGearRatio = 8.14;
     public static final double kSwerveTurnGearRatio = 12.8;
     
-    public static final double kNeoTicksPerRevolution = 42;
-    public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
+    public static final double kNeoTicksPerMotorRevolution = 42;
+    public static final double kNeoTicksPerMotorRadian = kNeoTicksPerMotorRevolution / (2 * Math.PI);
     public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
-    public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
+    public static final double kNeoTicksPerTurnWheelRadian = kNeoTicksPerMotorRadian * 1 / kSwerveTurnGearRatio;
     
-    public static final double kKrakenTicksPerRevolution = 2000;
-    public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
+    public static final double kKrakenTicksPerMotorRevolution = 2000;
+    public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerMotorRevolution / (2 * Math.PI);
     public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
-    public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
+    public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * 1 / kSwerveTurnGearRatio;
     
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
