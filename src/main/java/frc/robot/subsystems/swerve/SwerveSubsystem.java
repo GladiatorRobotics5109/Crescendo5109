@@ -97,12 +97,19 @@ public class SwerveSubsystem extends SubsystemBase {
     /** Brake and X the wheels to stay still */
     public void brakeAndX() {
         stop();
-        SwerveModuleState state = new SwerveModuleState(0, Rotation2d.fromRadians(Math.PI / 4));
         
-        m_moduleFL.setDesiredState(state);
-        m_moduleFR.setDesiredState(state);
-        m_moduleBL.setDesiredState(state);
-        m_moduleBR.setDesiredState(state);
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0));
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
+        swerveModuleStates[0].angle = Rotation2d.fromRadians(Math.PI / 4);
+        swerveModuleStates[1].angle = Rotation2d.fromRadians(-Math.PI / 4);
+        swerveModuleStates[2].angle = Rotation2d.fromRadians(-Math.PI / 4);
+        swerveModuleStates[3].angle = Rotation2d.fromRadians(Math.PI / 4);
+
+
+        m_moduleFL.setDesiredState(swerveModuleStates[0]);
+        m_moduleFR.setDesiredState(swerveModuleStates[1]);
+        m_moduleBL.setDesiredState(swerveModuleStates[2]);
+        m_moduleBR.setDesiredState(swerveModuleStates[3]);
 
         brakeAll();
     }
@@ -166,13 +173,30 @@ public class SwerveSubsystem extends SubsystemBase {
     
     public Command getAlignWheelCommand() {
         return this.runOnce(() -> {
-            SwerveModuleState state = new SwerveModuleState(0, Rotation2d.fromRadians(0));
-            
-            m_moduleFL.setDesiredState(state);
-            m_moduleFR.setDesiredState(state);
-            m_moduleBL.setDesiredState(state);
-            m_moduleBR.setDesiredState(state);
+            SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0));
+            SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
+            swerveModuleStates[0].angle = Rotation2d.fromRadians(0);
+            swerveModuleStates[1].angle = Rotation2d.fromRadians(0);
+            swerveModuleStates[2].angle = Rotation2d.fromRadians(0);
+            swerveModuleStates[3].angle = Rotation2d.fromRadians(0);
+
+
+            m_moduleFL.setDesiredState(swerveModuleStates[0]);
+            m_moduleFR.setDesiredState(swerveModuleStates[1]);
+            m_moduleBL.setDesiredState(swerveModuleStates[2]);
+            m_moduleBR.setDesiredState(swerveModuleStates[3]);
         });
     }
 
+    public Command getBrakeAndXCommand() {
+        return this.runOnce(() -> {
+            brakeAndX();
+        });
+    }
+
+    public Command getCoastAllCommand() {
+        return this.runOnce(() -> {
+            coastAll();
+        });
+    }
 }

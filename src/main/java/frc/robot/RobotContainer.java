@@ -23,9 +23,9 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
 
-  private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(10);
-  private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(10);
-  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(1);
+  private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(5);
+  private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(5);
+  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(5);
 
   private final SwerveSubsystem m_swerve;
 
@@ -52,7 +52,9 @@ public class RobotContainer {
   */
   private void configureButtonBindings() {
     m_driverController.a().onTrue(m_swerve.getAlignWheelCommand());
-    m_driverController.x().onTrue(m_swerve.getDriveWithTrajectoryCommand(() -> Timer.getFPGATimestamp(), Common.currentAutonTrajectory));
+    m_driverController.b().whileTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.y().onTrue(m_swerve.getCoastAllCommand());
+    // m_driverController.x().onTrue(m_swerve.getDriveWithTrajectoryCommand(() -> Timer.getFPGATimestamp(), Common.currentAutonTrajectory));
   }
 
 
