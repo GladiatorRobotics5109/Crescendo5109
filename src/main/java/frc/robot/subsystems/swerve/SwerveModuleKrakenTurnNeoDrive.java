@@ -101,6 +101,7 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     }
 
     private double getTurnWheelPositionRad() {
-        return Conversions.krakenToRad(m_turnMotor.getSelectedSensorPosition(), Constants.SwerveConstants.kKrakenTicksPerTurnWheelRadian);
+        // TODO: test this conversion, probably the one not commented out is correct
+        return Conversions.krakenToRad(m_turnMotor.getSelectedSensorPosition(), Constants.SwerveConstants.kSwerveTurnGearRatio);
     }
 }

@@ -61,12 +61,11 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
 
         m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
         m_driveEncoder.setPositionConversionFactor(42 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
+        // TODO: test swerve turn position working
         m_turnEncoder.setPositionConversionFactor(1 / Constants.SwerveConstants.kNeoTicksPerTurnWheelRadian);
 
         m_turnPIDController.setOutputRange(-Math.PI, Math.PI);
     }
-
-
 
     @Override
     public Translation2d getPos() {
