@@ -101,4 +101,9 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     public int getNumber() {
         return m_moduleNum;
     }
+
+    @Override
+    public void resetTurnEncoder() {
+        m_turnEncoder.setPosition(0);
+    }
 }

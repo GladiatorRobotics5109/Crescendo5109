@@ -7,6 +7,8 @@ Code for different paradigms found in branches
 - NEO turn and drive support
 - Kraken turn and NEO drive support
 - CommandBased
+- Auton selection 
+- Path Planning support
 
 # WPILib
 - version 2023.4.3

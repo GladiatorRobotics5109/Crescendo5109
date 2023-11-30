@@ -77,4 +77,8 @@ public class RobotContainer {
     return null;
     // return Autos.getCurrentAutoCommand();
   }
+
+  public void resetSwerveEncoders() {
+    m_swerve.resetEncoders();
+  }
 }

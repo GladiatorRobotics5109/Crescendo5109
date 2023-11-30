@@ -15,4 +15,9 @@ public abstract class SwerveModule {
     public abstract String getName();
 
     public abstract int getNumber();
+
+    /**
+    * Reset turn encoders if it is relative
+    */
+    public abstract void resetTurnEncoder();
 }

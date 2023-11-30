@@ -100,6 +100,10 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         return m_moduleNum;
     }
 
+    // do nothing because turn encoder is absolute
+    @Override
+    public void resetTurnEncoder() {}
+
     private double getTurnWheelPositionRad() {
         // TODO: test this conversion, probably the one not commented out is correct
         return Conversions.krakenToRad(m_turnMotor.getSelectedSensorPosition(), Constants.SwerveConstants.kSwerveTurnGearRatio);

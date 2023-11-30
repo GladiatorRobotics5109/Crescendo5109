@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Common;
 import frc.robot.Constants;
 
@@ -40,8 +38,6 @@ public class Autos {
     catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSONPath, ex.getStackTrace());
     }
-
-
 
     m_autoChooser.setDefaultOption("Default Auto", Constants.Autos.kDefaultAuto);
     // m_autoChooser.addOption() as necessary

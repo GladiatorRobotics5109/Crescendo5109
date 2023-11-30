@@ -132,6 +132,13 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBR.coastAll();
     }
 
+    public void resetEncoders() {
+        m_moduleFL.resetTurnEncoder();
+        m_moduleFR.resetTurnEncoder();
+        m_moduleBL.resetTurnEncoder();
+        m_moduleFR.resetTurnEncoder();
+    }
+
     private Pose2d getPose() {
         return new Pose2d(0, 0, Rotation2d.fromDegrees(m_navX.getAltitude()));
     }
