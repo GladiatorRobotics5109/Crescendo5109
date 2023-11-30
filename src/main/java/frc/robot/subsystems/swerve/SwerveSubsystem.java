@@ -26,6 +26,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule m_moduleBR;
 
     private double m_maxSpeed;
+    private final double m_defaultSpeed;
     private double m_maxAngularSpeed;
 
     private final SwerveDriveKinematics m_kinematics;
@@ -48,7 +49,8 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBR.getPos()
         );
 
-        m_maxSpeed = SwerveConstants.kMaxSpeed;
+        m_maxSpeed = SwerveConstants.kDefaultSpeed;
+        m_defaultSpeed = SwerveConstants.kDefaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
     
         m_navX = SwerveConstants.kNavX;
@@ -197,6 +199,18 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command getCoastAllCommand() {
         return this.runOnce(() -> {
             coastAll();
+        });
+    }
+
+    public Command getSuperSpeedCommand(DoubleSupplier scalar) {
+        return this.runOnce(() -> {
+            setMaxSpeed((5.0 * scalar.getAsDouble()) + m_defaultSpeed);
+        });
+    }
+
+    public Command getSetSlowModeCommand(BooleanSupplier isSlowMode) {
+        return this.runOnce(() -> {
+            setMaxSpeed(isSlowMode.getAsBoolean() ? Constants.SwerveConstants.kSlowModeSpeed : m_defaultSpeed);
         });
     }
 }

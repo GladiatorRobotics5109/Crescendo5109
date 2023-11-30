@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.commands.Autos;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -11,6 +12,7 @@ import java.sql.Time;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -31,6 +33,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    Autos.init();
+
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
 
@@ -54,6 +58,11 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_swerve.getAlignWheelCommand());
     m_driverController.b().whileTrue(m_swerve.getBrakeAndXCommand());
     m_driverController.y().onTrue(m_swerve.getCoastAllCommand());
+    
+    // slow mode/fast mode
+    m_driverController.rightTrigger().whileTrue(m_swerve.getSuperSpeedCommand(() -> m_driverController.getLeftTriggerAxis()));
+    m_driverController.rightBumper().onTrue(m_swerve.getSetSlowModeCommand(() -> true))
+                                    .onFalse(m_swerve.getSetSlowModeCommand(() -> false));
     // m_driverController.x().onTrue(m_swerve.getDriveWithTrajectoryCommand(() -> Timer.getFPGATimestamp(), Common.currentAutonTrajectory));
   }
 
@@ -63,7 +72,9 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand() {
-    
-  // }
+  public Command getAutonomousCommand() {
+    // return null for now not to run auton command
+    return null;
+    // return Autos.getCurrentAutoCommand();
+  }
 }

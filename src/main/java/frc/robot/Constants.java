@@ -24,7 +24,8 @@ public final class Constants {
   public static class SwerveConstants {
     public static final boolean kFieldRelative = true;
 
-    public static final double kMaxSpeed = 10; // m/s
+    public static final double kDefaultSpeed = 3; // m/s
+    public static final double kSlowModeSpeed = kDefaultSpeed / 2; // m/s
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
     // used for holonomic only
@@ -71,5 +72,9 @@ public final class Constants {
   public static class DriveTeamConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kJoystickDeadzone = 0.07;
+  }
+
+  public static class Autos {
+    public static final String kDefaultAuto = "DefaultAuto";
   }
 }
