@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.RevOptimizer;
@@ -78,6 +79,11 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+    }
+
+    @Override
+    public SwerveModulePosition getState() {
+        return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 
     @Override

@@ -31,6 +31,7 @@
     "Brushless",
     "Deadzone",
     "Holonomic",
+    "Odometry",
     "revrobotics",
     "teleop",
     "teleoperated"

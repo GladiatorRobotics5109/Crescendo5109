@@ -12,6 +12,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Conversions;
@@ -76,6 +77,11 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnMotor.set(ControlMode.Position, Conversions.radToKraken(state.angle.getRadians(), 1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
+    }
+
+    @Override
+    public SwerveModulePosition getState() {
+        return new SwerveModulePosition(-m_driveEncoder.getPosition(), Rotation2d.fromRadians(getTurnWheelPositionRad()));
     }
 
     @Override

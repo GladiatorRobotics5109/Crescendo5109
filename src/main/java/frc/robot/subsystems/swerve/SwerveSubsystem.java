@@ -9,8 +9,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,11 +33,12 @@ public class SwerveSubsystem extends SubsystemBase {
     private double m_maxAngularSpeed;
 
     private final SwerveDriveKinematics m_kinematics;
+    private final SwerveDriveOdometry m_odometry;
 
     private final AHRS m_navX;
 
     private final HolonomicDriveController m_holonomicDriveController;
-
+    
     public SwerveSubsystem() {
         // can ids used for Wobbles, may be different depending on bot
         m_moduleFL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14);
@@ -42,26 +46,35 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 18, 19);
         m_moduleBR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 16, 17);
         
+        m_navX = SwerveConstants.kNavX;
+        //m_navX.reset(); <-- Test this?????
+        m_navX.setAngleAdjustment(90);
+        
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
             m_moduleFR.getPos(),
             m_moduleBL.getPos(), 
-            m_moduleBR.getPos()
-        );
+            m_moduleBR.getPos());
+        
+        m_odometry = new SwerveDriveOdometry(
+            m_kinematics, 
+            Rotation2d.fromDegrees(m_navX.getAngle()), 
+            getPositions(),
+            new Pose2d(
+                new Translation2d(0, 0), 
+                Rotation2d.fromDegrees(m_navX.getAngle())
+            ));
 
         m_maxSpeed = SwerveConstants.kDefaultSpeed;
         m_defaultSpeed = SwerveConstants.kDefaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
-    
-        m_navX = SwerveConstants.kNavX;
-        //m_navX.reset(); <-- Test this?????
-        m_navX.setAngleAdjustment(90);
 
         m_holonomicDriveController = new HolonomicDriveController(
             Constants.SwerveConstants.kPidControllerHolonomicX,
             Constants.SwerveConstants.kPidControllerHolonomicY,
             Constants.SwerveConstants.kPidControllerHolonomicRot);
     }
+
 
     /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double rot, boolean fieldRelative) {
@@ -139,8 +152,17 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFR.resetTurnEncoder();
     }
 
+    private SwerveModulePosition[] getPositions() {
+        return new SwerveModulePosition[] {
+            m_moduleFL.getState(),
+            m_moduleFR.getState(),
+            m_moduleBL.getState(),
+            m_moduleBR.getState(),
+        };
+    }
+
     private Pose2d getPose() {
-        return new Pose2d(0, 0, Rotation2d.fromDegrees(m_navX.getAltitude()));
+        return m_odometry.update(Rotation2d.fromDegrees(m_navX.getAngle()), getPositions());
     }
     
     /**
