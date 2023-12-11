@@ -75,6 +75,6 @@ public class RobotContainer {
   }
 
   public void resetSwerveEncoders() {
-    m_swerve.resetEncoders();
+    m_swerve.resetTurnEncoders();
   }
 }

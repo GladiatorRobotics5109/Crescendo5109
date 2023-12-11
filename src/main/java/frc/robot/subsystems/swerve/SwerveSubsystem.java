@@ -50,36 +50,41 @@ public class SwerveSubsystem extends SubsystemBase {
         //m_navX.reset(); <-- Test this?????
         m_navX.setAngleAdjustment(90);
         
+        // initialize kinematics
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
             m_moduleFR.getPos(),
             m_moduleBL.getPos(), 
             m_moduleBR.getPos());
         
+        // initialize odometry
         m_odometry = new SwerveDriveOdometry(
             m_kinematics, 
             Rotation2d.fromDegrees(m_navX.getAngle()), 
-            getPositions(),
+            getModulePositions(),
             new Pose2d(
                 new Translation2d(0, 0), 
                 Rotation2d.fromDegrees(m_navX.getAngle())
             ));
 
+        // set speeds
         m_maxSpeed = SwerveConstants.kDefaultSpeed;
         m_defaultSpeed = SwerveConstants.kDefaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
-
+        
+        // initialize holonomic drive controller
         m_holonomicDriveController = new HolonomicDriveController(
             Constants.SwerveConstants.kPidControllerHolonomicX,
             Constants.SwerveConstants.kPidControllerHolonomicY,
             Constants.SwerveConstants.kPidControllerHolonomicRot);
     }
 
-
     /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double rot, boolean fieldRelative) {
+        // TODO: change new Rotation2d... to Rotation2d.fromDegrees(-m_navX.getAngle());?
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rot, navXVal) : new ChassisSpeeds(vx, vy, rot));
+        // apply max speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
@@ -90,9 +95,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** drive with desired chassis speeds */
     public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
-        Rotation2d navXVal = new Rotation2d((m_navX.getAngle() % 360) * Math.PI / 180);
+        // TODO: change new Rotation2d... to Rotation2d.fromDegrees(-m_navX.getAngle());?
+        Rotation2d navXVal = new Rotation2d((m_navX.getAngle()% 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, navXVal) : desiredSpeeds);
-
+        // apply max speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
         
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
@@ -102,7 +108,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void stop() {
-        drive(0, 0, 0, true);
+        drive(0, 0, 0, Constants.SwerveConstants.kFieldRelative);
     }
 
     public void setMaxSpeed(double speed) {
@@ -119,7 +125,6 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveModuleStates[1].angle = Rotation2d.fromRadians(-Math.PI / 4);
         swerveModuleStates[2].angle = Rotation2d.fromRadians(-Math.PI / 4);
         swerveModuleStates[3].angle = Rotation2d.fromRadians(Math.PI / 4);
-
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
         m_moduleFR.setDesiredState(swerveModuleStates[1]);
@@ -145,14 +150,14 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBR.coastAll();
     }
 
-    public void resetEncoders() {
+    public void resetTurnEncoders() {
         m_moduleFL.resetTurnEncoder();
         m_moduleFR.resetTurnEncoder();
         m_moduleBL.resetTurnEncoder();
         m_moduleFR.resetTurnEncoder();
     }
 
-    private SwerveModulePosition[] getPositions() {
+    private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
             m_moduleFL.getState(),
             m_moduleFR.getState(),
@@ -162,7 +167,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private Pose2d getPose() {
-        return m_odometry.update(Rotation2d.fromDegrees(m_navX.getAngle()), getPositions());
+        return m_odometry.update(Rotation2d.fromDegrees(m_navX.getAngle()), getModulePositions());
     }
     
     /**
@@ -188,6 +193,9 @@ public class SwerveSubsystem extends SubsystemBase {
         }).withName("DriveWithJoystickCommand");
     }
     
+    /**
+     * @return A Command object that drives over a trajectory
+     */
     public Command getDriveWithTrajectoryCommand(
         DoubleSupplier time,
         Trajectory trajectory) {
@@ -196,7 +204,9 @@ public class SwerveSubsystem extends SubsystemBase {
             Pose2d pos = getPose();
 
             ChassisSpeeds chassisSpeeds = m_holonomicDriveController.calculate(
-            pos, desiredState, Rotation2d.fromRotations(0));
+                pos, 
+                desiredState, 
+                Rotation2d.fromRotations(0));
 
             drive(chassisSpeeds, true);
         }).withName("HolonomicDriveCommand");
