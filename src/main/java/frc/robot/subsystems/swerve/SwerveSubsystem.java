@@ -7,15 +7,15 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -28,14 +28,16 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule m_moduleBL;
     private final SwerveModule m_moduleBR;
 
+    // speeds
     private double m_maxSpeed;
     private final double m_defaultSpeed;
     private double m_maxAngularSpeed;
 
-    private final SwerveDriveKinematics m_kinematics;
-    private final SwerveDriveOdometry m_odometry;
-
     private final AHRS m_navX;
+    
+    // pose stuff
+    private final SwerveDriveKinematics m_kinematics;
+    private final SwerveDrivePoseEstimator m_poseEstimator;
 
     private final HolonomicDriveController m_holonomicDriveController;
     
@@ -45,6 +47,11 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13);
         m_moduleBL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 18, 19);
         m_moduleBR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 16, 17);
+
+        // set speeds
+        m_maxSpeed = SwerveConstants.kDefaultSpeed;
+        m_defaultSpeed = SwerveConstants.kDefaultSpeed;
+        m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
         
         m_navX = SwerveConstants.kNavX;
         //m_navX.reset(); <-- Test this?????
@@ -55,35 +62,29 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleFL.getPos(), 
             m_moduleFR.getPos(),
             m_moduleBL.getPos(), 
-            m_moduleBR.getPos());
-        
-        // initialize odometry
-        m_odometry = new SwerveDriveOdometry(
-            m_kinematics, 
-            Rotation2d.fromDegrees(m_navX.getAngle()), 
-            getModulePositions(),
-            new Pose2d(
-                new Translation2d(0, 0), 
-                Rotation2d.fromDegrees(m_navX.getAngle())
-            ));
+            m_moduleBR.getPos()
+        );
 
-        // set speeds
-        m_maxSpeed = SwerveConstants.kDefaultSpeed;
-        m_defaultSpeed = SwerveConstants.kDefaultSpeed;
-        m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
+        m_poseEstimator = new SwerveDrivePoseEstimator(
+            m_kinematics,
+            getHeading(), 
+            getModulePositions(),
+            VisionManager.getPose2d()
+        );
         
         // initialize holonomic drive controller
         m_holonomicDriveController = new HolonomicDriveController(
             Constants.SwerveConstants.kPidControllerHolonomicX,
             Constants.SwerveConstants.kPidControllerHolonomicY,
-            Constants.SwerveConstants.kPidControllerHolonomicRot);
+            Constants.SwerveConstants.kPidControllerHolonomicRot
+        );
     }
 
     /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double rot, boolean fieldRelative) {
         // TODO: change new Rotation2d... to Rotation2d.fromDegrees(-m_navX.getAngle());?
-        Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rot, navXVal) : new ChassisSpeeds(vx, vy, rot));
+        // Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rot, getHeading()) : new ChassisSpeeds(vx, vy, rot));
         // apply max speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
 
@@ -96,8 +97,16 @@ public class SwerveSubsystem extends SubsystemBase {
     /** drive with desired chassis speeds */
     public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
         // TODO: change new Rotation2d... to Rotation2d.fromDegrees(-m_navX.getAngle());?
-        Rotation2d navXVal = new Rotation2d((m_navX.getAngle()% 360) * Math.PI / 180);
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, navXVal) : desiredSpeeds);
+        Rotation2d navXVal = new Rotation2d((m_navX.getAngle() % 360) * Math.PI / 180);
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
+            fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                desiredSpeeds.vxMetersPerSecond, 
+                desiredSpeeds.vyMetersPerSecond, 
+                desiredSpeeds.omegaRadiansPerSecond, 
+                navXVal
+            ) : desiredSpeeds
+        );
+
         // apply max speeds
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
         
@@ -115,7 +124,9 @@ public class SwerveSubsystem extends SubsystemBase {
         m_maxSpeed = speed;
     }
 
-    /** Brake and X the wheels to stay still */
+    /** 
+     * Brake and X the wheels to stay still
+    */
     public void brakeAndX() {
         stop();
         
@@ -141,7 +152,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFL.brakeAll();
         m_moduleFL.brakeAll();
     }
-
+    
     /** Coast on all motors on all swerve modules */
     public void coastAll() {
         m_moduleFL.coastAll();
@@ -149,25 +160,12 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBL.coastAll();
         m_moduleBR.coastAll();
     }
-
+    
     public void resetTurnEncoders() {
         m_moduleFL.resetTurnEncoder();
         m_moduleFR.resetTurnEncoder();
         m_moduleBL.resetTurnEncoder();
         m_moduleFR.resetTurnEncoder();
-    }
-
-    private SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {
-            m_moduleFL.getState(),
-            m_moduleFR.getState(),
-            m_moduleBL.getState(),
-            m_moduleBR.getState(),
-        };
-    }
-
-    private Pose2d getPose() {
-        return m_odometry.update(Rotation2d.fromDegrees(m_navX.getAngle()), getModulePositions());
     }
     
     /**
@@ -201,10 +199,9 @@ public class SwerveSubsystem extends SubsystemBase {
         Trajectory trajectory) {
         return this.run(() -> {
             Trajectory.State desiredState = trajectory.sample(time.getAsDouble());
-            Pose2d pos = getPose();
 
             ChassisSpeeds chassisSpeeds = m_holonomicDriveController.calculate(
-                pos, 
+                getPose(), 
                 desiredState, 
                 Rotation2d.fromRotations(0));
 
@@ -212,6 +209,10 @@ public class SwerveSubsystem extends SubsystemBase {
         }).withName("HolonomicDriveCommand");
     }
     
+    /**
+     * 
+     * @return A Command object that aligns
+     */
     public Command getAlignWheelCommand() {
         return this.runOnce(() -> {
             SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0));
@@ -251,5 +252,33 @@ public class SwerveSubsystem extends SubsystemBase {
         return this.runOnce(() -> {
             setMaxSpeed(isSlowMode.getAsBoolean() ? Constants.SwerveConstants.kSlowModeSpeed : m_defaultSpeed);
         });
+    }
+
+    private SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[] {
+            m_moduleFL.getState(),
+            m_moduleFR.getState(),
+            m_moduleBL.getState(),
+            m_moduleBR.getState(),
+        };
+    }
+
+    private Pose2d getPose() {
+        m_poseEstimator.updateWithTime(
+            Timer.getFPGATimestamp(), 
+            Rotation2d.fromDegrees(m_navX.getAngle()), 
+            getModulePositions()
+        );
+
+        m_poseEstimator.addVisionMeasurement(
+            VisionManager.getPose2d(), 
+            Timer.getFPGATimestamp()
+        );
+
+        return m_poseEstimator.getEstimatedPosition();
+    }
+    
+    private Rotation2d getHeading() {
+        return m_navX.getRotation2d();
     }
 }
