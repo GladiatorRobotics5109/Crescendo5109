@@ -1,7 +1,10 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -65,11 +68,15 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBR.getPos()
         );
 
+        VisionManager.init();
+        
+        Pose2d startingPose = VisionManager.getPose2d();
+
         m_poseEstimator = new SwerveDrivePoseEstimator(
             m_kinematics,
             getHeading(), 
             getModulePositions(),
-            VisionManager.getPose2d()
+            startingPose == null ? new Pose2d() : startingPose
         );
         
         // initialize holonomic drive controller
@@ -269,11 +276,15 @@ public class SwerveSubsystem extends SubsystemBase {
             Rotation2d.fromDegrees(m_navX.getAngle()), 
             getModulePositions()
         );
-
-        m_poseEstimator.addVisionMeasurement(
-            VisionManager.getPose2d(), 
-            Timer.getFPGATimestamp()
-        );
+        
+        Optional<EstimatedRobotPose> visionPose = VisionManager.getPose();
+        
+        if (!visionPose.isEmpty()) { // if vision result
+            m_poseEstimator.addVisionMeasurement(
+                visionPose.get().estimatedPose.toPose2d(), 
+                visionPose.get().timestampSeconds
+            );
+        }
 
         return m_poseEstimator.getEstimatedPosition();
     }

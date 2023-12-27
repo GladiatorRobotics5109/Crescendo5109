@@ -35,8 +35,8 @@ public class Autos {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSONPath);
       Common.currentAutonTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
     } 
-    catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSONPath, ex.getStackTrace());
+    catch (IOException e) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSONPath, e.getStackTrace());
     }
 
     m_autoChooser.setDefaultOption("Default Auto", Constants.Autos.kDefaultAuto);

@@ -7,8 +7,14 @@ package frc.robot;
 import frc.robot.commands.Autos;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.swerve.VisionManager;
 
+import java.io.IOException;
+
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -31,6 +37,14 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Autos.init();
+    
+    try {
+      Common.currentAprilTagFieldLayout = AprilTagFieldLayout.loadFromResource("apriltagFieldLayouts/layout.json");
+    }
+    catch (IOException e) {
+      DriverStation.reportError("Unable to open apriltag field layout!", e.getStackTrace());
+      Common.currentAprilTagFieldLayout = null;
+    }
 
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
