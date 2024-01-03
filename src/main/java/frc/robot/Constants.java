@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.util.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -67,6 +68,10 @@ public final class Constants {
     public static final PIDController kPidControllerHolonomicX = new PIDController(0.3, 0, 0);
     public static final PIDController kPidControllerHolonomicY = new PIDController(0.3, 0, 0);
     public static final ProfiledPIDController kPidControllerHolonomicRot = new ProfiledPIDController(1.5, 0, 0, new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAcceleration));
+
+    // used for PathPlannerLib
+    public static final PIDConstants kTranslationConstants = new PIDConstants(0.3, 0, 0);
+    public static final PIDConstants kRotationConstants = new PIDConstants(1.5, 0, 0);
   }
 
   public static class DriveTeamConstants {

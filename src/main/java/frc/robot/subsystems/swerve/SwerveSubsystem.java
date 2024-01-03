@@ -10,9 +10,13 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerTrajectory;
+
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -42,7 +46,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDriveKinematics m_kinematics;
     private final SwerveDrivePoseEstimator m_poseEstimator;
 
-    private final HolonomicDriveController m_holonomicDriveController;
+    private final PPHolonomicDriveController m_holonomicDriveController;
+    // private final HolonomicDriveController m_holonomicDriveController;
     
     public SwerveSubsystem() {
         // can ids used for Wobbles, may be different depending on bot
@@ -57,7 +62,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
         
         m_navX = SwerveConstants.kNavX;
-        //m_navX.reset(); <-- Test this?????
+        //TODO: m_navX.reset(); <-- Test this?????
         m_navX.setAngleAdjustment(90);
         
         // initialize kinematics
@@ -70,20 +75,27 @@ public class SwerveSubsystem extends SubsystemBase {
 
         VisionManager.init();
         
-        Pose2d startingPose = VisionManager.getPose2d();
+        Optional<EstimatedRobotPose> startingPose = VisionManager.getPose();
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
             m_kinematics,
             getHeading(), 
             getModulePositions(),
-            startingPose == null ? new Pose2d() : startingPose
+            startingPose.isEmpty() ? new Pose2d() : startingPose.get().estimatedPose.toPose2d()
         );
         
         // initialize holonomic drive controller
-        m_holonomicDriveController = new HolonomicDriveController(
-            Constants.SwerveConstants.kPidControllerHolonomicX,
-            Constants.SwerveConstants.kPidControllerHolonomicY,
-            Constants.SwerveConstants.kPidControllerHolonomicRot
+        // m_holonomicDriveController = new PPHolonomicDriveController(
+        //     Constants.SwerveConstants.kPidControllerHolonomicX,
+        //     Constants.SwerveConstants.kPidControllerHolonomicY,
+        //     Constants.SwerveConstants.kPidControllerHolonomicRot
+        // );
+        m_holonomicDriveController = new PPHolonomicDriveController(
+            Constants.SwerveConstants.kTranslationConstants,
+            Constants.SwerveConstants.kRotationConstants,
+            0.2,
+            Constants.SwerveConstants.kDefaultSpeed,
+            Constants.SwerveConstants.kModulePosFrontLeft.getDistance(new Translation2d())
         );
     }
 
@@ -203,17 +215,17 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command getDriveWithTrajectoryCommand(
         DoubleSupplier time,
-        Trajectory trajectory) {
+        PathPlannerTrajectory trajectory) {
         return this.run(() -> {
-            Trajectory.State desiredState = trajectory.sample(time.getAsDouble());
+            PathPlannerTrajectory.State desiredState = trajectory.sample(time.getAsDouble());
 
-            ChassisSpeeds chassisSpeeds = m_holonomicDriveController.calculate(
+            ChassisSpeeds chassisSpeeds = m_holonomicDriveController.calculateRobotRelativeSpeeds(
                 getPose(), 
-                desiredState, 
-                Rotation2d.fromRotations(0));
+                desiredState
+            );
 
             drive(chassisSpeeds, true);
-        }).withName("HolonomicDriveCommand");
+        }).withName("DriveWithTrajectoryCommand");
     }
     
     /**

@@ -29,15 +29,15 @@ public class Autos {
   public static void init() {
     // PUT THIS ON CONSTRUCTOR OF EACH COMMAND LATER
     // load trajectory from pathweaver json
-    String trajectoryJSONPath = "paths/YourPath.wpilib.json";
+    // String trajectoryJSONPath = "paths/YourPath.wpilib.json";
 
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSONPath);
-      Common.currentAutonTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } 
-    catch (IOException e) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSONPath, e.getStackTrace());
-    }
+    // try {
+    //   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSONPath);
+    //   Common.currentAutonTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    // } 
+    // catch (IOException e) {
+    //   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSONPath, e.getStackTrace());
+    // }
 
     m_autoChooser.setDefaultOption("Default Auto", Constants.Autos.kDefaultAuto);
     // m_autoChooser.addOption() as necessary
