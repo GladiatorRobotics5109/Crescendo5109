@@ -69,7 +69,7 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     }
 
     @Override
-    public Translation2d getPos() {
+    public Translation2d getPoseRelative() {
         return m_modulePos;
     }
 
@@ -82,7 +82,7 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     }
 
     @Override
-    public SwerveModulePosition getState() {
+    public SwerveModulePosition getModulePose() {
         return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 

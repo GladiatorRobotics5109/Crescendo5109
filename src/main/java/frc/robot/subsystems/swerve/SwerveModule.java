@@ -5,11 +5,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public abstract class SwerveModule {
-    public abstract Translation2d getPos();
+    /** @return relative position of module from robot center */
+    public abstract Translation2d getPoseRelative();
     
     public abstract void setDesiredState(SwerveModuleState state);
 
-    public abstract SwerveModulePosition getState();
+    /** @return absolute module position */
+    public abstract SwerveModulePosition getModulePose();
     
     public abstract void brakeAll();
    

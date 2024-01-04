@@ -67,10 +67,10 @@ public class SwerveSubsystem extends SubsystemBase {
         
         // initialize kinematics
         m_kinematics = new SwerveDriveKinematics(
-            m_moduleFL.getPos(), 
-            m_moduleFR.getPos(),
-            m_moduleBL.getPos(), 
-            m_moduleBR.getPos()
+            m_moduleFL.getPoseRelative(), 
+            m_moduleFR.getPoseRelative(),
+            m_moduleBL.getPoseRelative(), 
+            m_moduleBR.getPoseRelative()
         );
 
         VisionManager.init();
@@ -275,17 +275,17 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
-            m_moduleFL.getState(),
-            m_moduleFR.getState(),
-            m_moduleBL.getState(),
-            m_moduleBR.getState(),
+            m_moduleFL.getModulePose(),
+            m_moduleFR.getModulePose(),
+            m_moduleBL.getModulePose(),
+            m_moduleBR.getModulePose(),
         };
     }
 
     private Pose2d getPose() {
         m_poseEstimator.updateWithTime(
             Timer.getFPGATimestamp(), 
-            Rotation2d.fromDegrees(m_navX.getAngle()), 
+            getHeading(), 
             getModulePositions()
         );
         
