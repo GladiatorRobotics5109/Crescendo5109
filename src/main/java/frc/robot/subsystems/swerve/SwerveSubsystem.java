@@ -301,7 +301,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return m_poseEstimator.getEstimatedPosition();
     }
     
-    private Rotation2d getHeading() {
+    public Rotation2d getHeading() {
         return m_navX.getRotation2d();
     }
 }

@@ -79,7 +79,7 @@ public final class Constants {
     public static final double kJoystickDeadzone = 0.07;
   }
 
-  public static class Autos {
+  public static class AutoConstants {
     public static final String kDefaultAuto = "DefaultAuto";
   }
 }

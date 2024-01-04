@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.Auton;
 
 
 import java.io.IOException;
@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Common;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class Autos {
   private Autos() {
@@ -24,7 +26,7 @@ public class Autos {
 
   private static SendableChooser<String> m_autoChooser = new SendableChooser<String>();
 
-  private static Command m_defaultAutoCommand;
+  private static SwerveSubsystem m_swerve;
 
   public static void init() {
     // PUT THIS ON CONSTRUCTOR OF EACH COMMAND LATER
@@ -39,18 +41,22 @@ public class Autos {
     //   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSONPath, e.getStackTrace());
     // }
 
-    m_autoChooser.setDefaultOption("Default Auto", Constants.Autos.kDefaultAuto);
+    m_autoChooser.setDefaultOption("Default Auto", Constants.AutoConstants.kDefaultAuto);
     // m_autoChooser.addOption() as necessary
 
     SmartDashboard.putData("Auto Choice", m_autoChooser);
   }
 
+  public static void SetSweve(SwerveSubsystem swerve) {
+    m_swerve = swerve;
+  }
+
   public static Command getCurrentAutoCommand() {
     switch (m_autoChooser.getSelected()) {
-      case Constants.Autos.kDefaultAuto:
-        return m_defaultAutoCommand;
+      case Constants.AutoConstants.kDefaultAuto:
+        return AutonFactory.getDefaultAutoCommand(m_swerve);
       default:
-        return m_defaultAutoCommand;
+        return AutonFactory.getDefaultAutoCommand(m_swerve);
     }
   }
 }
