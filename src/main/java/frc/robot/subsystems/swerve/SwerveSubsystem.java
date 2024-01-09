@@ -222,14 +222,15 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command getDriveWithPathCommand(PathPlannerPath path) {
         return new FollowPathHolonomic(
             path,
-            () -> getPose(),
+            () -> getPose(), 
             () -> getSpeeds(),
             (chassisSpeeds) -> {
                 SwerveDriveKinematics.desaturateWheelSpeeds(getStates(), m_maxSpeed);
 
                 drive(chassisSpeeds, Constants.SwerveConstants.kFieldRelative);
             },
-            Constants.AutoConstants.kHolonomicPathConfig,
+            Constants.AutoConstants.kHolonomicPathConfig, 
+            () -> Constants.AutoConstants.kAutoMirrorPath,
             this
         );
     }
