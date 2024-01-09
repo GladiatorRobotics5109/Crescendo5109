@@ -7,12 +7,9 @@ package frc.robot;
 import frc.robot.Auton.Autos;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.swerve.VisionManager;
 
-import java.io.IOException;
-
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -36,13 +33,15 @@ public class RobotContainer {
   public RobotContainer() {
     Autos.init();
     
-    try {
-      Common.currentAprilTagFieldLayout = AprilTagFieldLayout.loadFromResource("apriltagFieldLayouts/layout.json");
-    }
-    catch (IOException e) {
-      DriverStation.reportError("Unable to open apriltag field layout!", e.getStackTrace());
-      Common.currentAprilTagFieldLayout = null;
-    }
+    // try {
+    //   Common.currentAprilTagFieldLayout = AprilTagFieldLayout.loadFromResource("apriltagFieldLayouts/layout.json");
+    // }
+    // catch (IOException e) {
+    //   DriverStation.reportError("Unable to open apriltag field layout!", e.getStackTrace());
+    //   Common.currentAprilTagFieldLayout = null;
+    // }
+
+    VisionManager.init();
 
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
@@ -62,7 +61,7 @@ public class RobotContainer {
 
   /** 
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
-  */
+   */
   private void configureButtonBindings() {
     m_driverController.a().onTrue(m_swerve.getAlignWheelCommand());
     m_driverController.b().whileTrue(m_swerve.getBrakeAndXCommand());

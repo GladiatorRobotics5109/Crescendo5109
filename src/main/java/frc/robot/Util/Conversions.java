@@ -1,4 +1,6 @@
-package frc.robot;
+package frc.robot.Util;
+
+import frc.robot.Constants;
 
 public class Conversions {
     /**

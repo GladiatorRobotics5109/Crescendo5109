@@ -5,7 +5,9 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -80,6 +82,19 @@ public final class Constants {
   }
 
   public static class AutoConstants {
+    // Mirror path depending on alliance side
+    public static final Boolean kAutoMirrorPath = false;
+
+    // config for holonomic path follower command
+    public static final HolonomicPathFollowerConfig kHolonomicPathConfig = new HolonomicPathFollowerConfig(
+      Constants.SwerveConstants.kTranslationConstants, 
+      Constants.SwerveConstants.kRotationConstants, 
+      Constants.SwerveConstants.kDefaultSpeed,
+      5.0,
+      new ReplanningConfig(true, true)
+    );
+
+    // autos
     public static final String kDefaultAuto = "DefaultAuto";
   }
 }

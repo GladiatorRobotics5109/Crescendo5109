@@ -15,8 +15,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.Conversions;
-import frc.robot.RevOptimizer;
+import frc.robot.Util.Conversions;
+import frc.robot.Util.RevOptimizer;
 
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.
@@ -109,6 +109,14 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     // do nothing because turn encoder is absolute
     @Override
     public void resetTurnEncoder() {}
+    
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(
+            m_driveEncoder.getVelocity(), 
+            Rotation2d.fromRadians(getTurnWheelPositionRad())
+        );
+    }
 
     private double getTurnWheelPositionRad() {
         // TODO: test this conversion, probably the one not commented out is correct

@@ -4,14 +4,14 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,12 +21,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.Util.EstimatedPose;
 
 public class SwerveSubsystem extends SubsystemBase {
     // swerve modules
@@ -47,6 +47,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
 
     private final PPHolonomicDriveController m_holonomicDriveController;
+
+    private final Timer m_trajectoryDriveTimer;
+    private final Boolean m_drivingWithTrajectory;
     // private final HolonomicDriveController m_holonomicDriveController;
     
     public SwerveSubsystem() {
@@ -72,20 +75,18 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBL.getPoseRelative(), 
             m_moduleBR.getPoseRelative()
         );
-
-        VisionManager.init();
         
-        Optional<EstimatedRobotPose> startingPose = VisionManager.getPose();
+        Optional<EstimatedPose> startingPose = VisionManager.getPose();
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
             m_kinematics,
             getHeading(), 
             getModulePositions(),
-            startingPose.isEmpty() ? new Pose2d() : startingPose.get().estimatedPose.toPose2d()
+            startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose()
         );
         
         // initialize holonomic drive controller
-        // m_holonomicDriveController = new PPHolonomicDriveController(
+        // m_holonomicDriveController = new HolonomicDriveController(
         //     Constants.SwerveConstants.kPidControllerHolonomicX,
         //     Constants.SwerveConstants.kPidControllerHolonomicY,
         //     Constants.SwerveConstants.kPidControllerHolonomicRot
@@ -97,6 +98,9 @@ public class SwerveSubsystem extends SubsystemBase {
             Constants.SwerveConstants.kDefaultSpeed,
             Constants.SwerveConstants.kModulePosFrontLeft.getDistance(new Translation2d())
         );
+
+        m_trajectoryDriveTimer = new Timer();
+        m_drivingWithTrajectory = false;
     }
 
     /** drive with desired x/y/rot velocities */
@@ -118,12 +122,14 @@ public class SwerveSubsystem extends SubsystemBase {
         // TODO: change new Rotation2d... to Rotation2d.fromDegrees(-m_navX.getAngle());?
         Rotation2d navXVal = new Rotation2d((m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
-            fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(
+            fieldRelative ? 
+            ChassisSpeeds.fromFieldRelativeSpeeds(
                 desiredSpeeds.vxMetersPerSecond, 
                 desiredSpeeds.vyMetersPerSecond, 
                 desiredSpeeds.omegaRadiansPerSecond, 
                 navXVal
-            ) : desiredSpeeds
+            ) : 
+            desiredSpeeds
         );
 
         // apply max speeds
@@ -195,7 +201,9 @@ public class SwerveSubsystem extends SubsystemBase {
         DoubleSupplier joyLeftY, 
         DoubleSupplier joyRightX, 
         BooleanSupplier fieldRelative) {
-        return run(() -> {
+        return this.run(() -> {
+            updatePose();
+
             // get joystick axises
             double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.DriveTeamConstants.kJoystickDeadzone);
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.DriveTeamConstants.kJoystickDeadzone);
@@ -209,23 +217,21 @@ public class SwerveSubsystem extends SubsystemBase {
             drive(vx, vy, rot, fieldRelative.getAsBoolean());
         }).withName("DriveWithJoystickCommand");
     }
-    
-    /**
-     * @return A Command object that drives over a trajectory
-     */
-    public Command getDriveWithTrajectoryCommand(
-        DoubleSupplier time,
-        PathPlannerTrajectory trajectory) {
-        return this.run(() -> {
-            PathPlannerTrajectory.State desiredState = trajectory.sample(time.getAsDouble());
 
-            ChassisSpeeds chassisSpeeds = m_holonomicDriveController.calculateRobotRelativeSpeeds(
-                getPose(), 
-                desiredState
-            );
+    /** drives with a given path */
+    public Command getDriveWithPathCommand(PathPlannerPath path) {
+        return new FollowPathHolonomic(
+            path,
+            () -> getPose(),
+            () -> getSpeeds(),
+            (chassisSpeeds) -> {
+                SwerveDriveKinematics.desaturateWheelSpeeds(getStates(), m_maxSpeed);
 
-            drive(chassisSpeeds, true);
-        }).withName("DriveWithTrajectoryCommand");
+                drive(chassisSpeeds, Constants.SwerveConstants.kFieldRelative);
+            },
+            Constants.AutoConstants.kHolonomicPathConfig,
+            this
+        );
     }
     
     /**
@@ -282,26 +288,42 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
-    private Pose2d getPose() {
+    private void updatePose() {
         m_poseEstimator.updateWithTime(
             Timer.getFPGATimestamp(), 
             getHeading(), 
             getModulePositions()
         );
         
-        Optional<EstimatedRobotPose> visionPose = VisionManager.getPose();
+        Optional<EstimatedPose> visionPose = VisionManager.getPose();
         
-        if (!visionPose.isEmpty()) { // if vision result
+        // if vision result
+        if (!visionPose.isEmpty()) { 
             m_poseEstimator.addVisionMeasurement(
-                visionPose.get().estimatedPose.toPose2d(), 
-                visionPose.get().timestampSeconds
+                visionPose.get().getPose(), 
+                visionPose.get().getTimestampSeconds()
             );
         }
+    }
 
+    private Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
     
     public Rotation2d getHeading() {
         return m_navX.getRotation2d();
+    }
+
+    public SwerveModuleState[] getStates() {
+        return new SwerveModuleState[] {
+            m_moduleFL.getState(),
+            m_moduleFR.getState(),
+            m_moduleBL.getState(),
+            m_moduleBR.getState()
+        };
+    }
+
+    public ChassisSpeeds getSpeeds() {
+        return m_kinematics.toChassisSpeeds(getStates());
     }
 }

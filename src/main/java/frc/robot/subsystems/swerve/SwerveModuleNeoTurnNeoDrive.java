@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.RevOptimizer;
+import frc.robot.Util.RevOptimizer;
 
 /** 
  * Represents a swerve module with a NEO (SparkMAX) turn motor and a NEO (SparkMAX) drive motor.
@@ -75,7 +75,7 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
 
     @Override
     public void setDesiredState(SwerveModuleState state) {
-        SwerveModuleState optimizedState = RevOptimizer.optimize(state, new Rotation2d(m_turnEncoder.getPosition()));
+        SwerveModuleState optimizedState = RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnEncoder.getPosition()));
         
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
@@ -111,5 +111,13 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     @Override
     public void resetTurnEncoder() {
         m_turnEncoder.setPosition(0);
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(
+            m_driveEncoder.getVelocity(),
+            Rotation2d.fromRadians(m_turnEncoder.getPosition())
+        );
     }
 }

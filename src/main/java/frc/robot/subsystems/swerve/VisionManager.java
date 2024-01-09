@@ -1,5 +1,7 @@
 package frc.robot.subsystems.swerve;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -7,10 +9,10 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Common;
+import frc.robot.Util.EstimatedPose;
 
 /**
  * VisionManager class to get vision data from PhotonVision coprocessor
@@ -21,8 +23,10 @@ public class VisionManager {
     private static PhotonCamera m_camera;
     private static PhotonPoseEstimator m_poseEstimator;
 
+    private static List<EstimatedPose> m_poses;
+
     /**
-     * init vision system. SHOULD BE CALLED BEFORE VisionManager.getPose2d() is called.
+     * init vision system. SHOULD BE CALLED FIRST.
      */
     public static void init() {
         if (Common.currentAprilTagFieldLayout == null) {
@@ -38,9 +42,10 @@ public class VisionManager {
             Common.currentAprilTagFieldLayout, 
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             m_camera,
-            new Transform3d() // TODO: set correct robot to camera transform
+            new Transform3d() // TODO: set correct robot -> camera transform
         );
 
+        m_poses = new ArrayList<EstimatedPose>();
 
         m_hasInit = true;
     }
@@ -48,21 +53,25 @@ public class VisionManager {
     /**
      * Get the estimated position from vision system
      */
-    public static Optional<EstimatedRobotPose> getPose() {
+    public static Optional<EstimatedPose> getPose() {
         if (!m_hasInit) {
             DriverStation.reportWarning("VisionManager.getPose(). VisionManager has been asked for a pose, but it has not been initialized!", null);
 
-            return null;
+            return Optional.empty();
         }
 
-        return m_poseEstimator.update();
+        Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
+
+        return Optional.of(
+            new EstimatedPose(
+                estimatedPose.get(),
+                EstimatedPose.getDeviationOf(m_poses)
+            )
+        );
     }
 
-    public static Pose2d getPose2d() {
-        Optional<EstimatedRobotPose> pose = getPose();
-        
-        if (pose.isEmpty()) return null;
-
-        return pose.get().estimatedPose.toPose2d();
+    /** Clear poses used for confidence */
+    public static void clearCachedPoses() {
+        m_poses.clear();
     }
 }

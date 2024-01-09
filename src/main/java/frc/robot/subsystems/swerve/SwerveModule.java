@@ -25,4 +25,6 @@ public abstract class SwerveModule {
     * Reset turn encoders if it is relative
     */
     public abstract void resetTurnEncoder();
+
+    public abstract SwerveModuleState getState();
 }
