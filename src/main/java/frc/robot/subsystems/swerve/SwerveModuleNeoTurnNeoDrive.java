@@ -9,10 +9,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.Util.RevOptimizer;
+import frc.robot.RevOptimizer;
 
 /** 
  * Represents a swerve module with a NEO (SparkMAX) turn motor and a NEO (SparkMAX) drive motor.
@@ -62,28 +61,24 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
 
         m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
         m_driveEncoder.setPositionConversionFactor(42 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
-        // TODO: test swerve turn position working
         m_turnEncoder.setPositionConversionFactor(1 / Constants.SwerveConstants.kNeoTicksPerTurnWheelRadian);
 
         m_turnPIDController.setOutputRange(-Math.PI, Math.PI);
     }
 
+
+
     @Override
-    public Translation2d getPoseRelative() {
+    public Translation2d getPos() {
         return m_modulePos;
     }
 
     @Override
     public void setDesiredState(SwerveModuleState state) {
-        SwerveModuleState optimizedState = RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnEncoder.getPosition()));
+        SwerveModuleState optimizedState = RevOptimizer.optimize(state, new Rotation2d(m_turnEncoder.getPosition()));
         
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
-    }
-
-    @Override
-    public SwerveModulePosition getModulePose() {
-        return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 
     @Override
@@ -106,18 +101,5 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     @Override
     public int getNumber() {
         return m_moduleNum;
-    }
-
-    @Override
-    public void resetTurnEncoder() {
-        m_turnEncoder.setPosition(0);
-    }
-
-    @Override
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(
-            m_driveEncoder.getVelocity(),
-            Rotation2d.fromRadians(m_turnEncoder.getPosition())
-        );
     }
 }

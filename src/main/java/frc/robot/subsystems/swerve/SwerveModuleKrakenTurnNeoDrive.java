@@ -12,11 +12,10 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.Util.Conversions;
-import frc.robot.Util.RevOptimizer;
+import frc.robot.Conversions;
+import frc.robot.RevOptimizer;
 
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.
@@ -60,14 +59,14 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         m_turnMotor.config_kD(0, 0.0);
         
         m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
-        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kNeoTicksPerMotorRevolution / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
+        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kNeoTicksPerRevolution / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
         // unlike the SparkMAXes, we have to run kraken ticks -> radian conversion manually in our code.
         // m_turnMotor.getSelectedSensorPosition() should never really be used in this class to get encoder position
         // getTurnEncoderPositionRad() should be used instead.
     }
 
     @Override
-    public Translation2d getPoseRelative() {
+    public Translation2d getPos() {
         return m_modulePos;
     }
 
@@ -77,11 +76,6 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnMotor.set(ControlMode.Position, Conversions.radToKraken(state.angle.getRadians(), 1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
-    }
-
-    @Override
-    public SwerveModulePosition getModulePose() {
-        return new SwerveModulePosition(-m_driveEncoder.getPosition(), Rotation2d.fromRadians(getTurnWheelPositionRad()));
     }
 
     @Override
@@ -106,20 +100,7 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         return m_moduleNum;
     }
 
-    // do nothing because turn encoder is absolute
-    @Override
-    public void resetTurnEncoder() {}
-    
-    @Override
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(
-            m_driveEncoder.getVelocity(), 
-            Rotation2d.fromRadians(getTurnWheelPositionRad())
-        );
-    }
-
     private double getTurnWheelPositionRad() {
-        // TODO: test this conversion, probably the one not commented out is correct
-        return Conversions.krakenToRad(m_turnMotor.getSelectedSensorPosition(), Constants.SwerveConstants.kSwerveTurnGearRatio);
+        return Conversions.krakenToRad(m_turnMotor.getSelectedSensorPosition(), Constants.SwerveConstants.kKrakenTicksPerTurnWheelRadian);
     }
 }

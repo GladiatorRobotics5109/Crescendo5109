@@ -28,12 +28,8 @@
   "java.test.defaultConfig": "WPIlibUnitTests",
   "cSpell.words": [
     "AHRS",
-    "apriltag",
-    "auton",
     "Brushless",
     "Deadzone",
-    "Holonomic",
-    "Odometry",
     "revrobotics",
     "teleop",
     "teleoperated"
