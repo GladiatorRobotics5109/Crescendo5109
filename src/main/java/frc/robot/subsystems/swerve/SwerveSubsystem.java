@@ -41,7 +41,8 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleFL.getPos(), 
             m_moduleFR.getPos(),
             m_moduleBL.getPos(), 
-            m_moduleBR.getPos());
+            m_moduleBR.getPos()
+        );
 
         m_maxSpeed = SwerveConstants.kMaxSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
@@ -65,7 +66,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** drive with desired chassis speeds */
     public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
-        Rotation2d navXVal = new Rotation2d((m_navX.getAngle()% 360) * Math.PI / 180);
+        Rotation2d navXVal = new Rotation2d((m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, navXVal) : desiredSpeeds);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
