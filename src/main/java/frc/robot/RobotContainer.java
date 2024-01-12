@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -21,7 +22,7 @@ public class RobotContainer {
 
   private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(10);
   private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(10);
-  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(1);
+  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(5);
 
   private final SwerveSubsystem m_swerve;
 
@@ -35,6 +36,8 @@ public class RobotContainer {
         () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
         () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
+        () -> m_driverController.getLeftTriggerAxis(), // super speed
+        () -> m_driverController.getRightTriggerAxis(), // super slow
         () -> true) // field relative
     );
 
@@ -47,7 +50,8 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    m_driverController.a().onTrue(m_swerve.getAlignWheelCommand());
+    m_driverController.x().onTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.a().whileTrue(m_swerve.getAlignWheelCommand());
   }
 
   /**
@@ -58,4 +62,8 @@ public class RobotContainer {
   // public Command getAutonomousCommand() {
     
   // }
+
+  public void resetEncoders() {
+    m_swerve.resetEncoders();
+  }
 }

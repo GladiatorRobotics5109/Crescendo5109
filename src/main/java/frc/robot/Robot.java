@@ -62,6 +62,10 @@ public class Robot extends TimedRobot {
     // if (m_autonomousCommand != null) {
     //   m_autonomousCommand.schedule();
     // }
+
+    m_robotContainer.resetEncoders();
+
+    Common.autonRan = true;
   }
 
   /** This function is called periodically during autonomous. */
@@ -76,6 +80,10 @@ public class Robot extends TimedRobot {
     // this line or comment it out.
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
+    }
+
+    if (!Common.autonRan) {
+      m_robotContainer.resetEncoders();
     }
   }
 

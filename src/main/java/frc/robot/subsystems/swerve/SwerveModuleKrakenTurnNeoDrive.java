@@ -71,11 +71,16 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     }
 
     @Override
-    public void setDesiredState(SwerveModuleState state) {
-        SwerveModuleState optimizedState = RevOptimizer.optimize(state, Rotation2d.fromRadians(getTurnWheelPositionRad()));
+    public void setDesiredState(SwerveModuleState state, boolean optimize) {
+        SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(getTurnWheelPositionRad())) : state;
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnMotor.set(ControlMode.Position, Conversions.radToKraken(state.angle.getRadians(), 1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
+    }
+
+    @Override
+    public void setDesiredState(SwerveModuleState state) {
+        setDesiredState(state, true);
     }
 
     @Override
@@ -98,6 +103,11 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     @Override
     public int getNumber() {
         return m_moduleNum;
+    }
+
+    @Override
+    public void resetEncoders() {
+        m_driveEncoder.setPosition(0);
     }
 
     private double getTurnWheelPositionRad() {

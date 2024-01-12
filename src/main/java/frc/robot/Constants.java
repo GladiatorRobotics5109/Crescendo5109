@@ -22,8 +22,8 @@ public final class Constants {
   public static final double kJoystickDeadzone = 0.1;
   
   public static class SwerveConstants {
-    public static final double kMaxSpeed = 5;
-    public static final double kMaxAngularSpeed = 3 * Math.PI;
+    public static final double kMaxSpeed = 10;
+    public static final double kMaxAngularSpeed = 2 * Math.PI;
     
     public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921, 0.2921);
     public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921, -0.2921);

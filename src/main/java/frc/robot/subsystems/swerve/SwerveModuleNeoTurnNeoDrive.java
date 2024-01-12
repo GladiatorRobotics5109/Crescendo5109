@@ -74,11 +74,16 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     }
 
     @Override
-    public void setDesiredState(SwerveModuleState state) {
-        SwerveModuleState optimizedState = RevOptimizer.optimize(state, new Rotation2d(m_turnEncoder.getPosition()));
+    public void setDesiredState(SwerveModuleState state, boolean optimize) {
+        SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, new Rotation2d(m_turnEncoder.getPosition())) : state;
         
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+    }
+
+    @Override
+    public void setDesiredState(SwerveModuleState state) {
+        setDesiredState(state, true);
     }
 
     @Override
@@ -101,5 +106,11 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     @Override
     public int getNumber() {
         return m_moduleNum;
+    }
+
+    @Override
+    public void resetEncoders() {
+        m_driveEncoder.setPosition(0);
+        m_turnEncoder.setPosition(0);
     }
 }

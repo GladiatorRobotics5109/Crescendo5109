@@ -23,7 +23,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveModule m_moduleBL;
     private final SwerveModule m_moduleBR;
 
-    private double m_maxSpeed;
+    private final double m_defaultSpeed;
+    private double m_currentSpeed;
     private double m_maxAngularSpeed;
 
     private final SwerveDriveKinematics m_kinematics;
@@ -44,7 +45,8 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBR.getPos()
         );
 
-        m_maxSpeed = SwerveConstants.kMaxSpeed;
+        m_defaultSpeed = SwerveConstants.kMaxSpeed;
+        m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
     
         m_navX = SwerveConstants.kNavX;
@@ -56,7 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void drive(double vx, double vy, double rot, boolean fieldRelative) {
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rot, navXVal) : new ChassisSpeeds(vx, vy, rot));
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
         m_moduleFR.setDesiredState(swerveModuleStates[1]);
@@ -66,19 +68,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** drive with desired chassis speeds */
     public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
-        Rotation2d navXVal = new Rotation2d((m_navX.getAngle() % 360) * Math.PI / 180);
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, navXVal) : desiredSpeeds);
-
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_maxSpeed);
-        
-        m_moduleFL.setDesiredState(swerveModuleStates[0]);
-        m_moduleFR.setDesiredState(swerveModuleStates[1]);
-        m_moduleBL.setDesiredState(swerveModuleStates[2]);
-        m_moduleBR.setDesiredState(swerveModuleStates[3]);
+        drive(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, fieldRelative);
     }
 
     public void setMaxSpeed(double speed) {
-        m_maxSpeed = speed;
+        m_currentSpeed = speed;
     }
 
     /** Brake and X the wheels to stay still */
@@ -122,7 +116,9 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command getDriveWithJoystickCommand(
         DoubleSupplier joyLeftX, 
         DoubleSupplier joyLeftY, 
-        DoubleSupplier joyRightX, 
+        DoubleSupplier joyRightX,
+        DoubleSupplier joyLeftTrigger,
+        DoubleSupplier joyRightTrigger,
         BooleanSupplier fieldRelative) {
         return run(() -> {
             // get joystick axises
@@ -130,9 +126,13 @@ public class SwerveSubsystem extends SubsystemBase {
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
             double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
+            double newSpeed = ((5 * joyLeftTrigger.getAsDouble()) + m_defaultSpeed) + (-8 * joyRightTrigger.getAsDouble());
+
+            setMaxSpeed(newSpeed);
+
             // apply max speeds
-            vx *= m_maxSpeed;
-            vy *= m_maxSpeed;
+            vx *= m_currentSpeed;
+            vy *= m_currentSpeed;
             rot *= m_maxAngularSpeed;
 
             drive(vx, vy, rot, fieldRelative.getAsBoolean());
@@ -141,12 +141,39 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command getAlignWheelCommand() {
         return this.runOnce(() -> {
-            SwerveModuleState state = new SwerveModuleState();
-            state.angle = Rotation2d.fromDegrees(0);
-            m_moduleFL.setDesiredState(state);
-            m_moduleFR.setDesiredState(state);
-            m_moduleBL.setDesiredState(state);
-            m_moduleBR.setDesiredState(state);
-        });
+            SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0));
+            SwerveDriveKinematics.desaturateWheelSpeeds(states, m_currentSpeed);
+            
+            
+            states[0].angle = Rotation2d.fromRadians(0);
+            states[1].angle = Rotation2d.fromRadians(0);
+            states[2].angle = Rotation2d.fromRadians(0);
+            states[3].angle = Rotation2d.fromRadians(0);
+
+
+            m_moduleFL.setDesiredState(states[0], false);
+            m_moduleFR.setDesiredState(states[1], false);
+            m_moduleBL.setDesiredState(states[2], false);
+            m_moduleBR.setDesiredState(states[3], false);
+        }).withName("alignWheelCommand");
+    }
+
+    public Command getBrakeAndXCommand() {
+        return this.runOnce(() -> brakeAndX()).withName("brakeAndXCommand");
+    }
+
+    public Command getSuperSpeedCommand(DoubleSupplier scalar) {
+        return this.runOnce(() -> setMaxSpeed((5 * scalar.getAsDouble()) + m_defaultSpeed));
+    }
+
+    public Command getSuperSlowCommand(DoubleSupplier scalar) {
+        return this.runOnce(() -> setMaxSpeed(-5 * scalar.getAsDouble() + m_defaultSpeed));
+    }
+
+    public void resetEncoders() {
+        m_moduleFL.resetEncoders();
+        m_moduleFR.resetEncoders();
+        m_moduleBL.resetEncoders();
+        m_moduleBR.resetEncoders(); 
     }
 }
