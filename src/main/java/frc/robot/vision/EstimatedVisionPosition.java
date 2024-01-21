@@ -1,7 +1,5 @@
 package frc.robot.vision;
 
-import java.util.List;
-
 import org.photonvision.EstimatedRobotPose;
 
 import edu.wpi.first.math.geometry.Pose2d;

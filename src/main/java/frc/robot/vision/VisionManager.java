@@ -10,23 +10,11 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
 
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 
@@ -93,12 +81,12 @@ public class VisionManager {
         Optional<EstimatedRobotPose> estimatedPose = m_estimator.update();
 
         if (estimatedPose.isEmpty()) {
-            System.out.println("Empty!");
+            // System.out.println("Empty!");
             
             return Optional.empty();
         }
 
-        System.out.println("Vision: (" + estimatedPose.get().estimatedPose.getX() + ", " + estimatedPose.get().estimatedPose.getY() + ")");
+        // System.out.println("Vision: (" + estimatedPose.get().estimatedPose.getX() + ", " + estimatedPose.get().estimatedPose.getY() + ")");
 
         return Optional.of(new EstimatedVisionPosition(estimatedPose.get()));
     }

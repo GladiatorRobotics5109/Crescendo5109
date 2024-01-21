@@ -7,6 +7,8 @@ import java.util.function.DoubleSupplier;
 import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.commands.FollowPathHolonomic;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.vision.EstimatedVisionPosition;
 import frc.robot.vision.VisionManager;
@@ -181,6 +184,23 @@ public class SwerveSubsystem extends SubsystemBase {
         }).withName("alignWheelCommand");
     }
 
+    public Command getFollowPathCommand(PathPlannerPath path) {
+        return new FollowPathHolonomic(
+            path,
+            this::getPose,
+            this::getSpeeds,
+            (ChassisSpeeds chassisSpeeds) -> drive(chassisSpeeds, false),
+            SwerveConstants.AutonConstants.kTranslationPID,
+            SwerveConstants.AutonConstants.kRotationPID,
+            SwerveConstants.AutonConstants.kMaxSpeed,
+            SwerveConstants.kDriveBaseRadius,
+            Robot.kDefaultPeriod,
+            SwerveConstants.AutonConstants.kReplanningConfig,
+            () -> SwerveConstants.AutonConstants.kAutoMirror,
+            this
+        );
+    }
+
     public Command getBrakeAndXCommand() {
         return this.runOnce(() -> brakeAndX()).withName("brakeAndXCommand");
     }
@@ -251,7 +271,7 @@ public class SwerveSubsystem extends SubsystemBase {
         updatePose();
 
         Pose2d pose = getPose();
-        System.out.println("Pose (" + pose.getX() + ", " + pose.getY() + ")");
+        // System.out.println("Pose (" + pose.getX() + ", " + pose.getY() + ")");
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
 

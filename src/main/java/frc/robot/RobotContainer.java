@@ -5,8 +5,17 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveTeamConstants;
+import frc.robot.auton.AutonFactory;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+
+import java.nio.file.FileSystem;
+
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -58,9 +67,9 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand() {
-    
-  // }
+  public Command getAutonomousCommand() {
+    return AutonFactory.getTestAuton(m_swerve);
+  }
 
   public void resetEncoders() {
     m_swerve.resetEncoders();
