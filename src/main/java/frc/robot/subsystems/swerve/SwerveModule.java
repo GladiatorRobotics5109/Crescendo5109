@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public abstract class SwerveModule {
@@ -19,4 +20,8 @@ public abstract class SwerveModule {
     public abstract int getNumber();
 
     public abstract void resetEncoders();
+
+    public abstract SwerveModuleState getState();
+
+    public abstract SwerveModulePosition getModulePosition();
 }

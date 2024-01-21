@@ -5,8 +5,8 @@ Code for different paradigms found in branches
 
 # Features
 - NEO turn and drive support
-- Kraken turn and NEO drive support
+- Kraken turn and NEO drive support (in development)
 - CommandBased
 
 # WPILib
-- version 2023.4.3
+- version 2024.1.1

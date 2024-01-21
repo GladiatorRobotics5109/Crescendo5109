@@ -1,17 +1,18 @@
 package frc.robot.subsystems.swerve;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Conversions;
@@ -26,11 +27,11 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     private final int m_moduleNum;
 
     private final CANSparkMax m_driveMotor;
-    private final WPI_TalonFX m_turnMotor;
+    private final TalonFX m_turnMotor;
 
     private final RelativeEncoder m_driveEncoder;
 
-    private final SparkMaxPIDController m_drivePIDController;
+    private final SparkPIDController m_drivePIDController;
 
 
     public SwerveModuleKrakenTurnNeoDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort) {
@@ -39,10 +40,10 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         m_moduleNum = moduleNum;
 
         m_driveMotor = new CANSparkMax(driveMotorPort, MotorType.kBrushless);
-        m_turnMotor = new WPI_TalonFX(turnMotorPort);
+        m_turnMotor = new TalonFX(turnMotorPort);
 
         m_driveMotor.setIdleMode(IdleMode.kCoast);
-        m_turnMotor.setNeutralMode(NeutralMode.Coast);
+        m_turnMotor.setNeutralMode(NeutralModeValue.Coast);
 
         m_driveEncoder = m_driveMotor.getEncoder();
 
@@ -54,9 +55,13 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         m_drivePIDController.setD(0.0);
 
         // TODO: turn motor PID tune
-        m_turnMotor.config_kP(0, 1.5);
-        m_turnMotor.config_kI(0, 0.0);
-        m_turnMotor.config_kD(0, 0.0);
+        TalonFXConfiguration turnMotorConfiguration = new TalonFXConfiguration();
+        turnMotorConfiguration.Slot0.kP = 1.5;
+        turnMotorConfiguration.Slot0.kI = 0.0;
+        turnMotorConfiguration.Slot0.kI = 0.0;
+        turnMotorConfiguration.Feedback.RotorToSensorRatio = Constants.SwerveConstants.kSwerveTurnGearRatio;
+
+        m_turnMotor.getConfigurator().apply(turnMotorConfiguration);
         
         m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
         m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kNeoTicksPerRevolution / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
@@ -75,7 +80,7 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(getTurnWheelPositionRad())) : state;
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
-        m_turnMotor.set(ControlMode.Position, Conversions.radToKraken(state.angle.getRadians(), 1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
+        m_turnMotor.setPosition(optimizedState.angle.getRotations() * (1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
     }
 
     @Override
@@ -86,13 +91,13 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     @Override
     public void brakeAll() {
         m_driveMotor.setIdleMode(IdleMode.kBrake);
-        m_turnMotor.setNeutralMode(NeutralMode.Brake);
+        m_turnMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
     @Override
     public void coastAll() {
         m_driveMotor.setIdleMode(IdleMode.kCoast);
-        m_turnMotor.setNeutralMode(NeutralMode.Coast);
+        m_turnMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
     @Override
@@ -111,6 +116,16 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
     }
 
     private double getTurnWheelPositionRad() {
-        return Conversions.krakenToRad(m_turnMotor.getSelectedSensorPosition(), Constants.SwerveConstants.kKrakenTicksPerTurnWheelRadian);
+        return Conversions.krakenToRad(m_turnMotor.getPosition().getValueAsDouble(), Constants.SwerveConstants.kKrakenTicksPerTurnWheelRadian);
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(m_driveEncoder.getVelocity(), Rotation2d.fromRadians(m_turnMotor.getPosition().getValueAsDouble()));
+    }
+
+    @Override
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnMotor.getPosition().getValueAsDouble()));
     }
 }

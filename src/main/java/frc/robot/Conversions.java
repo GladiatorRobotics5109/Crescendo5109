@@ -17,4 +17,8 @@ public class Conversions {
     public static double krakenToRad(double kraken, double gearRatio) {
         return gearRatio * (kraken / Constants.SwerveConstants.kKrakenTicksPerMotorRadian);
     }
+
+    public static double wheelToMeters(double wheel) {
+        return wheel * (Constants.SwerveConstants.kWheelRadius * 2 * Math.PI);
+    }
 }

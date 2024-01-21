@@ -4,10 +4,21 @@
 
 package frc.robot;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.SPI;
+
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -22,9 +33,13 @@ public final class Constants {
   public static final double kJoystickDeadzone = 0.1;
   
   public static class SwerveConstants {
-    public static final double kMaxSpeed = 10;
-    public static final double kMaxAngularSpeed = 2 * Math.PI;
-    
+    // public static final double kMaxSpeed = 10;
+    // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
+
+    public static final double kMaxSpeed = 3;
+    public static final double kMaxAngularSpeed = 1 * Math.PI;
+
+
     public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921, 0.2921);
     public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921, -0.2921);
     public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921, 0.2921);
@@ -47,9 +62,45 @@ public final class Constants {
     public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
     
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
+
+    public static class AutonConstants {
+      public static final double kMaxSpeed = 1;
+      public static final double kMaxAcceleration = 1;
+
+      public static final double kMaxAngularSpeed = 1 * Math.PI;
+      public static final double kMaxAngularAcceleration = 1 * Math.PI;
+
+
+      public static final PIDController kTranslationPID = new PIDController(0, 0, 0);
+      public static final PIDController kRotationPID = new PIDController(0, 0, 0);
+
+
+      
+    }
   }
 
   public static class DriveTeamConstants {
     public static final int kDriverControllerPort = 0;
+  }
+
+  public static class VisionConstants {
+
+    public static final Map<String, Transform3d> kVisionSources = new HashMap<>(){{
+      put("CameraOne", new Transform3d(
+        0.2921, 
+        0.3683, 
+        0.3048, 
+        new Rotation3d())
+      );
+      //put("CameraTwo", new Transform3d());
+    }};
+
+      public static final Transform3d kCameraPos = new Transform3d(
+        0.2921, 
+        0.3683, 
+        0.3048, 
+        new Rotation3d());
+
+    public static final AprilTagFields kApriltagLayout = AprilTagFields.k2024Crescendo;
   }
 }

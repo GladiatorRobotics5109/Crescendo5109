@@ -2,15 +2,18 @@ package frc.robot.subsystems.swerve;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkPIDController.AccelStrategy;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
+import frc.robot.Conversions;
 import frc.robot.RevOptimizer;
 
 /** 
@@ -27,8 +30,8 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
     private final RelativeEncoder m_driveEncoder;
     private final RelativeEncoder m_turnEncoder;
 
-    private final SparkMaxPIDController m_drivePIDController;
-    private final SparkMaxPIDController m_turnPIDController;
+    private final SparkPIDController m_drivePIDController;
+    private final SparkPIDController m_turnPIDController;
 
     public SwerveModuleNeoTurnNeoDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort) {
         m_modulePos = modulePos;
@@ -55,7 +58,8 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         m_turnPIDController.setI(0.0);
         m_turnPIDController.setD(0.0);
 
-        m_turnPIDController.setSmartMotionAccelStrategy(com.revrobotics.SparkMaxPIDController.AccelStrategy.kTrapezoidal, 0);
+        m_turnPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
+
         m_turnPIDController.setSmartMotionMaxAccel(Constants.SwerveConstants.kMaxAngularSpeed, 0);
         m_turnPIDController.setSmartMotionMaxVelocity(Constants.SwerveConstants.kMaxAngularSpeed, 0);
 
@@ -110,7 +114,17 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
 
     @Override
     public void resetEncoders() {
-        m_driveEncoder.setPosition(0);
-        m_turnEncoder.setPosition(0);
+        m_driveEncoder.setPosition(0.0);
+        m_turnEncoder.setPosition(0.0);
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(Conversions.wheelToMeters(m_driveEncoder.getVelocity()), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
+    }
+
+    @Override
+    public SwerveModulePosition getModulePosition() {
+        return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 }

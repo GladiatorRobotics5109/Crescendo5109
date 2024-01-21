@@ -25,13 +25,5 @@
       }
     },
   ],
-  "java.test.defaultConfig": "WPIlibUnitTests",
-  "cSpell.words": [
-    "AHRS",
-    "Brushless",
-    "Deadzone",
-    "revrobotics",
-    "teleop",
-    "teleoperated"
-  ]
+  "java.test.defaultConfig": "WPIlibUnitTests"
 }
