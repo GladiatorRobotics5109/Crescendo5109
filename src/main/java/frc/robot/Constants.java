@@ -50,16 +50,22 @@ public final class Constants {
     public static final double kSwerveDriveGearRatio = 8.14;
     public static final double kSwerveTurnGearRatio = 12.8;
     
-    public static final double kNeoTicksPerRevolution = 42;
-    public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
-    public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
-    public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
+    // public static final double kNeoTicksPerRevolution = 42;
+    // public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
+    // public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
+    // public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
     
     public static final double kKrakenTicksPerRevolution = 2000;
     public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
     public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
     public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
     
+    public static final double kDrivePositionConversionFactor = kSwerveDriveGearRatio * kWheelRadius * (2* Math.PI); // rotations -> meters (8.14 motor turns x 2pi*wheel radius / 1 motor turn)
+    public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor / 60.0; // rpm -> m/s 
+
+    public static final double kTurnPositionConversionFactor = kSwerveTurnGearRatio * (2 * Math.PI); // rotations -> radians (12.8 motor turns x 2pi / 1 motor turn)
+    public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
+
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
     public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;

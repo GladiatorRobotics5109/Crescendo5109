@@ -63,8 +63,8 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
 
         m_turnMotor.getConfigurator().apply(turnMotorConfiguration);
         
-        m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
-        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kNeoTicksPerRevolution / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
+        m_driveEncoder.setVelocityConversionFactor(Constants.SwerveConstants.kDrivePositionConversionFactor);
+        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kDriveVelocityConversionFactor);
         // unlike the SparkMAXes, we have to run kraken ticks -> radian conversion manually in our code.
         // m_turnMotor.getSelectedSensorPosition() should never really be used in this class to get encoder position
         // getTurnEncoderPositionRad() should be used instead.

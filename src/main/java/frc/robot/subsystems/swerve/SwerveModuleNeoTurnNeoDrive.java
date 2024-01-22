@@ -63,9 +63,11 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         m_turnPIDController.setSmartMotionMaxAccel(Constants.SwerveConstants.kMaxAngularSpeed, 0);
         m_turnPIDController.setSmartMotionMaxVelocity(Constants.SwerveConstants.kMaxAngularSpeed, 0);
 
-        m_driveEncoder.setVelocityConversionFactor(1 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
-        m_driveEncoder.setPositionConversionFactor(42 / (Constants.SwerveConstants.kNeoTicksPerWheelRadian) * Constants.SwerveConstants.kWheelRadius);
-        m_turnEncoder.setPositionConversionFactor(1 / Constants.SwerveConstants.kNeoTicksPerTurnWheelRadian);
+        m_driveEncoder.setVelocityConversionFactor(Constants.SwerveConstants.kDrivePositionConversionFactor);
+        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kDriveVelocityConversionFactor);
+
+        m_turnEncoder.setPositionConversionFactor(Constants.SwerveConstants.kTurnPositionConversionFactor);
+        m_turnEncoder.setVelocityConversionFactor(Constants.SwerveConstants.kTurnVelocityConversionFactor);
 
         m_turnPIDController.setOutputRange(-Math.PI, Math.PI);
     }
