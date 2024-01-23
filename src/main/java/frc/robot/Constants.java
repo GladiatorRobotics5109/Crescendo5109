@@ -60,11 +60,11 @@ public final class Constants {
     public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
     public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
     
-    public static final double kDrivePositionConversionFactor = kSwerveDriveGearRatio * kWheelRadius * (2* Math.PI); // rotations -> meters (8.14 motor turns x 2pi*wheel radius / 1 motor turn)
-    public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor / 60.0; // rpm -> m/s 
+    public static final double kDrivePositionConversionFactor = kWheelRadius * (2* Math.PI) / kSwerveDriveGearRatio; // rotations -> meters (1 motor turn x x 2pi*wheel radius / 8.14 motor turns)
+    public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor; // rps -> m/s 
 
-    public static final double kTurnPositionConversionFactor = kSwerveTurnGearRatio * (2 * Math.PI); // rotations -> radians (12.8 motor turns x 2pi / 1 motor turn)
-    public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
+    public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
+    public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor; // rps -> rad/s
 
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
