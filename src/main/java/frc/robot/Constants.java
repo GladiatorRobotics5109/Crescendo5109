@@ -47,8 +47,8 @@ public final class Constants {
     public static final double kWheelRadius = 0.0508;
     
     // L1 MK4 gear ratios
-    public static final double kSwerveDriveGearRatio = 8.14;
-    public static final double kSwerveTurnGearRatio = 12.8;
+    public static final double kSwerveDriveGearRatio = 8.14; // 8.14 motor rotations = 1 revolution
+    public static final double kSwerveTurnGearRatio = 12.8; // 12.8 motor rotations = 1 revolution
     
     // public static final double kNeoTicksPerRevolution = 42;
     // public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
@@ -60,7 +60,7 @@ public final class Constants {
     public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
     public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
     
-    public static final double kDrivePositionConversionFactor = kWheelRadius * (2* Math.PI) / kSwerveDriveGearRatio; // rotations -> meters (1 motor turn x x 2pi*wheel radius / 8.14 motor turns)
+    public static final double kDrivePositionConversionFactor = (kWheelRadius*2) * Math.PI / kSwerveDriveGearRatio; // rotations -> meters (1 motor turn x x 2pi*wheel radius / 8.14 motor turns)
     public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor; // rps -> m/s 
 
     public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
