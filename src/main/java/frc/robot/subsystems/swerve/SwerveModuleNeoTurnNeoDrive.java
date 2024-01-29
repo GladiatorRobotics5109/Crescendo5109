@@ -19,7 +19,7 @@ import frc.robot.RevOptimizer;
 /** 
  * Represents a swerve module with a NEO (SparkMAX) turn motor and a NEO (SparkMAX) drive motor.
  */
-public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
+public class SwerveModuleNeoTurnNeoDrive {
     private final Translation2d m_modulePos;
     private final String m_moduleName;
     private final int m_moduleNum;
@@ -72,12 +72,12 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
 
 
 
-    @Override
+    
     public Translation2d getPos() {
         return m_modulePos;
     }
 
-    @Override
+    
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, new Rotation2d(m_turnEncoder.getPosition())) : state;
         
@@ -85,45 +85,45 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }
 
-    @Override
+    
     public void setDesiredState(SwerveModuleState state) {
         setDesiredState(state, true);
     }
 
-    @Override
+    
     public void brakeAll() {
         m_driveMotor.setIdleMode(IdleMode.kBrake);
         m_turnMotor.setIdleMode(IdleMode.kBrake);
     }
 
-    @Override
+    
     public void coastAll() {
         m_driveMotor.setIdleMode(IdleMode.kCoast);
         m_turnMotor.setIdleMode(IdleMode.kCoast);
     }
 
-    @Override
+    
     public String getName() {
         return m_moduleName;
     }
 
-    @Override
+    
     public int getNumber() {
         return m_moduleNum;
     }
 
-    @Override
+    
     public void resetEncoders() {
         m_driveEncoder.setPosition(0.0);
         m_turnEncoder.setPosition(0.0);
     }
 
-    @Override
+    
     public SwerveModuleState getState() {
         return new SwerveModuleState(Conversions.wheelToMeters(m_driveEncoder.getVelocity()), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 
-    @Override
+    
     public SwerveModulePosition getModulePosition() {
         return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
