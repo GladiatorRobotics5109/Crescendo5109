@@ -9,4 +9,4 @@ Code for different paradigms found in branches
 - CommandBased
 
 # WPILib
-- version 2024.1.1
+- version 2024.2.1
