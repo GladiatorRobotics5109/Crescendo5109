@@ -69,7 +69,7 @@ public class SwerveModuleNeoTurnNeoDrive extends SwerveModule {
         m_turnEncoder.setPositionConversionFactor(Constants.SwerveConstants.kTurnPositionConversionFactor);
         m_turnEncoder.setVelocityConversionFactor(Constants.SwerveConstants.kTurnVelocityConversionFactor);
 
-        m_turnPIDController.setOutputRange(-Math.PI, Math.PI);
+        m_turnPIDController.setOutputRange(-1, 1);
     }
 
 
