@@ -72,7 +72,7 @@ public class SwerveSubsystem extends SubsystemBase {
             m_kinematics,
             getHeading(),
             getPositions(),
-            new Pose2d() //startingPose.getPose2d()
+            startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose2d()
         );
 
         m_defaultSpeed = SwerveConstants.kMaxSpeed;

@@ -28,9 +28,9 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
 
-  private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(10);
-  private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(10);
-  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(5);
+  private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(20);
+  private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(20);
+  private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(10);
 
   private final SwerveSubsystem m_swerve;
 

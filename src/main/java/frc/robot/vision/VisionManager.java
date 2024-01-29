@@ -38,7 +38,7 @@ public class VisionManager {
             e.printStackTrace();  
         }
 
-        m_camera = new PhotonCamera("CameraOne");
+        m_camera = new PhotonCamera("Camera1");
         
         m_estimator = new PhotonPoseEstimator(
             m_aprilTagFieldLayout, 
