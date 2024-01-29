@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.SPI;
 
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 
 /**
@@ -77,6 +78,15 @@ public final class Constants {
       public static final ReplanningConfig kReplanningConfig = new ReplanningConfig(false, false);
 
       public static final Boolean kAutoMirror = false; //Crescendo Field isn't symmetric, so won't work
+
+      public static final HolonomicPathFollowerConfig kHolonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
+        kTranslationPID, 
+        kRotationPID, 
+        kMaxSpeed, 
+        kDriveBaseRadius, 
+        kReplanningConfig, 
+        Robot.kDefaultPeriod
+      );
     }
   }
 

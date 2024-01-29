@@ -4,8 +4,13 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.auton.AutonFactory;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 import java.nio.file.FileSystem;
@@ -34,6 +39,10 @@ public class RobotContainer {
 
   private final SwerveSubsystem m_swerve;
 
+  private final IntakeSubsystem m_intake;
+
+  private final SendableChooser<Command> m_autoChooser;
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // instantiate swerve
@@ -49,7 +58,18 @@ public class RobotContainer {
         () -> true) // field relative
     );
 
+    // TODO: change intake motor port
+    m_intake = new IntakeSubsystem(5);
     
+    // Register all commands for auto
+    NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
+    NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+
+    // Get auto chooser
+    m_autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("autoChooser", m_autoChooser);
+
+
     // Configure the controller bindings
     configureButtonBindings();
   }
@@ -68,7 +88,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return AutonFactory.getTestAuton(m_swerve);
+    // Get value of auto chooser
+    return m_autoChooser.getSelected();
   }
 
   public void resetEncoders() {

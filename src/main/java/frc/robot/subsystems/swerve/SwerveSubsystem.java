@@ -7,6 +7,7 @@ import java.util.function.DoubleSupplier;
 import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -78,6 +79,16 @@ public class SwerveSubsystem extends SubsystemBase {
         m_defaultSpeed = SwerveConstants.kMaxSpeed;
         m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
+
+        AutoBuilder.configureHolonomic(
+            () -> getPose(),
+            (Pose2d pose) -> resetPose(pose),
+            () -> getSpeeds(),
+            (ChassisSpeeds speeds) -> drive(speeds, false),
+            Constants.SwerveConstants.AutonConstants.kHolonomicPathFollowerConfig,
+            () -> false,
+            this
+        );
     }
 
     /** drive with desired x/y/rot velocities */
@@ -260,6 +271,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
+    }
+
+    private void resetPose(Pose2d pose) {
+        m_poseEstimator.resetPosition(getHeading(), getPositions(), pose);
     }
 
     @Override
