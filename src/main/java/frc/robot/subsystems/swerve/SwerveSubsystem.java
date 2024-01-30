@@ -276,19 +276,20 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
 
-        SmartDashboard.putNumber("ModFLAngle", m_moduleFL.getState().angle.getDegrees());
-        SmartDashboard.putNumber("ModFRAngle", m_moduleFR.getState().angle.getDegrees());
-        SmartDashboard.putNumber("ModBLAngle", m_moduleBL.getState().angle.getDegrees());
-        SmartDashboard.putNumber("ModBRAngle", m_moduleBR.getState().angle.getDegrees());
+        SmartDashboard.putNumber("ModFL DrivePos", m_moduleFL.getDrivePosition());
+        SmartDashboard.putNumber("ModFR DrivePos", m_moduleFR.getDrivePosition());
+        SmartDashboard.putNumber("ModBL DrivePos", m_moduleBL.getDrivePosition());
+        SmartDashboard.putNumber("ModBR DrivePos", m_moduleBR.getDrivePosition());
 
-        SmartDashboard.putNumber("ModFL DrivePos", m_moduleFL.getDrivePos());
-        SmartDashboard.putNumber("ModFR DrivePos", m_moduleFR.getDrivePos());
-        SmartDashboard.putNumber("ModBL DrivePos", m_moduleBL.getDrivePos());
-        SmartDashboard.putNumber("ModBR DrivePos", m_moduleBR.getDrivePos());
+        SmartDashboard.putNumber("ModFL DrivePos", m_moduleFL.getDriveVelocity());
+        SmartDashboard.putNumber("ModFR DrivePos", m_moduleFR.getDriveVelocity());
+        SmartDashboard.putNumber("ModBL DrivePos", m_moduleBL.getDriveVelocity());
+        SmartDashboard.putNumber("ModBR DrivePos", m_moduleBR.getDriveVelocity());
 
-        SmartDashboard.putNumber("ModFL TurnPos", m_moduleFL.getTurnPos());
-        SmartDashboard.putNumber("ModFR TurnPos", m_moduleFR.getTurnPos());
-        SmartDashboard.putNumber("ModBL TurnPos", m_moduleBL.getTurnPos());
-        SmartDashboard.putNumber("ModBR TurnPos", m_moduleBR.getTurnPos());
+        SmartDashboard.putNumber("ModFL TurnPos", m_moduleFL.getTurnPosition());
+        SmartDashboard.putNumber("ModFR TurnPos", m_moduleFR.getTurnPosition());
+        SmartDashboard.putNumber("ModBL TurnPos", m_moduleBL.getTurnPosition());
+        SmartDashboard.putNumber("ModBR TurnPos", m_moduleBR.getTurnPosition());
+
     }
 }

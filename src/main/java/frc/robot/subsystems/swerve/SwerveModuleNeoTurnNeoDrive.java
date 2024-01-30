@@ -129,11 +129,16 @@ public class SwerveModuleNeoTurnNeoDrive {
         return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 
-    public double getDrivePos() {
+    public double getDrivePosition() {
         return m_driveEncoder.getPosition();
     }
 
-    public double getTurnPos() {
+    public double getTurnPosition() {
         return m_turnEncoder.getPosition();
     }
+
+    public double getDriveVelocity() {
+        return m_driveEncoder.getVelocity();
+    }
+
 }
