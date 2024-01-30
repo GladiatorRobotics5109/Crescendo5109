@@ -264,6 +264,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (poses.isEmpty()) return;
 
+        System.out.println("new vision!!");
+
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
             m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
         }
@@ -281,12 +283,11 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("vx", getSpeeds().vxMetersPerSecond);
         SmartDashboard.putNumber("vy", getSpeeds().vyMetersPerSecond);
-        SmartDashboard.putNumber("rot", getSpeeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("vrot", getSpeeds().omegaRadiansPerSecond);
 
         updatePose();
 
         Pose2d pose = getPose();
-        // System.out.println("Pose (" + pose.getX() + ", " + pose.getY() + ")");
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
 
