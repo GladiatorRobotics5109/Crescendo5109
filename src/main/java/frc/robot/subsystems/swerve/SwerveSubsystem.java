@@ -6,6 +6,7 @@ import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -29,10 +30,10 @@ import frc.robot.vision.VisionManager;
 
 public class SwerveSubsystem extends SubsystemBase {
     // swerve modules
-    private final SwerveModule m_moduleFL;
-    private final SwerveModule m_moduleFR;
-    private final SwerveModule m_moduleBL;
-    private final SwerveModule m_moduleBR;
+    private final SwerveModuleNeoTurnNeoDrive m_moduleFL;
+    private final SwerveModuleNeoTurnNeoDrive m_moduleFR;
+    private final SwerveModuleNeoTurnNeoDrive m_moduleBL;
+    private final SwerveModuleNeoTurnNeoDrive m_moduleBR;
     
     private final double m_defaultSpeed;
     private double m_currentSpeed;

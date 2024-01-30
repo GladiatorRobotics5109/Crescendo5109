@@ -21,7 +21,7 @@ import frc.robot.RevOptimizer;
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.
  */
-public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
+public class SwerveModuleKrakenTurnNeoDrive {
     private final Translation2d m_modulePos;
     private final String m_moduleName;
     private final int m_moduleNum;
@@ -50,81 +50,81 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         m_drivePIDController = m_driveMotor.getPIDController();
 
         // set drive PID values
-        m_drivePIDController.setP(0.3);
-        m_drivePIDController.setI(0.0);
-        m_drivePIDController.setD(0.0);
+        m_drivePIDController.setP(Constants.ModuleConstants.kDriveP);
+        m_drivePIDController.setI(Constants.ModuleConstants.kDriveI);
+        m_drivePIDController.setD(Constants.ModuleConstants.kDriveD);
 
         // TODO: turn motor PID tune
         TalonFXConfiguration turnMotorConfiguration = new TalonFXConfiguration();
-        turnMotorConfiguration.Slot0.kP = 1.5;
-        turnMotorConfiguration.Slot0.kI = 0.0;
-        turnMotorConfiguration.Slot0.kI = 0.0;
-        turnMotorConfiguration.Feedback.RotorToSensorRatio = Constants.SwerveConstants.kSwerveTurnGearRatio;
+        turnMotorConfiguration.Slot0.kP = Constants.ModuleConstants.kTurnP;
+        turnMotorConfiguration.Slot0.kI = Constants.ModuleConstants.kTurnI;
+        turnMotorConfiguration.Slot0.kD = Constants.ModuleConstants.kTurnD;
+        turnMotorConfiguration.Feedback.RotorToSensorRatio = Constants.ModuleConstants.kSwerveTurnGearRatio;
 
         m_turnMotor.getConfigurator().apply(turnMotorConfiguration);
         
-        m_driveEncoder.setVelocityConversionFactor(Constants.SwerveConstants.kDrivePositionConversionFactor);
-        m_driveEncoder.setPositionConversionFactor(Constants.SwerveConstants.kDriveVelocityConversionFactor);
+        m_driveEncoder.setVelocityConversionFactor(Constants.ModuleConstants.kDrivePositionConversionFactor);
+        m_driveEncoder.setPositionConversionFactor(Constants.ModuleConstants.kDriveVelocityConversionFactor);
         // unlike the SparkMAXes, we have to run kraken ticks -> radian conversion manually in our code.
         // m_turnMotor.getSelectedSensorPosition() should never really be used in this class to get encoder position
         // getTurnEncoderPositionRad() should be used instead.
     }
 
-    @Override
+    
     public Translation2d getPos() {
         return m_modulePos;
     }
 
-    @Override
+    
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(getTurnWheelPositionRad())) : state;
 
         m_drivePIDController.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);
-        m_turnMotor.setPosition(optimizedState.angle.getRotations() * (1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
+        m_turnMotor.setPosition(optimizedState.angle.getRotations() * (1 / Constants.ModuleConstants.kSwerveTurnGearRatio));
     }
 
-    @Override
+    
     public void setDesiredState(SwerveModuleState state) {
         setDesiredState(state, true);
     }
 
-    @Override
+    
     public void brakeAll() {
         m_driveMotor.setIdleMode(IdleMode.kBrake);
         m_turnMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    @Override
+    
     public void coastAll() {
         m_driveMotor.setIdleMode(IdleMode.kCoast);
         m_turnMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
-    @Override
+    
     public String getName() {
         return m_moduleName;
     }
 
-    @Override
+    
     public int getNumber() {
         return m_moduleNum;
     }
 
-    @Override
+    
     public void resetEncoders() {
         m_driveEncoder.setPosition(0);
     }
 
     private double getTurnWheelPositionRad() {
-        return Conversions.krakenToRad(m_turnMotor.getPosition().getValueAsDouble(), Constants.SwerveConstants.kKrakenTicksPerTurnWheelRadian);
+        return Conversions.krakenToRad(m_turnMotor.getPosition().getValueAsDouble(), Constants.ModuleConstants.kKrakenTicksPerTurnWheelRadian);
     }
 
-    @Override
+    
     public SwerveModuleState getState() {
         return new SwerveModuleState(m_driveEncoder.getVelocity(), Rotation2d.fromRadians(m_turnMotor.getPosition().getValueAsDouble()));
     }
 
-    @Override
+    
     public SwerveModulePosition getModulePosition() {
         return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnMotor.getPosition().getValueAsDouble()));
     }
