@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
-import frc.robot.Conversions;
 import frc.robot.RevOptimizer;
 
 /** 
@@ -122,7 +121,7 @@ public class SwerveModuleNeoTurnNeoDrive {
 
     
     public SwerveModuleState getState() {
-        return new SwerveModuleState(Conversions.wheelToMeters(m_driveEncoder.getVelocity()), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
+        return new SwerveModuleState(m_driveEncoder.getVelocity(), Rotation2d.fromRadians(m_turnEncoder.getPosition()));
     }
 
     

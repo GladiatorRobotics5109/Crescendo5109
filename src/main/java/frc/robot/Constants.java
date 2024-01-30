@@ -67,7 +67,7 @@ public final class Constants {
   public static class ModuleConstants {
 
     public static final double kWheelRadius = 0.0508;
-    
+
     // L1 MK4 gear ratios
     public static final double kSwerveDriveGearRatio = 8.14; // 8.14 motor rotations = 1 revolution
     public static final double kSwerveTurnGearRatio = 12.8; // 12.8 motor rotations = 1 revolution
@@ -87,14 +87,15 @@ public final class Constants {
   
     public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
     public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor; // rps -> rad/s
-  
-    public static final double kTurnP = 0.3;
+    
+    public static final double kDriveP = 0.3;
+    public static final double kDriveI = 0;
+    public static final double kDriveD = 0;
+
+    public static final double kTurnP = 1.5;
     public static final double kTurnI = 0;
     public static final double kTurnD = 0;
   
-    public static final double kDriveP = 1.5;
-    public static final double kDriveI = 0;
-    public static final double kDriveD = 0;
     
   }
   
