@@ -21,7 +21,7 @@ import frc.robot.RevOptimizer;
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.
  */
-public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
+public class SwerveModuleKrakenTurnNeoDrive {
     private final Translation2d m_modulePos;
     private final String m_moduleName;
     private final int m_moduleNum;
@@ -70,12 +70,10 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         // getTurnEncoderPositionRad() should be used instead.
     }
 
-    @Override
     public Translation2d getPos() {
         return m_modulePos;
     }
-
-    @Override
+    
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(getTurnWheelPositionRad())) : state;
 
@@ -83,34 +81,29 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         m_turnMotor.setPosition(optimizedState.angle.getRotations() * (1 / Constants.SwerveConstants.kSwerveTurnGearRatio));
     }
 
-    @Override
+
     public void setDesiredState(SwerveModuleState state) {
         setDesiredState(state, true);
     }
 
-    @Override
     public void brakeAll() {
         m_driveMotor.setIdleMode(IdleMode.kBrake);
         m_turnMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
-    @Override
     public void coastAll() {
         m_driveMotor.setIdleMode(IdleMode.kCoast);
         m_turnMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
-    @Override
     public String getName() {
         return m_moduleName;
     }
 
-    @Override
     public int getNumber() {
         return m_moduleNum;
     }
 
-    @Override
     public void resetEncoders() {
         m_driveEncoder.setPosition(0);
     }
@@ -119,12 +112,10 @@ public class SwerveModuleKrakenTurnNeoDrive extends SwerveModule {
         return Conversions.krakenToRad(m_turnMotor.getPosition().getValueAsDouble(), Constants.SwerveConstants.kKrakenTicksPerTurnWheelRadian);
     }
 
-    @Override
     public SwerveModuleState getState() {
         return new SwerveModuleState(m_driveEncoder.getVelocity(), Rotation2d.fromRadians(m_turnMotor.getPosition().getValueAsDouble()));
     }
 
-    @Override
     public SwerveModulePosition getModulePosition() {
         return new SwerveModulePosition(m_driveEncoder.getPosition(), Rotation2d.fromRadians(m_turnMotor.getPosition().getValueAsDouble()));
     }
