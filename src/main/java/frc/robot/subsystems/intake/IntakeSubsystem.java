@@ -13,8 +13,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeSubsystem extends SubsystemBase {
     private final CANSparkMax m_intakeMotor;
 
-    private final RelativeEncoder m_encoder;
-
     private final SparkPIDController m_pidController;
     
     public IntakeSubsystem(int intakeMotorPort) {
