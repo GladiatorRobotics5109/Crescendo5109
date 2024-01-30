@@ -280,5 +280,15 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("ModFRAngle", m_moduleFR.getState().angle.getDegrees());
         SmartDashboard.putNumber("ModBLAngle", m_moduleBL.getState().angle.getDegrees());
         SmartDashboard.putNumber("ModBRAngle", m_moduleBR.getState().angle.getDegrees());
+
+        SmartDashboard.putNumber("ModFL DrivePos", m_moduleFL.getDrivePos());
+        SmartDashboard.putNumber("ModFR DrivePos", m_moduleFR.getDrivePos());
+        SmartDashboard.putNumber("ModBL DrivePos", m_moduleBL.getDrivePos());
+        SmartDashboard.putNumber("ModBR DrivePos", m_moduleBR.getDrivePos());
+
+        SmartDashboard.putNumber("ModFL TurnPos", m_moduleFL.getTurnPos());
+        SmartDashboard.putNumber("ModFR TurnPos", m_moduleFR.getTurnPos());
+        SmartDashboard.putNumber("ModBL TurnPos", m_moduleBL.getTurnPos());
+        SmartDashboard.putNumber("ModBR TurnPos", m_moduleBR.getTurnPos());
     }
 }
