@@ -90,7 +90,7 @@ public final class Constants {
     
     public static final double kDriveP = 0.3;
     public static final double kDriveI = 0;
-    public static final double kDriveD = 0.1;
+    public static final double kDriveD = 0.05;
 
     public static final double kTurnP = 1.5;
     public static final double kTurnI = 0;

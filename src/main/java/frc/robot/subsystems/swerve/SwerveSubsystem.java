@@ -6,7 +6,6 @@ import java.util.function.DoubleSupplier;
 
 import org.photonvision.EstimatedRobotPose;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -281,10 +280,10 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("ModBL DrivePos", m_moduleBL.getDrivePosition());
         SmartDashboard.putNumber("ModBR DrivePos", m_moduleBR.getDrivePosition());
 
-        SmartDashboard.putNumber("ModFL DrivePos", m_moduleFL.getDriveVelocity());
-        SmartDashboard.putNumber("ModFR DrivePos", m_moduleFR.getDriveVelocity());
-        SmartDashboard.putNumber("ModBL DrivePos", m_moduleBL.getDriveVelocity());
-        SmartDashboard.putNumber("ModBR DrivePos", m_moduleBR.getDriveVelocity());
+        SmartDashboard.putNumber("ModFL DriveVelocity", m_moduleFL.getDriveVelocity());
+        SmartDashboard.putNumber("ModFR DriveVelocity", m_moduleFR.getDriveVelocity());
+        SmartDashboard.putNumber("ModBL DriveVelocity", m_moduleBL.getDriveVelocity());
+        SmartDashboard.putNumber("ModBR DriveVelocity", m_moduleBR.getDriveVelocity());
 
         SmartDashboard.putNumber("ModFL TurnPos", m_moduleFL.getTurnPosition());
         SmartDashboard.putNumber("ModFR TurnPos", m_moduleFR.getTurnPosition());
