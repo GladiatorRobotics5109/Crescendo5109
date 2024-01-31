@@ -10,7 +10,6 @@ import java.util.HashMap;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -44,43 +43,64 @@ public final class Constants {
     public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921, 0.2921);
     public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921, -0.2921);
     
+    
+    public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
+    
+    public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;
+    
+    public static class AutonConstants {
+      public static final double kMaxSpeed = 0.25;
+      public static final double kMaxAcceleration = .5;
+      
+      public static final double kMaxAngularSpeed = 1 * Math.PI;
+      public static final double kMaxAngularAcceleration = 1 * Math.PI;
+      
+      public static final PIDConstants kTranslationPID = new PIDConstants(1, 0, 0);
+      public static final PIDConstants kRotationPID = new PIDConstants(1, 0, 0);
+      
+      public static final ReplanningConfig kReplanningConfig = new ReplanningConfig(false, false);
+      
+      public static final Boolean kAutoMirror = false; //Crescendo Field isn't symmetric, so won't work
+    }
+  }
+  
+  public static class ModuleConstants {
+
     public static final double kWheelRadius = 0.0508;
-    
+
     // L1 MK4 gear ratios
-    public static final double kSwerveDriveGearRatio = 8.14;
-    public static final double kSwerveTurnGearRatio = 12.8;
+    public static final double kSwerveDriveGearRatio = 8.14; // 8.14 motor rotations = 1 revolution
+    public static final double kSwerveTurnGearRatio = 12.8; // 12.8 motor rotations = 1 revolution
     
-    public static final double kNeoTicksPerRevolution = 42;
-    public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
-    public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
-    public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
+    // public static final double kNeoTicksPerRevolution = 42;
+    // public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
+    // public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
+    // public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
     
     public static final double kKrakenTicksPerRevolution = 2000;
     public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
     public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
     public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
     
-    public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
+    public static final double kDrivePositionConversionFactor = (kWheelRadius*2) * Math.PI / kSwerveDriveGearRatio; // rotations -> meters (1 motor turn x x 2pi*wheel radius / 8.14 motor turns)
+    public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor / 60.0; // rpm -> m/s 
+  
+    public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
+    public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
+    
+    public static final double kDriveP = 0.3;
+    public static final double kDriveI = 0;
+    public static final double kDriveD = 0.05;
 
-    public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;
-
-    public static class AutonConstants {
-      public static final double kMaxSpeed = 0.25;
-      public static final double kMaxAcceleration = .5;
-
-      public static final double kMaxAngularSpeed = 1 * Math.PI;
-      public static final double kMaxAngularAcceleration = 1 * Math.PI;
-
-      public static final PIDConstants kTranslationPID = new PIDConstants(1, 0, 0);
-      public static final PIDConstants kRotationPID = new PIDConstants(1, 0, 0);
-
-      public static final ReplanningConfig kReplanningConfig = new ReplanningConfig(false, false);
-
-      public static final Boolean kAutoMirror = false; //Crescendo Field isn't symmetric, so won't work
-    }
+    public static final double kTurnP = 1.5;
+    public static final double kTurnI = 0;
+    public static final double kTurnD = 0;
+  
+    
   }
-
+  
   public static class DriveTeamConstants {
+    
     public static final int kDriverControllerPort = 0;
   }
 
