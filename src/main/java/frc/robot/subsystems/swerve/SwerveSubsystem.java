@@ -323,7 +323,6 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimPID.setSetpoint(0);
 
         if (alliance.isEmpty() || alliance.get() == Alliance.Red) {
-
             // red speaker tag pose
             Pose2d redPose = new Pose2d(
                 Units.inchesToMeters(652.73),
@@ -372,6 +371,8 @@ public class SwerveSubsystem extends SubsystemBase {
         Pose2d pose = getPose();
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
+
+        SmartDashboard.putNumber("AutoAimVRot", calcAutoAim() * m_maxAngularSpeed);
 
         SmartDashboard.putNumber("ModFLAngle", m_moduleFL.getState().angle.getDegrees());
         SmartDashboard.putNumber("ModFRAngle", m_moduleFR.getState().angle.getDegrees());
