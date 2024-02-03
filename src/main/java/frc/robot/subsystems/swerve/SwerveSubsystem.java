@@ -12,13 +12,18 @@ import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,6 +51,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrivePoseEstimator m_poseEstimator;
     
     private final AHRS m_navX;
+    
+    private final PIDController m_autoAimPID;
+    private boolean m_autoAiming;
+    
     
     public SwerveSubsystem() {
         // TODO: select right CAN ids for motors
@@ -80,6 +89,9 @@ public class SwerveSubsystem extends SubsystemBase {
         m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
 
+        m_autoAimPID = new PIDController(0.5, 0, 0);
+        m_autoAiming = false;
+
         AutoBuilder.configureHolonomic(
             () -> getPose(),
             (Pose2d pose) -> resetPose(pose),
@@ -92,9 +104,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /** drive with desired x/y/rot velocities */
-    public void drive(double vx, double vy, double rot, boolean fieldRelative) {
+    public void drive(double vx, double vy, double vrot, boolean fieldRelative) {
+        if (m_autoAiming)
+            vrot = calcAutoAim();
+        
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, rot, navXVal) : new ChassisSpeeds(vx, vy, rot));
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
@@ -161,18 +176,18 @@ public class SwerveSubsystem extends SubsystemBase {
             // get joystick axises
             double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.kJoystickDeadzone);
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
-            double rot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
+            double vrot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
-            double newSpeed = ((5 * joyLeftTrigger.getAsDouble()) + m_defaultSpeed) + (-8 * joyRightTrigger.getAsDouble());
+            // double newSpeed = ((5 * joyLeftTrigger.getAsDouble()) + m_defaultSpeed) + (-8 * joyRightTrigger.getAsDouble());
 
-            setMaxSpeed(newSpeed);
+            // setMaxSpeed(newSpeed);
 
             // apply max speeds
             vx *= m_currentSpeed;
             vy *= m_currentSpeed;
-            rot *= m_maxAngularSpeed;
+            vrot *= m_maxAngularSpeed;
 
-            drive(vx, vy, rot, fieldRelative.getAsBoolean());
+            drive(vx, vy, vrot, fieldRelative.getAsBoolean());
         }).withName("DriveWithJoystickCommand");
     }
 
@@ -277,6 +292,73 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private void resetPose(Pose2d pose) {
         m_poseEstimator.resetPosition(getHeading(), getPositions(), pose);
+    }
+
+    public void setAutoAim(boolean autoAim) { 
+        m_autoAiming = autoAim;
+    }
+
+    public void toggleAutoAim() {
+        m_autoAiming = !m_autoAiming;
+    }
+
+    /**
+     * 
+     * @return a command that toggles auto aiming to speaker
+     */
+    public Command getToggleAutoAimCommand() {
+        return this.runOnce(() -> toggleAutoAim()).withName("toggleAutoAimCommand");
+    }
+
+    /**
+     * Calculates a desired rotation velocity that will automatically align the bot with the respective alliance's speaker
+     * @return
+     */
+    private double calcAutoAim() {
+        // get current alliance
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+
+        Pose2d robotPose = getPose();
+
+        m_autoAimPID.setSetpoint(0);
+
+        if (alliance.isEmpty() || alliance.get() == Alliance.Red) {
+
+            // red speaker tag pose
+            Pose2d redPose = new Pose2d(
+                Units.inchesToMeters(652.73),
+                Units.inchesToMeters(218.42),
+                Rotation2d.fromRadians(0)
+            );
+
+            Transform2d delta = new Transform2d(
+                redPose.getX() - robotPose.getX(),
+                redPose.getY() - robotPose.getY(),
+                Rotation2d.fromRadians(0)
+            );
+
+            double angle = Math.atan(delta.getY() / delta.getX());
+
+            return m_autoAimPID.calculate(angle);
+        }
+        else {
+            // blue speaker tag pose
+            Pose2d bluePose = new Pose2d(
+                Units.inchesToMeters(-1.5),
+                Units.inchesToMeters(218.42),
+                Rotation2d.fromRadians(0)
+            );
+
+            Transform2d delta = new Transform2d(
+                robotPose.getX() - bluePose.getX(), 
+                robotPose.getY() - bluePose.getY(), 
+                Rotation2d.fromRadians(0)
+            );
+
+            double angle = -Math.atan(delta.getY() / delta.getX());
+
+            return m_autoAimPID.calculate(angle);
+        }
     }
 
     @Override

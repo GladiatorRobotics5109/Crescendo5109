@@ -77,7 +77,8 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    m_driverController.x().onTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.y().onTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
     m_driverController.a().whileTrue(m_swerve.getAlignWheelCommand());
   }
 
