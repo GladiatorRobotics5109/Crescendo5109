@@ -310,6 +310,14 @@ public class SwerveSubsystem extends SubsystemBase {
         return this.runOnce(() -> toggleAutoAim()).withName("toggleAutoAimCommand");
     }
 
+    public Command getEnableAutoAimCommand() {
+        return this.runOnce(() -> m_autoAiming = true).withName("enableAutoAimCommand");
+    }
+
+    public Command getDisableAutoAimCommand() {
+        return this.runOnce(() -> m_autoAiming = false).withName("disableAutoAimCommand");
+    }
+
     /**
      * Calculates a desired rotation velocity that will automatically align the bot with the respective alliance's speaker
      * @return

@@ -64,6 +64,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
     NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
 
+    NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
+    NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
+
     // Get auto chooser
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("autoChooser", m_autoChooser);
