@@ -38,7 +38,7 @@ public class RobotContainer {
 
   private final SwerveSubsystem m_swerve;
 
-  private final IntakeSubsystem m_intake;
+  // private final IntakeSubsystem m_intake;
 
   private final SendableChooser<Command> m_autoChooser;
 
@@ -58,11 +58,11 @@ public class RobotContainer {
     );
 
     // TODO: change intake motor port
-    m_intake = new IntakeSubsystem(5);
+    // m_intake = new IntakeSubsystem(5);
     
     // Register all commands for auto
-    NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
-    NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+    // NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
+    // NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
 
     NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
     NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());

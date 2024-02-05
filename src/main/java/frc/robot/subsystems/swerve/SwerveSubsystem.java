@@ -89,7 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
 
-        m_autoAimPID = new PIDController(0.5, 0, 0);
+        m_autoAimPID = new PIDController(0.25, 0, 0.26);
         m_autoAiming = false;
 
         AutoBuilder.configureHolonomic(
@@ -277,9 +277,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
         Optional<EstimatedVisionPosition> poses = m_vision.getPose();
 
-        if (poses.isEmpty()) return;
+        if (poses.isEmpty()) {
+            System.out.println("no vision");
+            return;
+        }
 
-        System.out.println("new vision!!");
+        System.out.println("got vision");
 
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
             m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
@@ -323,15 +326,63 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return
      */
     private double calcAutoAim() {
-        // get current alliance
-        Optional<Alliance> alliance = DriverStation.getAlliance();
+        // // get current alliance
+        // Optional<Alliance> alliance = DriverStation.getAlliance();
+
+        // Pose2d robotPose = getPose();
+
+        // m_autoAimPID.setSetpoint(0);
+
+        // if (alliance.isEmpty() || alliance.get() == Alliance.Red) {
+        //     // red speaker tag pose
+        //     Pose2d redPose = new Pose2d(
+        //         Units.inchesToMeters(652.73),
+        //         Units.inchesToMeters(218.42),
+        //         Rotation2d.fromRadians(0)
+        //     );
+
+        //     Transform2d delta = new Transform2d(
+        //         redPose.getX() - robotPose.getX(),
+        //         redPose.getY() - robotPose.getY(),
+        //         Rotation2d.fromRadians(0)
+        //     );
+
+        //     double angle = Math.atan(delta.getY() / delta.getX());
+        //     System.out.println("RED angle: " + Units.radiansToDegrees(angle));
+
+        //     return m_autoAimPID.calculate(angle);
+        // }
+        // else {
+        //     // blue speaker tag pose
+        //     Pose2d bluePose = new Pose2d(
+        //         Units.inchesToMeters(-1.5),
+        //         Units.inchesToMeters(218.42),
+        //         Rotation2d.fromRadians(0)
+        //     );
+
+        //     Transform2d delta = new Transform2d(
+        //         robotPose.getX() - bluePose.getX(), 
+        //         robotPose.getY() - bluePose.getY(), 
+        //         Rotation2d.fromRadians(0)
+        //     );
+
+        //     double angle = -Math.atan(delta.getY() / delta.getX());
+        //     System.out.println("BLUE angle: " + Units.radiansToDegrees(angle));
+
+        //     return m_autoAimPID.calculate(angle);
+        // }
 
         Pose2d robotPose = getPose();
+
+        double angle = robotPose.getRotation().getDegrees() % 360;
+
+        Optional<Alliance> alliance = DriverStation.getAlliance();
 
         m_autoAimPID.setSetpoint(0);
 
         if (alliance.isEmpty() || alliance.get() == Alliance.Red) {
-            // red speaker tag pose
+            double angleOffset = 0;
+
             Pose2d redPose = new Pose2d(
                 Units.inchesToMeters(652.73),
                 Units.inchesToMeters(218.42),
@@ -344,11 +395,15 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(0)
             );
 
-            double angle = Math.atan(delta.getY() / delta.getX());
-
-            return m_autoAimPID.calculate(angle);
+            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            
+            System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            System.out.println("relative angle: " + (angle - angleOffset));
+            return m_autoAimPID.calculate(angle - angleOffset);
         }
         else {
+            double angleOffset = 180;
+
             // blue speaker tag pose
             Pose2d bluePose = new Pose2d(
                 Units.inchesToMeters(-1.5),
@@ -361,10 +416,12 @@ public class SwerveSubsystem extends SubsystemBase {
                 robotPose.getY() - bluePose.getY(), 
                 Rotation2d.fromRadians(0)
             );
+            
+            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
 
-            double angle = -Math.atan(delta.getY() / delta.getX());
-
-            return m_autoAimPID.calculate(angle);
+            System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            System.out.println("relative angle: " + (angle - angleOffset));
+            return m_autoAimPID.calculate(angle - angleOffset);
         }
     }
 
@@ -380,11 +437,13 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
 
-        SmartDashboard.putNumber("AutoAimVRot", calcAutoAim() * m_maxAngularSpeed);
+        SmartDashboard.putNumber("AutoAimVRot", calcAutoAim());
 
         SmartDashboard.putNumber("ModFLAngle", m_moduleFL.getState().angle.getDegrees());
         SmartDashboard.putNumber("ModFRAngle", m_moduleFR.getState().angle.getDegrees());
         SmartDashboard.putNumber("ModBLAngle", m_moduleBL.getState().angle.getDegrees());
         SmartDashboard.putNumber("ModBRAngle", m_moduleBR.getState().angle.getDegrees());
+
+        SmartDashboard.putBoolean("AutoAiming", m_autoAiming);
     }
 }
