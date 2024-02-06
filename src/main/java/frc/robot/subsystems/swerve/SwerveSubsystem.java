@@ -15,6 +15,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -61,6 +62,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final DoublePublisher m_autoAimPIDSetpointPublisher;
     private final DoublePublisher m_autoAimPIDOutputPublisher;
+
+    StructPublisher<Pose2d> m_posePubliser;
     
     
     public SwerveSubsystem() {
@@ -96,10 +99,17 @@ public class SwerveSubsystem extends SubsystemBase {
         m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
 
-        m_autoAimPID = new PIDController(0.25, 0, 0.26);
+        // m_autoAimPID = new PIDController(0.25, 0, 0.27); works pretty well
+        m_autoAimPID = new PIDController(0.18, 0, 0.27);
+        m_autoAimPID.setIZone(.5);
+        m_autoAimPID.setIntegratorRange(-1, 1);
+        m_autoAimPID.setI(0.2);
+
         m_autoAiming = false;
         m_autoAimPIDOutputPublisher = NetworkTableInstance.getDefault().getDoubleTopic("AutoAimPIDOutput").publish();
         m_autoAimPIDSetpointPublisher = NetworkTableInstance.getDefault().getDoubleTopic("AutoAimPIDSetpoint").publish();
+
+        m_posePubliser = NetworkTableInstance.getDefault().getStructTopic("RobotPose", Pose2d.struct).publish();
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),
@@ -357,13 +367,18 @@ public class SwerveSubsystem extends SubsystemBase {
                 redPose.getY() - robotPose.getY(),
                 Rotation2d.fromRadians(0)
             );
-
-            m_autoAimPIDSetpointPublisher.set(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
-            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             
-            System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            // double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
+            double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
+
+            m_autoAimPIDSetpointPublisher.set(setpoint);
+            m_autoAimPID.setSetpoint(setpoint);
+            
+            System.out.println("setpoint: " + setpoint);
             System.out.println("relative angle: " + (angle - angleOffset));
+            // double pidOutput = MathUtil.applyDeadband(m_autoAimPID.calculate(angle - angleOffset), 5);
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
+
             m_autoAimPIDOutputPublisher.set(pidOutput);
             return pidOutput;
         }
@@ -383,10 +398,12 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(0)
             );
             
-            m_autoAimPIDSetpointPublisher.set(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
-            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
-            System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            m_autoAimPIDSetpointPublisher.set(setpoint);
+            m_autoAimPID.setSetpoint(setpoint);
+
+            System.out.println("setpoint: " + setpoint);
             System.out.println("relative angle: " + (angle - angleOffset));
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
@@ -404,6 +421,7 @@ public class SwerveSubsystem extends SubsystemBase {
         updatePose();
 
         Pose2d pose = getPose();
+        m_posePubliser.set(pose);
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
 
