@@ -110,8 +110,6 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> false,
             this
         );
-
-        m_autoAiming = true;
     }
 
     /** drive with desired x/y/rot velocities */
