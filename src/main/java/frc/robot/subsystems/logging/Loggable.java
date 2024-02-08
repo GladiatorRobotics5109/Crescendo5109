@@ -12,6 +12,7 @@ public abstract class Loggable {
 
     protected boolean m_logToNetworkTables;
     
+    // WPI Logger integration
     protected DataLog m_wpiLog;
     protected int m_wpiEntry;
 

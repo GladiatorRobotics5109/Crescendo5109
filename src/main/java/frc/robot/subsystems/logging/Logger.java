@@ -38,6 +38,18 @@ public class Logger extends SubsystemBase {
         }
     }
 
+    public void info(String message) {
+        DataLogManager.log("[INFO]: " + message);
+    }
+
+    public void warn(String message) {
+        DataLogManager.log("[WARN]: " + message);
+    }
+
+    public void error(String message) {
+        DataLogManager.log("[ERR]: " + message);
+    }
+
     @Override
     public void periodic() {
         updateLog();

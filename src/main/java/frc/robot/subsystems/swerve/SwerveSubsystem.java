@@ -22,8 +22,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +30,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.subsystems.logging.LoggableBoolean;
+import frc.robot.subsystems.logging.LoggableDouble;
+import frc.robot.subsystems.logging.Logger;
 import frc.robot.vision.EstimatedVisionPosition;
 import frc.robot.vision.VisionManager;
 
@@ -57,8 +58,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController m_autoAimPID;
     private boolean m_autoAiming;
 
-    private final DoublePublisher m_autoAimPIDSetpointPublisher;
-    private final DoublePublisher m_autoAimPIDOutputPublisher;
+    private LoggableDouble m_autoAimPIDOutputLog;
+    private LoggableDouble m_autoAimPIDSetpointLog;
+    private LoggableBoolean m_autoAimStateLog;
     
     
     public SwerveSubsystem() {
@@ -96,8 +98,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_autoAimPID = new PIDController(0.25, 0, 0.26);
         m_autoAiming = false;
-        m_autoAimPIDOutputPublisher = NetworkTableInstance.getDefault().getDoubleTopic("AutoAimPIDOutput").publish();
-        m_autoAimPIDSetpointPublisher = NetworkTableInstance.getDefault().getDoubleTopic("AutoAimPIDSetpoint").publish();
+        
+        m_autoAimPIDOutputLog = new LoggableDouble(getName(), "AutoAimPIDOutput", () -> calcAutoAim());
+        m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", () -> m_autoAimPID.getSetpoint());
+        m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, () -> m_autoAiming);
+
+        Logger.getInstance().addLoggable(m_autoAimPIDOutputLog);
+        Logger.getInstance().addLoggable(m_autoAimPIDSetpointLog);
+        Logger.getInstance().addLoggable(m_autoAimStateLog);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),
@@ -356,13 +364,12 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(0)
             );
 
-            m_autoAimPIDSetpointPublisher.set(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             
             System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             System.out.println("relative angle: " + (angle - angleOffset));
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
-            m_autoAimPIDOutputPublisher.set(pidOutput);
+
             return pidOutput;
         }
         else {
@@ -381,14 +388,12 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(0)
             );
             
-            m_autoAimPIDSetpointPublisher.set(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
 
             System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             System.out.println("relative angle: " + (angle - angleOffset));
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
-            m_autoAimPIDOutputPublisher.set(pidOutput);
             return pidOutput;
         }
     }

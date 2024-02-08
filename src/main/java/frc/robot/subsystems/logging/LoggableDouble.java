@@ -13,8 +13,7 @@ public class LoggableDouble extends Loggable {
         String subsystem, 
         String name, 
         boolean logToNetworkTables, 
-        DoubleSupplier valueSupplier, 
-        DoublePublisher publisher) {
+        DoubleSupplier valueSupplier) {
         super(subsystem, name, logToNetworkTables);
 
         m_valueSupplier = valueSupplier;
@@ -24,8 +23,7 @@ public class LoggableDouble extends Loggable {
     public LoggableDouble(
         String subsystem,
         String name,
-        DoubleSupplier valueSupplier,
-        DoublePublisher publisher) {
+        DoubleSupplier valueSupplier) {
         super(subsystem, name, true);
 
         m_valueSupplier = valueSupplier;
