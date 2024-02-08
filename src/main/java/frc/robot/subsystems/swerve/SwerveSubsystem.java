@@ -4,6 +4,9 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import frc.robot.stateMachine.StateMachine;
+import frc.robot.stateMachine.SwerveState;
+import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
 import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -62,8 +65,11 @@ public class SwerveSubsystem extends SubsystemBase {
     private LoggableDouble m_autoAimPIDSetpointLog;
     private LoggableBoolean m_autoAimStateLog;
     
-    
+    private final SwerveState m_state;
+
     public SwerveSubsystem() {
+        m_state = StateMachine.getSwerveState();
+
         // TODO: select right CAN ids for motors
         m_moduleFL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14);
         m_moduleFR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13);;
@@ -116,13 +122,16 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> false,
             this
         );
+
+        this.coast();
     }
 
     /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double vrot, boolean fieldRelative) {
+        m_state.addState(SwerveStateEnum.DRIVING);
         if (m_autoAiming)
             vrot = calcAutoAim();
-        
+      
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
@@ -163,6 +172,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Brake on all motors on all swerve modules */
     private void brakeAll() {
+        m_state.addState(SwerveStateEnum.BRAKE_ALL);
         m_moduleFL.brakeAll();
         m_moduleFL.brakeAll();
         m_moduleFL.brakeAll();
@@ -171,6 +181,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Coast on all motors on all swerve modules */
     public void coast() {
+        m_state.addState(SwerveStateEnum.COAST_ALL);
         m_moduleFL.coastAll();
         m_moduleFR.coastAll();
         m_moduleBL.coastAll();

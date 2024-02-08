@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.logging.Logger;
+import frc.robot.stateMachine.StateMachine;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -39,6 +41,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.init();
+    StateMachine.init();
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
 
