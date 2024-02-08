@@ -9,18 +9,13 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveTeamConstants;
+import frc.robot.subsystems.logging.Logger;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
-import java.nio.file.FileSystem;
-
-import com.pathplanner.lib.path.PathPlannerPath;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -39,12 +34,13 @@ public class RobotContainer {
 
   private final SwerveSubsystem m_swerve;
 
-  private final IntakeSubsystem m_intake;
+  // private final IntakeSubsystem m_intake;
 
   private final SendableChooser<Command> m_autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    Logger.init();
     StateMachine.init();
     // instantiate swerve
     m_swerve = new SwerveSubsystem();
@@ -60,11 +56,14 @@ public class RobotContainer {
     );
 
     // TODO: change intake motor port
-    m_intake = new IntakeSubsystem(5);
+    // m_intake = new IntakeSubsystem(5);
     
     // Register all commands for auto
-    NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
-    NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+    // NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
+    // NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+
+    NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
+    NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
 
     // Get auto chooser
     m_autoChooser = AutoBuilder.buildAutoChooser();
@@ -79,7 +78,8 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    m_driverController.x().onTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.y().onTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
     m_driverController.a().whileTrue(m_swerve.getAlignWheelCommand());
   }
 
