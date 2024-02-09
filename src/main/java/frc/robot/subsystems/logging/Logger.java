@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -46,7 +47,8 @@ public class Logger extends SubsystemBase {
         DataLogManager.log("[WARN]: " + message);
     }
 
-    public void error(String message) {
+    public void error(String message, StackTraceElement[] stackTrace) {
+        DriverStation.reportError(message, stackTrace);
         DataLogManager.log("[ERR]: " + message);
     }
 

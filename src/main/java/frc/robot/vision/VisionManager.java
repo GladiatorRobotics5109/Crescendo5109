@@ -1,11 +1,9 @@
 package frc.robot.vision;
 
-import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.io.IOException;
 
+import frc.robot.subsystems.logging.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -14,80 +12,65 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants;
-
 
 public class VisionManager {
 
-    private final List<PhotonCamera> m_cameras= new ArrayList<>();
-    private final List<PhotonPoseEstimator> m_estimators= new ArrayList<>();
+    private final List<PhotonCamera> m_cameras = new ArrayList<>();
+    private final List<PhotonPoseEstimator> m_estimators = new ArrayList<>();
+
     private AprilTagFieldLayout m_aprilTagFieldLayout;
-    private PhotonCamera m_camera;
-    private PhotonPoseEstimator m_estimator;
+
+    private final Logger m_logger;
 
 
 
     public VisionManager(Map<String, Transform3d> visionSources) {
+        m_logger = Logger.getInstance();
         
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(Constants.VisionConstants.kApriltagLayout.m_resourceFile);
         } catch (IOException e) {
-            DriverStation.reportError("Failed to load field layout!", e.getStackTrace());
-            System.err.println("Failed to load field layout!");
-            e.printStackTrace();  
+            m_logger.error("Failed to load apriltag field layout!", e.getStackTrace());
         }
 
-        m_camera = new PhotonCamera("Camera1");
-        
-        m_estimator = new PhotonPoseEstimator(
-            m_aprilTagFieldLayout, 
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            m_camera, 
-            Constants.VisionConstants.kCameraPos
-        );
 
-        // for (Map.Entry<String, Transform3d> source : visionSources.entrySet()) {
-        //     PhotonCamera camera = new PhotonCamera(source.getKey());
+        for (Map.Entry<String, Transform3d> source : visionSources.entrySet()) {
+            PhotonCamera camera = new PhotonCamera(source.getKey());
 
-        //     PhotonPoseEstimator visionEstimator = new PhotonPoseEstimator(
-        //         m_aprilTagFieldLayout,
-        //         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-        //         camera, 
-        //         source.getValue()
-        //     );
-        //     m_cameras.add(camera);
-        //     m_estimators.add(visionEstimator);
-        // }
-        
+            PhotonPoseEstimator estimator = new PhotonPoseEstimator(
+                m_aprilTagFieldLayout,
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera,
+                Constants.VisionConstants.kCameraPos
+            );
+
+            m_cameras.add(camera);
+            m_estimators.add(estimator);
+        }
     }
 
-    public Optional<EstimatedVisionPosition> getPose() {
-        List<EstimatedRobotPose> estimatedPoses = new ArrayList<EstimatedRobotPose>();
+    public Optional<EstimatedRobotPoses> getPose() {
+        boolean isAllEmpty = true;
+        EstimatedRobotPose[] poses = new EstimatedRobotPose[m_estimators.size()];
 
-        // for (PhotonPoseEstimator estimator : m_estimators) {
+        for (int i = 0; i < m_estimators.size(); i++) {
+            Optional<EstimatedRobotPose> pose = m_estimators.get(i).update();
 
-        //     Optional<EstimatedRobotPose> estimatedPose = estimator.update();
-            
-        //     if (estimatedPose.isEmpty()) {
-        //         System.out.println("Empty!");
-        //         continue; 
-        //     }
-
-        //     System.out.println("Vision: (" + estimatedPose.get().estimatedPose.getX() + ", " + estimatedPose.get().estimatedPose.getY() + ")");
-
-        //     estimatedPoses.add(estimatedPose.get());
-        // }
-        Optional<EstimatedRobotPose> estimatedPose = m_estimator.update();
-
-        if (estimatedPose.isEmpty()) {
-            // System.out.println("Empty!");
-            
-            return Optional.empty();
+            if (pose.isPresent()) {
+                isAllEmpty = false;
+                poses[i] = pose.get();
+            }
+            else
+            {
+                poses[i] = null;
+            }
         }
 
-        // System.out.println("Vision: (" + estimatedPose.get().estimatedPose.getX() + ", " + estimatedPose.get().estimatedPose.getY() + ")");
+        if (isAllEmpty)
+            return Optional.empty();
 
-        return Optional.of(new EstimatedVisionPosition(estimatedPose.get()));
+        EstimatedRobotPoses pose = new EstimatedRobotPoses(poses);
+        return Optional.of(pose);
     }
 }

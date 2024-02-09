@@ -9,11 +9,19 @@ import edu.wpi.first.math.geometry.Translation2d;
 /**
  * Wrapper for {@link EstimatedRobotPose} that implements support for multiple  {@link EstimatedRobotPose}s  and, therefore, multiple cameras!
  */
-public class EstimatedVisionPosition {
+public class EstimatedRobotPoses {
     private EstimatedRobotPose[] m_estimatedRobotPoses;
 
-    public EstimatedVisionPosition(EstimatedRobotPose ... estimatedRobotPoses) {
-        m_estimatedRobotPoses = estimatedRobotPoses;
+    public EstimatedRobotPoses(EstimatedRobotPose ... estimatedRobotPoses) {
+        // trim array to remove any null values
+        int len;
+
+        for (len = 0; len < estimatedRobotPoses.length; len++) {
+            if (estimatedRobotPoses[len] == null) break;
+        }
+        
+        m_estimatedRobotPoses = new EstimatedRobotPose[len];
+        System.arraycopy(estimatedRobotPoses, 0, m_estimatedRobotPoses, 0, len);
     }
 
     public EstimatedRobotPose[] getEstimatedRobotPoses() {

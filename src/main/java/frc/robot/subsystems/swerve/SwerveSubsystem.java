@@ -38,7 +38,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.logging.LoggableBoolean;
 import frc.robot.subsystems.logging.LoggableDouble;
 import frc.robot.subsystems.logging.Logger;
-import frc.robot.vision.EstimatedVisionPosition;
+import frc.robot.vision.EstimatedRobotPoses;
 import frc.robot.vision.VisionManager;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -92,7 +92,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_vision = new VisionManager(Constants.VisionConstants.kVisionSources);
 
-        Optional<EstimatedVisionPosition> startingPose = m_vision.getPose();
+        Optional<EstimatedRobotPoses> startingPose = m_vision.getPose();
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
             m_kinematics,
@@ -313,14 +313,11 @@ public class SwerveSubsystem extends SubsystemBase {
     private void updatePose() {
         m_poseEstimator.update(getHeading(), getPositions());
 
-        Optional<EstimatedVisionPosition> poses = m_vision.getPose();
+        Optional<EstimatedRobotPoses> poses = m_vision.getPose();
 
         if (poses.isEmpty()) {
-            System.out.println("no vision");
             return;
         }
-
-        System.out.println("got vision");
 
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
             m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
