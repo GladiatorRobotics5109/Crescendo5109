@@ -7,6 +7,7 @@ import java.util.function.DoubleSupplier;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.SwerveState;
 import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
+import frc.robot.subsystems.logging.LoggablePose2d;
 import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -64,6 +65,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private LoggableDouble m_autoAimPIDOutputLog;
     private LoggableDouble m_autoAimPIDSetpointLog;
     private LoggableBoolean m_autoAimStateLog;
+    private LoggablePose2d m_poseLogger;
     
     private final SwerveState m_state;
 
@@ -108,10 +110,12 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimPIDOutputLog = new LoggableDouble(getName(), "AutoAimPIDOutput", () -> calcAutoAim());
         m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", () -> m_autoAimPID.getSetpoint());
         m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, () -> m_autoAiming);
+        m_poseLogger = new LoggablePose2d(getName(), "RobotPose", true, () -> getPose());
 
         Logger.getInstance().addLoggable(m_autoAimPIDOutputLog);
         Logger.getInstance().addLoggable(m_autoAimPIDSetpointLog);
         Logger.getInstance().addLoggable(m_autoAimStateLog);
+        Logger.getInstance().addLoggable(m_poseLogger);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),
