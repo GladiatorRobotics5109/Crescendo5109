@@ -5,16 +5,17 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
-public class LoggableDouble extends Loggable {
+public class LoggableDouble extends Loggable<Double> {
     private DoubleSupplier m_valueSupplier;
     private DoublePublisher m_publisher;
 
     public LoggableDouble(
         String subsystem, 
         String name, 
-        boolean logToNetworkTables, 
+        boolean logToNetworkTables,
+        boolean liveLog,
         DoubleSupplier valueSupplier) {
-        super(subsystem, name, logToNetworkTables);
+        super(subsystem, name, logToNetworkTables, liveLog);
 
         m_valueSupplier = valueSupplier;
 
@@ -24,7 +25,7 @@ public class LoggableDouble extends Loggable {
         String subsystem,
         String name,
         DoubleSupplier valueSupplier) {
-        super(subsystem, name, true);
+        super(subsystem, name, true, true);
 
         m_valueSupplier = valueSupplier;
 
@@ -32,13 +33,17 @@ public class LoggableDouble extends Loggable {
     }
 
     @Override
-    public void Log() {
-        double value = m_valueSupplier.getAsDouble();
-       
+    public void Log(Double value) {
         if (m_logToNetworkTables) {
             m_publisher.set(value);
         }
 
         m_wpiLog.appendDouble(m_wpiEntry, value, 0);
+    }
+
+    @Override
+    public void Log() {
+        if(m_liveLog)
+            Log(m_valueSupplier.getAsDouble());
     }
 }

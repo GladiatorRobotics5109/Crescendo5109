@@ -11,17 +11,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Singleton (digital) subystem that manages logging to multiple mediums
  */
 public class Logger extends SubsystemBase {
-    private ArrayList<Loggable> m_loggables;
+    private final ArrayList<Loggable<?>> m_loggables;
 
     private static Logger s_instance;
 
-    private Logger(Loggable ... loggables) {
+    private Logger(Loggable<?>... loggables) {
         DataLogManager.start();
 
-        m_loggables = new ArrayList<Loggable>(Arrays.asList(loggables));
+        m_loggables = new ArrayList<Loggable<?>>(Arrays.asList(loggables));
     }
 
-    public static void init(Loggable ... loggables) {
+    public static void init(Loggable<?> ... loggables) {
         s_instance = new Logger(loggables);
     }
 
@@ -29,12 +29,12 @@ public class Logger extends SubsystemBase {
         return s_instance;
     }
 
-    public void addLoggable(Loggable loggable) {
+    public void addLoggable(Loggable<?> loggable) {
         m_loggables.add(loggable);
     }
 
     private void updateLog() {
-        for (Loggable loggable : m_loggables) {
+        for (Loggable<?> loggable : m_loggables) {
             loggable.Log();
         }
     }
@@ -44,6 +44,7 @@ public class Logger extends SubsystemBase {
     }
 
     public void warn(String message) {
+        DriverStation.reportWarning(message, new StackTraceElement[] {});
         DataLogManager.log("[WARN]: " + message);
     }
 

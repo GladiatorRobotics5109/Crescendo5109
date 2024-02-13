@@ -118,8 +118,8 @@ public class SwerveSubsystem extends SubsystemBase {
         
         m_autoAimPIDOutputLog = new LoggableDouble(getName(), "AutoAimPIDOutput", () -> calcAutoAim());
         m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", () -> m_autoAimPID.getSetpoint());
-        m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, () -> m_autoAiming);
-        m_poseLogger = new LoggablePose2d(getName(), "RobotPose", true, () -> getPose());
+        m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, true, () -> m_autoAiming);
+        m_poseLogger = new LoggablePose2d(getName(), "RobotPose", true, true, () -> getPose());
 
         m_logger.addLoggable(m_autoAimPIDOutputLog);
         m_logger.addLoggable(m_autoAimPIDSetpointLog);

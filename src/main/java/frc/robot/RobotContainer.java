@@ -25,8 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
+  private final CommandXboxController m_driverController = new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
 
   private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(20);
