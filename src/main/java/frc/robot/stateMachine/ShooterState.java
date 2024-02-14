@@ -2,9 +2,8 @@ package frc.robot.stateMachine;
 
 
 import java.util.HashSet;
-import java.util.Set;
 
-public class ShooterState {
+public class ShooterState extends SubsystemState<ShooterState.ShooterStateEnum> {
     public enum ShooterStateEnum {
         RESTING,
         SHOOTER_WHEEL_SPINNING,
@@ -13,20 +12,21 @@ public class ShooterState {
         AUTO_AIMING;
     }
     
-    private final Set<ShooterStateEnum> m_state;
-    
     public ShooterState() {
         m_state = new HashSet<ShooterStateEnum>();
     }
     
+    @Override
     public void addState(ShooterStateEnum state) {
         m_state.add(state);
     }
     
+    @Override
     public void removeState(ShooterStateEnum state) {
         m_state.remove(state);
     }
     
+    @Override
     public void toggleState(ShooterStateEnum state) {
         if(this.is(state)) {
             m_state.remove(state);
@@ -34,18 +34,5 @@ public class ShooterState {
         else {
             m_state.add(state);
         }
-    }
-    
-    public boolean is(ShooterStateEnum state) {
-        return m_state.contains(state);
-    }
-    
-    public boolean is(ShooterStateEnum... states) {
-        for(ShooterStateEnum state : states) {
-            if (!this.is(state))
-                return false;
-        }
-        
-        return true;
     }
 }
