@@ -4,6 +4,10 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import frc.robot.stateMachine.StateMachine;
+import frc.robot.stateMachine.SwerveState;
+import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
+import frc.robot.subsystems.logging.LoggablePose2d;
 import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -23,10 +27,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,6 +35,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.subsystems.logging.LoggableBoolean;
+import frc.robot.subsystems.logging.LoggableDouble;
+import frc.robot.subsystems.logging.Logger;
 import frc.robot.vision.EstimatedVisionPosition;
 import frc.robot.vision.VisionManager;
 
@@ -60,13 +63,16 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController m_autoAimPID;
     private boolean m_autoAiming;
 
-    private final DoublePublisher m_autoAimPIDSetpointPublisher;
-    private final DoublePublisher m_autoAimPIDOutputPublisher;
+    private LoggableDouble m_autoAimPIDOutputLog;
+    private LoggableDouble m_autoAimPIDSetpointLog;
+    private LoggableBoolean m_autoAimStateLog;
+    private LoggablePose2d m_poseLogger;
+    
+    private final SwerveState m_state;
 
-    StructPublisher<Pose2d> m_posePubliser;
-    
-    
     public SwerveSubsystem() {
+        m_state = StateMachine.getSwerveState();
+
         // TODO: select right CAN ids for motors
         m_moduleFL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14);
         m_moduleFR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13);;
@@ -106,8 +112,16 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimPID.setI(0.2);
 
         m_autoAiming = false;
-        m_autoAimPIDOutputPublisher = NetworkTableInstance.getDefault().getDoubleTopic("AutoAimPIDOutput").publish();
-        m_autoAimPIDSetpointPublisher = NetworkTableInstance.getDefault().getDoubleTopic("AutoAimPIDSetpoint").publish();
+        
+        m_autoAimPIDOutputLog = new LoggableDouble(getName(), "AutoAimPIDOutput", () -> calcAutoAim());
+        m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", () -> m_autoAimPID.getSetpoint());
+        m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, () -> m_autoAiming);
+        m_poseLogger = new LoggablePose2d(getName(), "RobotPose", true, () -> getPose());
+
+        Logger.getInstance().addLoggable(m_autoAimPIDOutputLog);
+        Logger.getInstance().addLoggable(m_autoAimPIDSetpointLog);
+        Logger.getInstance().addLoggable(m_autoAimStateLog);
+        Logger.getInstance().addLoggable(m_poseLogger);
 
         m_posePubliser = NetworkTableInstance.getDefault().getStructTopic("RobotPose", Pose2d.struct).publish();
 
@@ -120,13 +134,16 @@ public class SwerveSubsystem extends SubsystemBase {
             () -> false,
             this
         );
+
+        this.coast();
     }
 
     /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double vrot, boolean fieldRelative) {
+        m_state.addState(SwerveStateEnum.DRIVING);
         if (m_autoAiming)
             vrot = calcAutoAim();
-        
+      
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
@@ -167,6 +184,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Brake on all motors on all swerve modules */
     private void brakeAll() {
+        m_state.addState(SwerveStateEnum.BRAKE_ALL);
         m_moduleFL.brakeAll();
         m_moduleFL.brakeAll();
         m_moduleFL.brakeAll();
@@ -175,6 +193,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Coast on all motors on all swerve modules */
     public void coast() {
+        m_state.addState(SwerveStateEnum.COAST_ALL);
         m_moduleFL.coastAll();
         m_moduleFR.coastAll();
         m_moduleBL.coastAll();
@@ -371,15 +390,13 @@ public class SwerveSubsystem extends SubsystemBase {
             // double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
-            m_autoAimPIDSetpointPublisher.set(setpoint);
-            m_autoAimPID.setSetpoint(setpoint);
+            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             
             System.out.println("setpoint: " + setpoint);
             System.out.println("relative angle: " + (angle - angleOffset));
             // double pidOutput = MathUtil.applyDeadband(m_autoAimPID.calculate(angle - angleOffset), 5);
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
 
-            m_autoAimPIDOutputPublisher.set(pidOutput);
             return pidOutput;
         }
         else {
@@ -397,17 +414,13 @@ public class SwerveSubsystem extends SubsystemBase {
                 robotPose.getY() - bluePose.getY(), 
                 Rotation2d.fromRadians(0)
             );
-            
-            double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
-
-            m_autoAimPIDSetpointPublisher.set(setpoint);
-            m_autoAimPID.setSetpoint(setpoint);
+          
+            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
 
             System.out.println("setpoint: " + setpoint);
             System.out.println("relative angle: " + (angle - angleOffset));
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
-            m_autoAimPIDOutputPublisher.set(pidOutput);
             return pidOutput;
         }
     }
