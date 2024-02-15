@@ -392,13 +392,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
             m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
             
-            System.out.println("setpoint: " + setpoint);
-            System.out.println("relative angle: " + (angle - angleOffset));
-            // double pidOutput = MathUtil.applyDeadband(m_autoAimPID.calculate(angle - angleOffset), 5);
-=======
-//            System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
-//            System.out.println("relative angle: " + (angle - angleOffset));
->>>>>>> 0c1abf0 (small changes)
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
 
             return pidOutput;
@@ -420,13 +413,6 @@ public class SwerveSubsystem extends SubsystemBase {
             );
           
             m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
-
-            System.out.println("setpoint: " + setpoint);
-            System.out.println("relative angle: " + (angle - angleOffset));
-=======
-//            System.out.println("setpoint: " + Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
-//            System.out.println("relative angle: " + (angle - angleOffset));
->>>>>>> 0c1abf0 (small changes)
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
             return pidOutput;
