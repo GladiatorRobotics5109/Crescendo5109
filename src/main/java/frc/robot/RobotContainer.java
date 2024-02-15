@@ -42,7 +42,7 @@ public class RobotContainer {
   public RobotContainer() {
     Logger.init();
     StateMachine.init();
-    // instantiate swerve
+    // Instantiate swerve
     m_swerve = new SwerveSubsystem();
 
     m_swerve.setDefaultCommand(
@@ -52,7 +52,8 @@ public class RobotContainer {
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
         () -> m_driverController.getLeftTriggerAxis(), // super speed
         () -> m_driverController.getRightTriggerAxis(), // super slow
-        () -> true) // field relative
+        () -> true
+      ) // field relative
     );
 
     // TODO: change intake motor port
