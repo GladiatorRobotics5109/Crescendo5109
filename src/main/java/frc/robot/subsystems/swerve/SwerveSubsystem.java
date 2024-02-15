@@ -415,6 +415,7 @@ public class SwerveSubsystem extends SubsystemBase {
             m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
+            
             return pidOutput;
         }
     }
