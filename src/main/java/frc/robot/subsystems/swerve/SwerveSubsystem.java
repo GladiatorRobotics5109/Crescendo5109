@@ -126,8 +126,6 @@ public class SwerveSubsystem extends SubsystemBase {
         m_logger.addLoggable(m_autoAimStateLog);
         m_logger.addLoggable(m_poseLogger);
 
-        m_posePubliser = NetworkTableInstance.getDefault().getStructTopic("RobotPose", Pose2d.struct).publish();
-
         AutoBuilder.configureHolonomic(
             () -> getPose(),
             (Pose2d pose) -> resetPose(pose),
@@ -429,7 +427,6 @@ public class SwerveSubsystem extends SubsystemBase {
         updatePose();
 
         Pose2d pose = getPose();
-        m_posePubliser.set(pose);
         SmartDashboard.putNumber("posx", pose.getX());
         SmartDashboard.putNumber("posy", pose.getY());
 
