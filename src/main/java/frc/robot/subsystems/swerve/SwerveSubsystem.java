@@ -121,10 +121,10 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, () -> m_autoAiming);
         m_poseLogger = new LoggablePose2d(getName(), "RobotPose", true, () -> getPose());
 
-        Logger.getInstance().addLoggable(m_autoAimPIDOutputLog);
-        Logger.getInstance().addLoggable(m_autoAimPIDSetpointLog);
-        Logger.getInstance().addLoggable(m_autoAimStateLog);
-        Logger.getInstance().addLoggable(m_poseLogger);
+        m_logger.addLoggable(m_autoAimPIDOutputLog);
+        m_logger.addLoggable(m_autoAimPIDSetpointLog);
+        m_logger.addLoggable(m_autoAimStateLog);
+        m_logger.addLoggable(m_poseLogger);
 
         m_posePubliser = NetworkTableInstance.getDefault().getStructTopic("RobotPose", Pose2d.struct).publish();
 
