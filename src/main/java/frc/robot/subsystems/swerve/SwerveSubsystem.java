@@ -19,7 +19,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -63,11 +62,11 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController m_autoAimPID;
     private boolean m_autoAiming;
 
-    private Logger m_logger;
-    private LoggableDouble m_autoAimPIDOutputLog;
-    private LoggableDouble m_autoAimPIDSetpointLog;
-    private LoggableBoolean m_autoAimStateLog;
-    private LoggablePose2d m_poseLogger;
+    private final Logger m_logger;
+    private final LoggableDouble m_autoAimAngleLog;
+    private final LoggableDouble m_autoAimPIDSetpointLog;
+    private final LoggableBoolean m_autoAimStateLog;
+    private final LoggablePose2d m_poseLog;
     
     private final SwerveState m_state;
 
@@ -116,15 +115,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_autoAiming = false;
         
-        m_autoAimPIDOutputLog = new LoggableDouble(getName(), "AutoAimPIDOutput", () -> calcAutoAim());
-        m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", () -> m_autoAimPID.getSetpoint());
+        m_autoAimAngleLog = new LoggableDouble(getName(), "AutoAimPIDAngle", true, false, null);
+        m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", true, false, null);
         m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, true, () -> m_autoAiming);
-        m_poseLogger = new LoggablePose2d(getName(), "RobotPose", true, true, () -> getPose());
+        m_poseLog = new LoggablePose2d(getName(), "RobotPose", true, true, this::getPose);
 
-        m_logger.addLoggable(m_autoAimPIDOutputLog);
+        m_logger.addLoggable(m_autoAimAngleLog);
         m_logger.addLoggable(m_autoAimPIDSetpointLog);
         m_logger.addLoggable(m_autoAimStateLog);
-        m_logger.addLoggable(m_poseLogger);
+        m_logger.addLoggable(m_poseLog);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),
@@ -359,16 +358,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Calculates a desired rotation velocity that will automatically align the bot with the respective alliance's speaker
-     * @return
      */
     private double calcAutoAim() {
         Pose2d robotPose = getPose();
 
         double angle = robotPose.getRotation().getDegrees() % 360;
+        m_autoAimAngleLog.log(angle);
 
         Optional<Alliance> alliance = DriverStation.getAlliance();
-
-        m_autoAimPID.setSetpoint(0);
 
         if (alliance.isEmpty() || alliance.get() == Alliance.Red) {
             double angleOffset = 0;
@@ -385,10 +382,10 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(0)
             );
             
-            // double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
-            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            m_autoAimPID.setSetpoint(setpoint);
+            m_autoAimPIDSetpointLog.log(setpoint);
             
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
 
@@ -410,7 +407,10 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(0)
             );
           
-            m_autoAimPID.setSetpoint(Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX())));
+            double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
+
+            m_autoAimPID.setSetpoint(setpoint);
+            m_autoAimPIDSetpointLog.log(setpoint);
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
             

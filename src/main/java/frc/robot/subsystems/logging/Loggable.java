@@ -27,7 +27,7 @@ public abstract class Loggable<T> {
         m_wpiEntry = m_wpiLog.start(m_subsystem, m_name);
     }
 
-    public abstract void Log();
+    public abstract void log();
 
-    public abstract void Log(T value);
+    public abstract void log(T value);
 }

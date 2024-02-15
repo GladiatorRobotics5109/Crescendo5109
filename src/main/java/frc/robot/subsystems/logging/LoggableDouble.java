@@ -33,7 +33,7 @@ public class LoggableDouble extends Loggable<Double> {
     }
 
     @Override
-    public void Log(Double value) {
+    public void log(Double value) {
         if (m_logToNetworkTables) {
             m_publisher.set(value);
         }
@@ -42,8 +42,8 @@ public class LoggableDouble extends Loggable<Double> {
     }
 
     @Override
-    public void Log() {
+    public void log() {
         if(m_liveLog)
-            Log(m_valueSupplier.getAsDouble());
+            log(m_valueSupplier.getAsDouble());
     }
 }

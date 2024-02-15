@@ -23,7 +23,7 @@ public class LoggableBoolean extends Loggable<Boolean> {
     }
 
     @Override
-    public void Log(Boolean value) {
+    public void log(Boolean value) {
         if (m_logToNetworkTables) {
             m_publisher.set(value);
         }
@@ -32,8 +32,8 @@ public class LoggableBoolean extends Loggable<Boolean> {
     }
 
     @Override
-    public void Log() {
+    public void log() {
         if(m_liveLog)
-            Log(m_valueSuupplier.getAsBoolean());
+            log(m_valueSuupplier.getAsBoolean());
     }
 }

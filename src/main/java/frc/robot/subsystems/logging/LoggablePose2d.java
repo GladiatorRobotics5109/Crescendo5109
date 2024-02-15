@@ -24,7 +24,7 @@ public class LoggablePose2d extends Loggable<Pose2d> {
     }
     
     @Override
-    public void Log(Pose2d value) {
+    public void log(Pose2d value) {
         if(m_logToNetworkTables) {
             m_publisher.set(value);
         }
@@ -33,8 +33,8 @@ public class LoggablePose2d extends Loggable<Pose2d> {
     }
 
     @Override
-    public void Log() {
+    public void log() {
         if (m_liveLog)
-            Log(m_valueSupplier.get());
+            log(m_valueSupplier.get());
     }
 }

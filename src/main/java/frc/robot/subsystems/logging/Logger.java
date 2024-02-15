@@ -35,7 +35,7 @@ public class Logger extends SubsystemBase {
 
     private void updateLog() {
         for (Loggable<?> loggable : m_loggables) {
-            loggable.Log();
+            loggable.log();
         }
     }
 
