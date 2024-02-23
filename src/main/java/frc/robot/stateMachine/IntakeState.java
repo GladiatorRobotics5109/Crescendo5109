@@ -4,7 +4,6 @@ import java.util.HashSet;
 
 public class IntakeState extends SubsystemState<IntakeState.IntakeStateEnum> {
     public enum IntakeStateEnum {
-        RESTING,
         INTAKING
     }
     

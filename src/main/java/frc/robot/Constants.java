@@ -43,28 +43,12 @@ public final class Constants {
     public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921, -0.2921);
     public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921, 0.2921);
     public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921, -0.2921);
-    
-    public static final double kWheelRadius = 0.0508;
-    
-    // L1 MK4 gear ratios
-    public static final double kSwerveDriveGearRatio = 8.14;
-    public static final double kSwerveTurnGearRatio = 12.8;
-    
-    public static final double kNeoTicksPerRevolution = 42;
-    public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
-    public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
-    public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
-    
-    public static final double kKrakenTicksPerRevolution = 2000;
-    public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
-    public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
-    public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
 
-    // EXPERIMENTAL VALUES (These are supposed to work but it bugs out cuz ????)
-    public static final double kDrivePositionConversionFactor = kWheelRadius * (2 * Math.PI) / kSwerveDriveGearRatio; // rotations -> (1 motor turn x 2pi*wheel radius / 8.14 motor turns)
-    public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor / 60.0; // rpm -> m/s
-    public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
-    public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
+    public static final double kModuleEncoderOffsetFrontLeft = 2.736; // 0.445 rotations
+    public static final double kModuleEncoderOffsetFrontRight = 0.319; // 0.061 rotations
+    public static final double kModuleEncoderOffsetBackLeft = 4.564; // 0.721 rotations
+    public static final double kModuleEncoderOffsetBackRight = 5.188; // 0.825 rotations
+    
 
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
@@ -93,6 +77,90 @@ public final class Constants {
         Robot.kDefaultPeriod
       );
     }
+  }
+
+  public static class ModuleConstants {
+
+      public static final double kWheelRadius = 0.0508;
+  
+      // L1 MK4 gear ratios
+      public static final double kSwerveDriveGearRatio = 8.14; // 8.14 motor rotations = 1 revolution
+      public static final double kSwerveTurnGearRatio = 12.8; // 12.8 motor rotations = 1 revolution
+      
+      // public static final double kNeoTicksPerRevolution = 42;
+      // public static final double kNeoTicksPerMotorRadian = kNeoTicksPerRevolution / (2 * Math.PI);
+      // public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
+      // public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
+      
+      public static final double kKrakenTicksPerRevolution = 2000;
+      public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
+      public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
+      public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
+      
+      public static final double kDrivePositionConversionFactor = (kWheelRadius*2) * Math.PI / kSwerveDriveGearRatio; // rotations -> meters (1 motor turn x x 2pi*wheel radius / 8.14 motor turns)
+      public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor / 60.0; // rpm -> m/s 
+
+      // FOR RELATIVE ENCODERS
+      public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
+      public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
+  
+      public static final double kModuleTurnPositionConversionFactor = (2 * Math.PI);
+      
+      public static final double kDriveP = 0.3;
+      public static final double kDriveI = 0;
+      public static final double kDriveD = 0.05;
+  
+      public static final double kTurnP = 1.5;
+      public static final double kTurnI = 0;
+      public static final double kTurnD = 0;
+    
+  }
+
+  public static class ShooterConstants {
+    public static final int kLeftShooterMotorPort = 0;
+    public static final int kRightShooterMotorPort = 0;
+    public static final int kFeederMotorPort = 0;
+    public static final int kWinchMotorPort = 0;
+    public static final int kBarMotorPort = 0;
+
+    public static final double kShooterP = 0;
+    public static final double kShooterI = 0;
+    public static final double kShooterD = 0;
+    
+    public static final double kFeederP = 0;
+    public static final double kFeederI = 0;
+    public static final double kFeederD = 0;
+    
+    public static final double kBarP = 0;
+    public static final double kBarI = 0;
+    public static final double kBarD = 0;
+    
+    public static final double kWinchP = 0;
+    public static final double kWinchI = 0;
+    public static final double kWinchD = 0;
+    
+    public static final int kFeederSensorChannel = 0;
+    
+    public static final double kPivotWinchInitialRadius = 0;
+    public static final double kPivotWinchFinalRadius = 0;
+    public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
+    
+    public static final double kBarWinchInitialRadius = 0;
+    public static final double kBarWinchFinalRadius = 0;
+    public static final double kBarWinchAverageRadius = (kBarWinchInitialRadius + kBarWinchFinalRadius) / 2;
+    
+    public static final double kBarGearRatio = 0;
+    public static final double kWinchGearRatio = 0;
+    
+    public static final double kBarPositionConversionFactor = kBarWinchAverageRadius * (2 * Math.PI) / kBarGearRatio; 
+    public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;
+    
+  }
+  
+  public static class IntakeConstants {
+    public static final int kIntakeMotorPort = 0;
+    public static final int kIntakeSensorChannel = 0;
+
   }
 
   public static class DriveTeamConstants {

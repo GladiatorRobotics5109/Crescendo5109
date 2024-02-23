@@ -42,10 +42,10 @@ import frc.robot.vision.VisionManager;
 
 public class SwerveSubsystem extends SubsystemBase {
     // swerve modules
-    private final SwerveModuleNeoTurnNeoDrive m_moduleFL;
-    private final SwerveModuleNeoTurnNeoDrive m_moduleFR;
-    private final SwerveModuleNeoTurnNeoDrive m_moduleBL;
-    private final SwerveModuleNeoTurnNeoDrive m_moduleBR;
+    private final SwerveModuleNeoTurnKrakenDrive m_moduleFL;
+    private final SwerveModuleNeoTurnKrakenDrive m_moduleFR;
+    private final SwerveModuleNeoTurnKrakenDrive m_moduleBL;
+    private final SwerveModuleNeoTurnKrakenDrive m_moduleBR;
     
     private final double m_defaultSpeed;
     private double m_currentSpeed;
@@ -76,10 +76,10 @@ public class SwerveSubsystem extends SubsystemBase {
         m_state = StateMachine.getSwerveState();
 
         // TODO: select right CAN ids for motors
-        m_moduleFL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14);
-        m_moduleFR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13);;
-        m_moduleBL = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 18, 19);;
-        m_moduleBR = new SwerveModuleNeoTurnNeoDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 16, 17);;
+        m_moduleFL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14, Constants.SwerveConstants.kModuleEncoderOffsetFrontLeft);
+        m_moduleFR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13, Constants.SwerveConstants.kModuleEncoderOffsetFrontRight);
+        m_moduleBL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 18, 19, Constants.SwerveConstants.kModuleEncoderOffsetBackLeft);
+        m_moduleBR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 16, 17, Constants.SwerveConstants.kModuleEncoderOffsetBackRight);
     
         m_navX = SwerveConstants.kNavX;
         //m_navX.reset(); <-- Test this?????
@@ -288,13 +288,6 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBL.getModulePosition(),
             m_moduleBR.getModulePosition()
         };
-    }
-
-    public void resetEncoders() {
-        m_moduleFL.resetEncoders();
-        m_moduleFR.resetEncoders();
-        m_moduleBL.resetEncoders();
-        m_moduleBR.resetEncoders(); 
     }
 
     public SwerveModuleState[] getStates() {

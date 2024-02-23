@@ -93,7 +93,4 @@ public class RobotContainer {
     return m_autoChooser.getSelected();
   }
 
-  public void resetEncoders() {
-    m_swerve.resetEncoders();
-  }
 }

@@ -5,9 +5,8 @@ import java.util.HashSet;
 
 public class ShooterState extends SubsystemState<ShooterState.ShooterStateEnum> {
     public enum ShooterStateEnum {
-        RESTING,
         SHOOTER_WHEEL_SPINNING,
-        FEEDER_WHEELS_SPINING,
+        FEEDER_WHEELS_SPINNING,
         HAS_NOTE,
         AUTO_AIMING;
     }
