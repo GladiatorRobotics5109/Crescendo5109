@@ -16,9 +16,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Conversions;
 import frc.robot.RevOptimizer;
+import frc.robot.subsystems.logging.LoggableDouble;
+import frc.robot.subsystems.logging.Logger;
 
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.
@@ -36,14 +39,16 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     private final SparkPIDController m_turnPIDController;
 
+    private final LoggableDouble m_rpsLog;
+
 
     public SwerveModuleNeoTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort, double zeroOffset) {
         m_modulePos = modulePos;
         m_moduleName = moduleName;
         m_moduleNum = moduleNum;
 
-        m_turnMotor = new CANSparkMax(driveMotorPort, MotorType.kBrushless);
-        m_driveMotor = new TalonFX(turnMotorPort);
+        m_turnMotor = new CANSparkMax(turnMotorPort, MotorType.kBrushless);
+        m_driveMotor = new TalonFX(driveMotorPort);
 
         m_turnMotor.setIdleMode(IdleMode.kCoast);
         m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
@@ -60,20 +65,31 @@ public class SwerveModuleNeoTurnKrakenDrive {
         m_turnPIDController.setI(Constants.ModuleConstants.kTurnI);
         m_turnPIDController.setD(Constants.ModuleConstants.kTurnD);
 
+        m_turnPIDController.setPositionPIDWrappingMinInput(0);
+        m_turnPIDController.setPositionPIDWrappingMaxInput(2 * Math.PI);
+        m_turnPIDController.setPositionPIDWrappingEnabled(true);
+
         m_turnAbsEncoder.setPositionConversionFactor(Constants.ModuleConstants.kModuleTurnPositionConversionFactor);
 
         // TODO: drive motor PID tune
         TalonFXConfiguration driveMotorConfiguration = new TalonFXConfiguration();
         driveMotorConfiguration.Slot0.kP = Constants.ModuleConstants.kDriveP;
         driveMotorConfiguration.Slot0.kI = Constants.ModuleConstants.kDriveI;
-        driveMotorConfiguration.Slot0.kI = Constants.ModuleConstants.kDriveD;
-        driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kDrivePositionConversionFactor;
+        driveMotorConfiguration.Slot0.kD = Constants.ModuleConstants.kDriveD;
+        driveMotorConfiguration.Feedback.RotorToSensorRatio = 1;
+        driveMotorConfiguration.Feedback.SensorToMechanismRatio = 8.14;
+        // driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kDrivePositionConversionFactor;
 
         m_driveMotor.getConfigurator().apply(driveMotorConfiguration);
 
         m_turnPIDController.setOutputRange(-1, 1);
 
-        m_turnAbsEncoder.setZeroOffset(zeroOffset);
+        //m_turnAbsEncoder.setZeroOffset(zeroOffset);
+        // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
+
+        m_rpsLog = new LoggableDouble("SwerveModule", moduleName + "rps", true, false, null);
+
+        Logger.getInstance().addLoggable(m_rpsLog);
 
     }
 
@@ -83,8 +99,11 @@ public class SwerveModuleNeoTurnKrakenDrive {
     
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition())) : state;
-
-        m_driveMotor.setControl(new VelocityVoltage(optimizedState.speedMetersPerSecond));
+        
+        double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
+        m_rpsLog.log(rps);
+        m_driveMotor.setControl(new VelocityVoltage(rps));
+        // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }
 

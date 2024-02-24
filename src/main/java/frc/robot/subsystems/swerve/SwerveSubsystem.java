@@ -76,10 +76,10 @@ public class SwerveSubsystem extends SubsystemBase {
         m_state = StateMachine.getSwerveState();
 
         // TODO: select right CAN ids for motors
-        m_moduleFL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 15, 14, Constants.SwerveConstants.kModuleEncoderOffsetFrontLeft);
-        m_moduleFR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 12, 13, Constants.SwerveConstants.kModuleEncoderOffsetFrontRight);
-        m_moduleBL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 18, 19, Constants.SwerveConstants.kModuleEncoderOffsetBackLeft);
-        m_moduleBR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 16, 17, Constants.SwerveConstants.kModuleEncoderOffsetBackRight);
+        m_moduleFL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 2, 5, Constants.SwerveConstants.kModuleEncoderOffsetFrontLeft);
+        m_moduleFR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 4, 40, Constants.SwerveConstants.kModuleEncoderOffsetFrontRight);
+        m_moduleBL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 1, 22, Constants.SwerveConstants.kModuleEncoderOffsetBackLeft);
+        m_moduleBR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 3, 30, Constants.SwerveConstants.kModuleEncoderOffsetBackRight);
     
         m_navX = SwerveConstants.kNavX;
         //m_navX.reset(); <-- Test this?????

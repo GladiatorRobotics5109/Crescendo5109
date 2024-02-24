@@ -106,7 +106,7 @@ public final class Constants {
   
       public static final double kModuleTurnPositionConversionFactor = (2 * Math.PI);
       
-      public static final double kDriveP = 0.3;
+      public static final double kDriveP = 1;
       public static final double kDriveI = 0;
       public static final double kDriveD = 0.05;
   
