@@ -63,9 +63,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private boolean m_autoAiming;
 
     private final Logger m_logger;
-    private final LoggableDouble m_autoAimAngleLog;
-    private final LoggableDouble m_autoAimPIDSetpointLog;
-    private final LoggableBoolean m_autoAimStateLog;
+    // private final LoggableDouble m_autoAimAngleLog;
+    // private final LoggableDouble m_autoAimPIDSetpointLog;
+    // private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
     
     private final SwerveState m_state;
@@ -115,14 +115,14 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_autoAiming = false;
         
-        m_autoAimAngleLog = new LoggableDouble(getName(), "AutoAimPIDAngle", true, false, null);
-        m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", true, false, null);
-        m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, true, () -> m_autoAiming);
+        // m_autoAimAngleLog = new LoggableDouble(getName(), "AutoAimPIDAngle", true, false, null);
+        // m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", true, false, null);
+        // m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, true, () -> m_autoAiming);
         m_poseLog = new LoggablePose2d(getName(), "RobotPose", true, true, this::getPose);
 
-        m_logger.addLoggable(m_autoAimAngleLog);
-        m_logger.addLoggable(m_autoAimPIDSetpointLog);
-        m_logger.addLoggable(m_autoAimStateLog);
+        // m_logger.addLoggable(m_autoAimAngleLog);
+        // m_logger.addLoggable(m_autoAimPIDSetpointLog);
+        // m_logger.addLoggable(m_autoAimStateLog);
         m_logger.addLoggable(m_poseLog);
 
         AutoBuilder.configureHolonomic(
@@ -216,13 +216,9 @@ public class SwerveSubsystem extends SubsystemBase {
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
             double vrot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
-            // double newSpeed = ((5 * joyLeftTrigger.getAsDouble()) + m_defaultSpeed) + (-8 * joyRightTrigger.getAsDouble());
-
-            // setMaxSpeed(newSpeed);
-
             // apply max speeds
-            vx *= m_currentSpeed;
-            vy *= m_currentSpeed;
+            vx *= m_currentSpeed + (10 * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            vy *= m_currentSpeed + (10 * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
             vrot *= m_maxAngularSpeed;
 
             drive(vx, vy, vrot, fieldRelative.getAsBoolean());
@@ -356,7 +352,7 @@ public class SwerveSubsystem extends SubsystemBase {
         Pose2d robotPose = getPose();
 
         double angle = robotPose.getRotation().getDegrees() % 360;
-        m_autoAimAngleLog.log(angle);
+        // m_autoAimAngleLog.log(angle);
 
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
@@ -378,7 +374,7 @@ public class SwerveSubsystem extends SubsystemBase {
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
             m_autoAimPID.setSetpoint(setpoint);
-            m_autoAimPIDSetpointLog.log(setpoint);
+            // m_autoAimPIDSetpointLog.log(setpoint);
             
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
 
@@ -403,7 +399,7 @@ public class SwerveSubsystem extends SubsystemBase {
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
             m_autoAimPID.setSetpoint(setpoint);
-            m_autoAimPIDSetpointLog.log(setpoint);
+            // m_autoAimPIDSetpointLog.log(setpoint);
 
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
             

@@ -21,16 +21,16 @@ public abstract class SubsystemState<T extends Enum<?>> {
         return m_state.contains(state);
     }
     
-    /**
-     * @apiNote This function asserts {@link SafeVarargs} because its users will probably not cause a heap pollution and throw a {@link ClassCastException}
-     */
-    @SafeVarargs
-    public final boolean is(T... states) {
-        for(T state : states) {
-            if(!this.is(state))
-                return false;
-        }
+    // /**
+    //  * @apiNote This function asserts {@link SafeVarargs} because its users will probably not cause a heap pollution and throw a {@link ClassCastException}
+    //  */
+    // @SafeVarargs
+    // public final boolean is(T... states) {
+    //     for(T state : states) {
+    //         if(!this.is(state))
+    //             return false;
+    //     }
         
-        return true;
-    }
+    //     return true;
+    // }
 }

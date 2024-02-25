@@ -10,12 +10,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveTeamConstants;
 import frc.robot.subsystems.logging.Logger;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.logging.Logger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /**
@@ -26,14 +29,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  */
 public class RobotContainer {
   private final CommandXboxController m_driverController = new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
+  private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
 
   private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(10);
 
   private final SwerveSubsystem m_swerve;
+  private final ShooterSubsystem m_shooter;
+  private final IntakeSubsystem m_intake;
 
-  // private final IntakeSubsystem m_intake;
 
   private final SendableChooser<Command> m_autoChooser;
 
@@ -55,12 +60,14 @@ public class RobotContainer {
       ) // field relative
     );
 
+    m_shooter = new ShooterSubsystem();
+
     // TODO: change intake motor port
-    // m_intake = new IntakeSubsystem(5);
+    m_intake = new IntakeSubsystem();
     
     // Register all commands for auto
-    // NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
-    // NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+    NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
+    NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
 
     NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
     NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
@@ -78,9 +85,14 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    m_driverController.y().onTrue(m_swerve.getBrakeAndXCommand());
+    // m_driverController.y().onTrue(m_swerve.getBrakeAndXCommand());
+    m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
+    m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
-    m_driverController.a().whileTrue(m_swerve.getAlignWheelCommand());
+    // m_driverController.y().whileTrue(m_intake.getStartIntakeCommand());
+    m_driverController.y().onTrue(m_intake.getStartIntakeCommand()).onFalse(m_intake.getStopIntakeCommand());
+
+    m_operatorJoystick.button(3).onTrue(m_shooter.getToggleReverseBothCommand());
   }
 
   /**

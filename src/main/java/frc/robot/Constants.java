@@ -29,20 +29,20 @@ import com.pathplanner.lib.util.PIDConstants;
  */
 public final class Constants {
   
-  public static final double kJoystickDeadzone = 0.1;
+  public static final double kJoystickDeadzone = 0.2;
   
   public static class SwerveConstants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 3;
-    public static final double kMaxAngularSpeed = 2 * Math.PI;
+    public static final double kMaxSpeed = 10;
+    public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
-    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921, 0.2921);
-    public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921, -0.2921);
-    public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921, 0.2921);
-    public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921, -0.2921);
+    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921+0.00635, 0.2921+0.00635);
+    public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921+0.00635, -0.2921-0.00635);
+    public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921-0.00635, 0.2921+0.00635);
+    public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921-0.00635, -0.2921-0.00635);
 
     public static final double kModuleEncoderOffsetFrontLeft = 2.736; // 0.445 rotations
     public static final double kModuleEncoderOffsetFrontRight = 0.319; // 0.061 rotations
@@ -117,17 +117,17 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static final int kLeftShooterMotorPort = 0;
-    public static final int kRightShooterMotorPort = 0;
-    public static final int kFeederMotorPort = 0;
-    public static final int kWinchMotorPort = 0;
-    public static final int kBarMotorPort = 0;
+    public static final int kLeftShooterMotorPort = 55;
+    public static final int kRightShooterMotorPort = 9;
+    public static final int kFeederMotorPort = 6;
+    public static final int kWinchMotorPort = 56;
+    public static final int kBarMotorPort = 78;
 
-    public static final double kShooterP = 0;
+    public static final double kShooterP = 1;
     public static final double kShooterI = 0;
-    public static final double kShooterD = 0;
+    public static final double kShooterD = 0.05;
     
-    public static final double kFeederP = 0;
+    public static final double kFeederP = 2;
     public static final double kFeederI = 0;
     public static final double kFeederD = 0;
     
@@ -158,13 +158,14 @@ public final class Constants {
   }
   
   public static class IntakeConstants {
-    public static final int kIntakeMotorPort = 0;
+    public static final int kIntakeMotorPort = 56;
     public static final int kIntakeSensorChannel = 0;
 
   }
 
   public static class DriveTeamConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorJoystickPort = 1;
   }
 
   public static class VisionConstants {

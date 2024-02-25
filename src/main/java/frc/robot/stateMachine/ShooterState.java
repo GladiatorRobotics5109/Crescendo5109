@@ -7,6 +7,7 @@ public class ShooterState extends SubsystemState<ShooterState.ShooterStateEnum> 
     public enum ShooterStateEnum {
         SHOOTER_WHEEL_SPINNING,
         FEEDER_WHEELS_SPINNING,
+        REVERSE_BOTH,
         HAS_NOTE,
         AUTO_AIMING;
     }

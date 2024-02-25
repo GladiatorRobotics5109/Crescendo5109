@@ -3,7 +3,7 @@ package frc.robot.vision;
 import java.util.*;
 import java.io.IOException;
 
-import frc.robot.subsystems.logging.Logger;
+// import frc.robot.subsystems.logging.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -21,17 +21,17 @@ public class VisionManager {
 
     private AprilTagFieldLayout m_aprilTagFieldLayout;
 
-    private final Logger m_logger;
+    // private final Logger m_logger;
 
 
 
     public VisionManager(Map<String, Transform3d> visionSources) {
-        m_logger = Logger.getInstance();
+        // m_logger = Logger.getInstance();
         
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(Constants.VisionConstants.kApriltagLayout.m_resourceFile);
         } catch (IOException e) {
-            m_logger.error("Failed to load apriltag field layout!", e.getStackTrace());
+            // m_logger.error("Failed to load apriltag field layout!", e.getStackTrace());
         }
 
 
