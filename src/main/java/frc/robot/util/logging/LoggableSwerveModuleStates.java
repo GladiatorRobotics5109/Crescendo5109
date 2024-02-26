@@ -1,4 +1,4 @@
-package frc.robot.subsystems.logging;
+package frc.robot.util.logging;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;

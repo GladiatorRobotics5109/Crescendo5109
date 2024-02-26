@@ -1,4 +1,4 @@
-package frc.robot.subsystems.logging;
+package frc.robot.util.logging;
 
 import java.util.function.BooleanSupplier;
 

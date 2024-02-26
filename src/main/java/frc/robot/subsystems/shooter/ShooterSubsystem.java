@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.util.Constants.ShooterConstants;
 import frc.robot.stateMachine.ShooterState;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.ShooterState.ShooterStateEnum;

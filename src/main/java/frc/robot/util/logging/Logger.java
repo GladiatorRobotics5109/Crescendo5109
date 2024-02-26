@@ -1,4 +1,4 @@
-package frc.robot.subsystems.logging;
+package frc.robot.util.logging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 /**
  * Singleton (digital) subystem that manages logging to multiple mediums
  */
-public class Logger extends SubsystemBase {
+public class Logger {
     private final ArrayList<Loggable<?>> m_loggables;
 
     private static Logger s_instance;
@@ -53,7 +53,6 @@ public class Logger extends SubsystemBase {
         DataLogManager.log("[ERR]: " + message);
     }
 
-    @Override
     public void periodic() {
         updateLog();
     }

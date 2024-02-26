@@ -1,4 +1,4 @@
-package frc.robot.subsystems.logging;
+package frc.robot.util.logging;
 
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DataLogEntry;

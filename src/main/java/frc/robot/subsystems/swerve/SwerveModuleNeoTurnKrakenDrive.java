@@ -17,11 +17,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
-import frc.robot.Conversions;
-import frc.robot.RevOptimizer;
-import frc.robot.subsystems.logging.LoggableDouble;
-import frc.robot.subsystems.logging.Logger;
+import frc.robot.util.Constants;
+import frc.robot.util.Conversions;
+import frc.robot.util.RevOptimizer;
+import frc.robot.util.logging.LoggableDouble;
+import frc.robot.util.logging.Logger;
 
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.

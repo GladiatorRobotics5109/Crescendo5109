@@ -12,7 +12,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.Constants;
+import frc.robot.util.Constants;
 
 public class VisionManager {
 
