@@ -79,7 +79,7 @@ public class SwerveModuleNeoTurnKrakenDrive {
         driveMotorConfiguration.Slot0.kI = Constants.ModuleConstants.kDriveI;
         driveMotorConfiguration.Slot0.kD = Constants.ModuleConstants.kDriveD;
         driveMotorConfiguration.Feedback.RotorToSensorRatio = 1;
-        driveMotorConfiguration.Feedback.SensorToMechanismRatio = 8.14;
+        //driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kSwerveDriveGearRatio;
         // driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kDrivePositionConversionFactor;
 
         m_driveMotor.getConfigurator().apply(driveMotorConfiguration);
@@ -106,7 +106,7 @@ public class SwerveModuleNeoTurnKrakenDrive {
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition())) : state;
         
-        double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
+        double rps = Conversions.metersToRot(optimizedState.speedMetersPerSecond);
         m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
         m_rpsLog.log(rps);
         m_driveMotor.setControl(new VelocityVoltage(rps));
@@ -138,10 +138,10 @@ public class SwerveModuleNeoTurnKrakenDrive {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(Conversions.wheelToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModuleState(Conversions.rotToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(Conversions.wheelToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModulePosition(Conversions.rotToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 }

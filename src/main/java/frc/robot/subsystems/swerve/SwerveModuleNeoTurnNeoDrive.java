@@ -126,7 +126,7 @@ public class SwerveModuleNeoTurnNeoDrive {
 
     
     public SwerveModuleState getState() {
-        return new SwerveModuleState(Conversions.wheelToMeters(m_driveEncoder.getVelocity()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModuleState(m_driveEncoder.getVelocity(), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 
     
