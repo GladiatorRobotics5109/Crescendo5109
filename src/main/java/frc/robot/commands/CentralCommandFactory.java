@@ -29,6 +29,13 @@ public final class CentralCommandFactory {
         );
     }
 
+    public Command getToggleIntakeAndFeederCommand() {
+        return Commands.sequence(
+            m_intakeSubsystem.getToggleIntakeCommand(),
+            m_shooterSubsystem.getToggleFeederCommand()
+        );
+    }
+ 
     public Command getFeederSensorTrueCommand() {
         return Commands.sequence(
             m_intakeSubsystem.getStopIntakeCommand(),

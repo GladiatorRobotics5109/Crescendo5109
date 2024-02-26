@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveTeamConstants;
+import frc.robot.commands.CentralCommandFactory;
 import frc.robot.subsystems.logging.Logger;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
@@ -38,6 +39,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
+  private final CentralCommandFactory m_centralCommandFactory;
 
 
   private final SendableChooser<Command> m_autoChooser;
@@ -72,10 +74,13 @@ public class RobotContainer {
     NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
     NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
 
+    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
+
     // Get auto chooser
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("autoChooser", m_autoChooser);
 
+    
 
     // Configure the controller bindings
     configureButtonBindings();
@@ -90,7 +95,7 @@ public class RobotContainer {
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
     // m_driverController.y().whileTrue(m_intake.getStartIntakeCommand());
-    m_driverController.y().onTrue(m_intake.getStartIntakeCommand()).onFalse(m_intake.getStopIntakeCommand());
+    m_driverController.y().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
 
     m_operatorJoystick.button(3).onTrue(m_shooter.getToggleReverseBothCommand());
   }

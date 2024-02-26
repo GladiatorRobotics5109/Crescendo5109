@@ -58,4 +58,14 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command getStopIntakeCommand() {
         return this.runOnce(() -> stopIntake()).withName("stopIntakeCommand");
     }
+
+    public Command getToggleIntakeCommand() {
+        return this.runOnce(() -> {
+            if (m_state.is(IntakeStateEnum.INTAKING)) {
+                stopIntake();
+            } else {
+                startIntake();
+            }
+        });
+    }
 }
