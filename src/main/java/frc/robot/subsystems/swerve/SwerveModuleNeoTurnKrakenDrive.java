@@ -89,9 +89,9 @@ public class SwerveModuleNeoTurnKrakenDrive {
         //m_turnAbsEncoder.setZeroOffset(zeroOffset);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
 
-        m_rpsLog = new LoggableDouble("SwerveModule", moduleName + "rps", true, false, null);
-        m_desiredSpeedLog = new LoggableDouble("SewrveModule", moduleName + "desired ms", true, false, null);
-        m_currentSpeedLog = new LoggableDouble("SewrveModule", moduleName + "current ms", true, true, () -> this.getState().speedMetersPerSecond);
+        m_rpsLog = new LoggableDouble(moduleName + "rps", true);
+        m_desiredSpeedLog = new LoggableDouble(moduleName + "ms DesiredSpeed", true);
+        m_currentSpeedLog = new LoggableDouble(moduleName + "ms CurrentSpeed", true, true, () -> getState().speedMetersPerSecond);
 
 
         Logger.getInstance().addLoggable(m_rpsLog);
