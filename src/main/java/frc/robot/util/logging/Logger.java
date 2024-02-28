@@ -41,6 +41,10 @@ public class Logger {
         s_instance.errorImpl(message, stackTrace);
     }
 
+    public static void periodic() {
+        s_instance.periodicImpl();
+    }
+
     private void addLoggableImpl(Loggable<?> loggable) {
         m_loggables.add(loggable);
     }
@@ -59,7 +63,7 @@ public class Logger {
         DataLogManager.log("[ERR]: " + message);
     }
 
-    public void periodic() {
+    private void periodicImpl() {
         updateLog();
     }
 
