@@ -64,7 +64,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController m_autoAimPID;
     private boolean m_autoAiming;
 
-    private final Logger m_logger;
     // private final LoggableDouble m_autoAimAngleLog;
     // private final LoggableDouble m_autoAimPIDSetpointLog;
     // private final LoggableBoolean m_autoAimStateLog;
@@ -75,8 +74,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveState m_state;
 
     public SwerveSubsystem() {
-        m_logger = Logger.getInstance();
-
         m_state = StateMachine.getSwerveState();
 
         // TODO: select right CAN ids for motors
@@ -126,12 +123,9 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
 
-        // m_logger.addLoggable(m_autoAimAngleLog);
-        // m_logger.addLoggable(m_autoAimPIDSetpointLog);
-        // m_logger.addLoggable(m_autoAimStateLog);
-        m_logger.addLoggable(m_poseLog);
-        m_logger.addLoggable(m_moduleStatesLog);
-        m_logger.addLoggable(m_moduleDesiredStatesLog);
+        Logger.addLoggable(m_poseLog);
+        Logger.addLoggable(m_moduleStatesLog);
+        Logger.addLoggable(m_moduleDesiredStatesLog);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),

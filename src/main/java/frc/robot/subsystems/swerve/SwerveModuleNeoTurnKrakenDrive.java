@@ -94,9 +94,9 @@ public class SwerveModuleNeoTurnKrakenDrive {
         m_currentSpeedLog = new LoggableDouble(moduleName + "ms CurrentSpeed", true, true, () -> getState().speedMetersPerSecond);
 
 
-        Logger.getInstance().addLoggable(m_rpsLog);
-        Logger.getInstance().addLoggable(m_desiredSpeedLog);
-        Logger.getInstance().addLoggable(m_currentSpeedLog);
+        Logger.addLoggable(m_rpsLog);
+        Logger.addLoggable(m_desiredSpeedLog);
+        Logger.addLoggable(m_currentSpeedLog);
     }
 
     public Translation2d getPos() {

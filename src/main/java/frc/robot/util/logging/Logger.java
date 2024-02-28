@@ -5,15 +5,11 @@ import java.util.Arrays;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-/**
- * Singleton (digital) subystem that manages logging to multiple mediums
- */
 public class Logger {
-    private final ArrayList<Loggable<?>> m_loggables;
-
     private static Logger s_instance;
+
+    private final ArrayList<Loggable<?>> m_loggables;
 
     private Logger(Loggable<?>... loggables) {
         DataLogManager.start();
@@ -29,31 +25,47 @@ public class Logger {
         return s_instance;
     }
 
-    public void addLoggable(Loggable<?> loggable) {
+    public static void addLoggable(Loggable<?> loggable) {
+        s_instance.addLoggableImpl(loggable);
+    }
+
+    public static void info(String message) {
+        s_instance.infoImpl(message);
+    }
+
+    public static void warn(String messag) {
+        s_instance.warnImpl(messag);
+    }
+
+    public static void error(String message, StackTraceElement[] stackTrace) {
+        s_instance.errorImpl(message, stackTrace);
+    }
+
+    private void addLoggableImpl(Loggable<?> loggable) {
         m_loggables.add(loggable);
     }
 
-    private void updateLog() {
-        for (Loggable<?> loggable : m_loggables) {
-            loggable.log();
-        }
-    }
-
-    public void info(String message) {
+    private void infoImpl(String message) {
         DataLogManager.log("[INFO]: " + message);
     }
 
-    public void warn(String message) {
+    private void warnImpl(String message) {
         DriverStation.reportWarning(message, new StackTraceElement[] {});
         DataLogManager.log("[WARN]: " + message);
     }
 
-    public void error(String message, StackTraceElement[] stackTrace) {
+    private void errorImpl(String message, StackTraceElement[] stackTrace) {
         DriverStation.reportError(message, stackTrace);
         DataLogManager.log("[ERR]: " + message);
     }
 
     public void periodic() {
         updateLog();
+    }
+
+    private void updateLog() {
+        for (Loggable<?> loggable : m_loggables) {
+            loggable.log();
+        }
     }
 }
