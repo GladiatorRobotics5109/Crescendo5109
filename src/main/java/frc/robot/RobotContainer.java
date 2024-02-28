@@ -30,37 +30,37 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  */
 public class RobotContainer {
   private final CommandXboxController m_driverController = new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
-  private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
+  // private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
 
   private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverRotLimiter = new SlewRateLimiter(10);
 
-  private final SwerveSubsystem m_swerve;
+  //private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  private final CentralCommandFactory m_centralCommandFactory;
+  //private final CentralCommandFactory m_centralCommandFactory;
 
 
-  private final SendableChooser<Command> m_autoChooser;
+  // private final SendableChooser<Command> m_autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.init();
     StateMachine.init();
     // Instantiate swerve
-    m_swerve = new SwerveSubsystem();
+    //m_swerve = new SwerveSubsystem();
 
-    m_swerve.setDefaultCommand(
-      m_swerve.getDriveWithJoystickCommand(
-        () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
-        () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
-        () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
-        () -> m_driverController.getLeftTriggerAxis(), // super speed
-        () -> m_driverController.getRightTriggerAxis(), // super slow
-        () -> true
-      ) // field relative
-    );
+    // m_swerve.setDefaultCommand(
+    //   m_swerve.getDriveWithJoystickCommand(
+    //     () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
+    //     () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
+    //     () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
+    //     () -> m_driverController.getLeftTriggerAxis(), // super speed
+    //     () -> m_driverController.getRightTriggerAxis(), // super slow
+    //     () -> true
+    //   ) // field relative
+    // );
 
     m_shooter = new ShooterSubsystem();
 
@@ -71,14 +71,14 @@ public class RobotContainer {
     NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
     NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
 
-    NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
-    NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
+    // NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
+    // NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
 
-    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
+    //m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
 
     // Get auto chooser
-    m_autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("autoChooser", m_autoChooser);
+    // m_autoChooser = AutoBuilder.buildAutoChooser();
+    // SmartDashboard.putData("autoChooser", m_autoChooser);
 
     
 
@@ -93,11 +93,12 @@ public class RobotContainer {
     // m_driverController.y().onTrue(m_swerve.getBrakeAndXCommand());
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
-    m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
+    //m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
+    m_driverController.x().onTrue(m_intake.getToggleIntakeCommand());
     // m_driverController.y().whileTrue(m_intake.getStartIntakeCommand());
-    m_driverController.y().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
+    //m_driverController.y().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
 
-    m_operatorJoystick.button(3).onTrue(m_shooter.getToggleReverseBothCommand());
+    // m_operatorJoystick.button(3).onTrue(m_shooter.getToggleReverseBothCommand());
   }
 
   /**
@@ -107,7 +108,8 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // Get value of auto chooser
-    return m_autoChooser.getSelected();
+    // return m_autoChooser.getSelected();
+    return null;
   }
 
 }

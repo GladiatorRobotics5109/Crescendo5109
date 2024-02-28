@@ -41,7 +41,7 @@ public class IntakeSubsystem extends SubsystemBase {
     
     public void startIntake() {
         //m_pidController.setReference(1000, ControlType.kSmartVelocity);
-        m_intakeMotor.set(-0.7);
+        m_intakeMotor.set(-0.2);
         m_state.addState(IntakeStateEnum.INTAKING);
     }
     

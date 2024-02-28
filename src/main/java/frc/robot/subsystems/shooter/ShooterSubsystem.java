@@ -227,8 +227,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-0.5);
-        m_rightShooterMotor.set(0.5);
+        m_leftShooterMotor.set(-1);
+        m_rightShooterMotor.set(1);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -252,7 +252,7 @@ public class ShooterSubsystem extends SubsystemBase {
     //TODO: Figure out optimal RPM for feeder
     public void startFeeder() {
         //m_feederPIDController.setReference(500, ControlType.kVelocity);
-        m_feederMotor.set(1);
+        m_feederMotor.set(-1);
         m_state.addState(ShooterStateEnum.FEEDER_WHEELS_SPINNING);
     }
 
