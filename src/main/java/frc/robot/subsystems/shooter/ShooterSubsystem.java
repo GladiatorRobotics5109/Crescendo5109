@@ -1,5 +1,10 @@
 package frc.robot.subsystems.shooter;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import javax.xml.namespace.QName;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
@@ -10,8 +15,12 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.util.Constants.ShooterConstants;
+import frc.robot.util.logging.LoggableBoolean;
+import frc.robot.util.logging.LoggableDouble;
 import frc.robot.stateMachine.ShooterState;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.ShooterState.ShooterStateEnum;
@@ -54,13 +65,19 @@ public class ShooterSubsystem extends SubsystemBase {
     // private final Trigger m_feederSensorTrigger;
     // private final Trigger m_debouncedFeederSensorTrigger;
 
+    private Supplier<Pose2d> m_poseSupplier;
+
     private final ShooterState m_state;
 
     // private final LoggableDouble m_desiredRps;
     // private final LoggableDouble m_currentRps;
 
+    private final LoggableDouble m_desiredAngle;
+    private final LoggableDouble m_currentAngle;
+    private final LoggableBoolean m_autoAiming;
 
-    public ShooterSubsystem() {
+
+    public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
 
         m_state = StateMachine.getShooterState();
 
@@ -106,6 +123,12 @@ public class ShooterSubsystem extends SubsystemBase {
         m_winchPIDController.setI(ShooterConstants.kWinchI);
         m_winchPIDController.setD(ShooterConstants.kWinchD);
         m_winchPIDController.setFF(0.001);
+
+        m_poseSupplier = poseSupplier;
+
+        m_desiredAngle = new LoggableDouble("Shooter Desired Angle", true);
+        m_currentAngle = new LoggableDouble("Shooter Current Angle", true);
+        m_autoAiming = new LoggableBoolean("Shooter Auto Aiming", true);
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -207,7 +230,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getSetAngleCommand(double angle) {
         return this.runOnce(() -> {
-            // setAngle(angle);
+            setAngle(angle);
         });
     }
 
@@ -217,7 +240,25 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
+    public Command getToggleAutoAimCommand() {
+        return this.runOnce(() -> toggleAutoAim());
+    }
+
+    public Command getStartAutoAimCommand() {
+        return this.runOnce(() -> startAutoAim());
+    }
+
+    public Command getStopAutoAimCommand() {
+        return this.runOnce(() -> stopAutoAim());
+    }
+
     public void setAngle(double angle) {
+        if (!(angle < 58 && angle > 38)) {
+            System.out.println(angle);
+            // System.out.println("NONONO");
+
+            return;
+        }        
         double desiredRot = (angle - 57.8763) / (-1.07687);
 
         m_winchPIDController.setReference(desiredRot, ControlType.kPosition);
@@ -289,20 +330,66 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_barPIDController.setReference(length, ControlType.kPosition);
     }
 
+    public void toggleAutoAim() {
+        if (m_state.is(ShooterStateEnum.AUTO_AIMING)) {
+            stopAutoAim();
+        }
+        else {
+            startAutoAim();
+        }
+    }
+
+    public void startAutoAim() {
+        m_state.addState(ShooterStateEnum.AUTO_AIMING);
+    }
+
+    public void stopAutoAim() {
+        m_state.removeState(ShooterStateEnum.AUTO_AIMING);
+    }
+
     public double getAngle() {
         // return Math.PI - Math.acos((Math.pow((m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25, 2) - 462.25 - 52.128) / (-144.4)) + Units.degreesToRadians(16);
         // Desmos linear regression model
         return Units.degreesToRadians(57.8763 + (-1.07687 * m_winchEncoder.getPosition()));
     }
 
+    private double calcAutoAim() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        Translation2d targetPose;
+
+
+        if (alliance.isEmpty() || alliance.get() == Alliance.Red) {
+            targetPose = new Translation2d(
+                Units.inchesToMeters(652.73),
+                Units.inchesToMeters(218.42)
+            );
+        }
+        else {
+            targetPose = new Translation2d(
+                Units.inchesToMeters(-1.50),
+                Units.inchesToMeters(218.42)
+            );
+        }
+
+        double dist = m_poseSupplier.get().getTranslation().getDistance(targetPose);
+        double height = Units.feetToMeters(6.6) + Units.inchesToMeters(5);
+        double angle = Math.atan(height / dist);
+
+        m_desiredAngle.log(angle);
+        return Units.radiansToDegrees(angle);
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("pos", m_winchEncoder.getPosition());
         // SmartDashboard.putNumber("Len", (m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25);
-        SmartDashboard.putNumber("Shooter Angle", getAngle());
-        SmartDashboard.putNumber("Desired angle", Units.degreesToRadians(40));
 
-        // setAngle(40);
+        if (m_state.is(ShooterStateEnum.AUTO_AIMING)) {
+            setAngle(calcAutoAim());
+        }
+
+        m_currentAngle.log(getAngle());
+        m_autoAiming.log(m_state.is(ShooterStateEnum.AUTO_AIMING));
     }
 }
 

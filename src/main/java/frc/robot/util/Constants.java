@@ -37,7 +37,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 3;
+    public static final double kMaxSpeed = 15;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -137,7 +137,7 @@ public final class Constants {
     public static final double kBarI = 0;
     public static final double kBarD = 0;
     
-    public static final double kWinchP = 0.007;
+    public static final double kWinchP = 0.05;
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
@@ -174,10 +174,16 @@ public final class Constants {
   public static class VisionConstants {
 
     public static final Map<String, Transform3d> kVisionSources = new HashMap<>(){{
+      // put("Camera1", new Transform3d(
+      //   0.2921,
+      //   0.3683,
+      //   0.3048,
+      //   new Rotation3d())
+      // );
       put("Camera1", new Transform3d(
-        0.2921,
-        0.3683,
-        0.3048,
+        0.0,
+        Units.inchesToMeters(9.5),
+        Units.inchesToMeters(19.5 / 2),
         new Rotation3d())
       );
       //put("CameraTwo", new Transform3d());

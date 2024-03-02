@@ -144,6 +144,6 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     public SwerveModulePosition getModulePosition() {
         // return new SwerveModulePosition(Conversions.wheelToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModulePosition(m_driveMotor.getPosition().getValueAsDouble(), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModulePosition(Units.feetToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 }

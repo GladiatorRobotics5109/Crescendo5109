@@ -64,9 +64,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController m_autoAimPID;
     private boolean m_autoAiming;
 
-    // private final LoggableDouble m_autoAimAngleLog;
-    // private final LoggableDouble m_autoAimPIDSetpointLog;
-    // private final LoggableBoolean m_autoAimStateLog;
+    private final LoggableDouble m_autoAimAngleLog;
+    private final LoggableDouble m_autoAimPIDSetpointLog;
+    private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
     private final LoggableSwerveModuleStates m_moduleStatesLog;
     private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
@@ -83,7 +83,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 3, 30, Constants.SwerveConstants.kModuleEncoderOffsetBackRight);
     
         m_navX = SwerveConstants.kNavX;
-        //m_navX.reset(); <-- Test this?????
+        // m_navX.reset(); <-- Test this?????
+        m_navX.reset();
         m_navX.setAngleAdjustment(90);
         
         m_kinematics = new SwerveDriveKinematics(
@@ -108,17 +109,21 @@ public class SwerveSubsystem extends SubsystemBase {
         m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
 
-        // m_autoAimPID = new PIDController(0.25, 0, 0.27); works pretty well
-        m_autoAimPID = new PIDController(0.18, 0, 0.27);
+        // m_autoAimPID = new PIDController(0.25, 0, 0.27); // works pretty well
+        m_autoAimPID = new PIDController(0.25, 0, 0.3); // works pretty well
+
+        // m_autoAimPID = new PIDController(0.18, 0, 0.27);
         m_autoAimPID.setIZone(.5);
         m_autoAimPID.setIntegratorRange(-1, 1);
         m_autoAimPID.setI(0.2);
 
+        m_autoAimPID.enableContinuousInput(-180, 180);
+
         m_autoAiming = false;
         
-        // m_autoAimAngleLog = new LoggableDouble(getName(), "AutoAimPIDAngle", true, false, null);
-        // m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", true, false, null);
-        // m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, true, () -> m_autoAiming);
+        m_autoAimAngleLog = new LoggableDouble("AutoAimPIDAngle", true, false, null);
+        m_autoAimPIDSetpointLog = new LoggableDouble("AutoAimPIDSetpoint", true, false, null);
+        m_autoAimStateLog = new LoggableBoolean("AutoAimState", true, true, () -> m_autoAiming);
         m_poseLog = new LoggablePose2d("pose", true, true, this::getPose);
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
@@ -145,6 +150,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_state.addState(SwerveStateEnum.DRIVING);
         if (m_autoAiming)
             vrot = calcAutoAim();
+        else
+            m_autoAimStateLog.log(false);
       
         Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
@@ -321,7 +328,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
     }
 
-    private Pose2d getPose() {
+    public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
 
@@ -360,7 +367,8 @@ public class SwerveSubsystem extends SubsystemBase {
         Pose2d robotPose = getPose();
 
         double angle = robotPose.getRotation().getDegrees() % 360;
-        // m_autoAimAngleLog.log(angle);
+        m_autoAimAngleLog.log(angle);
+        m_autoAimStateLog.log(true);
 
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
@@ -382,13 +390,36 @@ public class SwerveSubsystem extends SubsystemBase {
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
             m_autoAimPID.setSetpoint(setpoint);
-            // m_autoAimPIDSetpointLog.log(setpoint);
+            m_autoAimPIDSetpointLog.log(setpoint);
             
             double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
 
             return pidOutput;
         }
         else {
+            // double angleOffset = 180;
+
+            // // blue speaker tag pose
+            // Pose2d bluePose = new Pose2d(
+            //     Units.inchesToMeters(-1.5),
+            //     Units.inchesToMeters(218.42),
+            //     Rotation2d.fromRadians(0)
+            // );
+
+            // Transform2d delta = new Transform2d(
+            //     robotPose.getX() - bluePose.getX(), 
+            //     robotPose.getY() - bluePose.getY(), 
+            //     Rotation2d.fromRadians(0)
+            // );
+          
+            // double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
+
+            // m_autoAimPID.setSetpoint(setpoint);
+            // m_autoAimPIDSetpointLog.log(setpoint);
+
+            // double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
+            
+            // return pidOutput;
             double angleOffset = 180;
 
             // blue speaker tag pose
@@ -403,14 +434,14 @@ public class SwerveSubsystem extends SubsystemBase {
                 robotPose.getY() - bluePose.getY(), 
                 Rotation2d.fromRadians(0)
             );
-          
+            
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
             m_autoAimPID.setSetpoint(setpoint);
-            // m_autoAimPIDSetpointLog.log(setpoint);
-
-            double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
+            m_autoAimPIDSetpointLog.log(setpoint);
             
+            double pidOutput = m_autoAimPID.calculate(angle + angleOffset);
+
             return pidOutput;
         }
     }

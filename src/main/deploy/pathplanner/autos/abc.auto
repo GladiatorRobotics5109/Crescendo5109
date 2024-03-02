@@ -1,0 +1,31 @@
+{
+  "version": 1.0,
+  "startingPose": null,
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "enableAutoAim"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "a"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "c"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

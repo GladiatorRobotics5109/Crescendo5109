@@ -19,6 +19,7 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -61,7 +62,7 @@ public class RobotContainer {
       ) // field relative
     );
 
-    m_shooter = new ShooterSubsystem();
+    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
 
     // TODO: change intake motor port
     m_intake = new IntakeSubsystem();
@@ -93,7 +94,9 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     //m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
-    m_driverController.x().onTrue(m_intake.getToggleIntakeCommand());
+    // m_driverController.x().onTrue(m_intake.getToggleIntakeCommand());
+    // m_driverController.x().onTrue(m_shooter.getToggleAutoAimCommand());
+    m_driverController.x().onTrue(Commands.parallel(m_shooter.getToggleAutoAimCommand(), m_swerve.getToggleAutoAimCommand()));
     m_driverController.y().onTrue(m_intake.getToggleReverseIntakeCommand());
     // m_driverController.y().whileTrue(m_intake.getStartIntakeCommand());
     //m_driverController.y().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
@@ -108,8 +111,8 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // Get value of auto chooser
-    // return m_autoChooser.getSelected();
-    return null;
+    return m_autoChooser.getSelected();
+    // return null;
   }
 
 }
