@@ -12,7 +12,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.Constants;
+import frc.robot.util.Constants;
 
 public class VisionManager {
 
@@ -21,17 +21,11 @@ public class VisionManager {
 
     private AprilTagFieldLayout m_aprilTagFieldLayout;
 
-    // private final Logger m_logger;
-
-
-
     public VisionManager(Map<String, Transform3d> visionSources) {
-        // m_logger = Logger.getInstance();
-        
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(Constants.VisionConstants.kApriltagLayout.m_resourceFile);
         } catch (IOException e) {
-            // m_logger.error("Failed to load apriltag field layout!", e.getStackTrace());
+            
         }
 
 

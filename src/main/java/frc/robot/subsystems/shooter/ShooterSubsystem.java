@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants;
-import frc.robot.Constants.ShooterConstants;
+
+import frc.robot.util.Constants.ShooterConstants;
 import frc.robot.stateMachine.ShooterState;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.ShooterState.ShooterStateEnum;
@@ -132,12 +132,6 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.1).negate();
 
         configureBindings();
-
-        // m_desiredRps = new LoggableDouble(getName(), "desiredRps", true, false, null);
-        // m_currentRps = new LoggableDouble(getName(), "current rps", true, true, () -> m_leftShooterEncoder.getVelocity());
-
-        // Logger.getInstance().addLoggable(m_desiredRps);
-        // Logger.getInstance().addLoggable(m_currentRps);
     }
     /**
      * These bindings make it so that when a note is in the shooter, the shooter wheels are spinning and ready to shoot

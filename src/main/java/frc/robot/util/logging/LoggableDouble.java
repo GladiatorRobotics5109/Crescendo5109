@@ -1,35 +1,48 @@
-package frc.robot.subsystems.logging;
+package frc.robot.util.logging;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
 
-public class LoggableDouble extends Loggable<Double> {
+public final class LoggableDouble extends Loggable<Double> {
     private DoubleSupplier m_valueSupplier;
     private DoublePublisher m_publisher;
+    private DoubleLogEntry m_wpiEntry;
 
     public LoggableDouble(
-        String subsystem, 
         String name, 
         boolean logToNetworkTables,
         boolean liveLog,
         DoubleSupplier valueSupplier) {
-        super(subsystem, name, logToNetworkTables, liveLog);
+        super(name, logToNetworkTables, liveLog);
 
         m_valueSupplier = valueSupplier;
 
         m_publisher = NetworkTableInstance.getDefault().getDoubleTopic(name).publish();
+
+        m_wpiEntry = new DoubleLogEntry(m_wpiLog, name);
     }
-    public LoggableDouble(
-        String subsystem,
-        String name,
-        DoubleSupplier valueSupplier) {
-        super(subsystem, name, true, true);
 
-        m_valueSupplier = valueSupplier;
+    public LoggableDouble(String name, boolean logToNetworkTables) {
+        super(name, logToNetworkTables);
+
+        m_valueSupplier = null;
 
         m_publisher = NetworkTableInstance.getDefault().getDoubleTopic(name).publish();
+
+        m_wpiEntry = new DoubleLogEntry(m_wpiLog, name);
+    }
+
+    public LoggableDouble(String name) {
+        super(name);
+
+        m_valueSupplier = null;
+
+        m_publisher = NetworkTableInstance.getDefault().getDoubleTopic(name).publish();
+
+        m_wpiEntry = new DoubleLogEntry(m_wpiLog, name);
     }
 
     @Override
@@ -38,11 +51,11 @@ public class LoggableDouble extends Loggable<Double> {
             m_publisher.set(value);
         }
 
-        m_wpiLog.appendDouble(m_wpiEntry, value, 0);
+        m_wpiEntry.append(value);
     }
 
     @Override
-    public void log() {
+    protected void log() {
         if(m_liveLog)
             log(m_valueSupplier.getAsDouble());
     }

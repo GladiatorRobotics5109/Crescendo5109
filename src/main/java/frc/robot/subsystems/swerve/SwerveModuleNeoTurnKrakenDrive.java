@@ -17,11 +17,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import frc.robot.Constants;
-import frc.robot.Conversions;
-import frc.robot.RevOptimizer;
-import frc.robot.subsystems.logging.LoggableDouble;
-import frc.robot.subsystems.logging.Logger;
+import frc.robot.util.Constants;
+import frc.robot.util.Conversions;
+import frc.robot.util.RevOptimizer;
+import frc.robot.util.logging.LoggableDouble;
+import frc.robot.util.logging.Logger;
 
 /**
  * Represents a swerve module with a Kraken (TalonFX) turn motor and a NEO (SparkMAX) drive motor.
@@ -89,14 +89,14 @@ public class SwerveModuleNeoTurnKrakenDrive {
         //m_turnAbsEncoder.setZeroOffset(zeroOffset);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
 
-        // m_rpsLog = new LoggableDouble(moduleName + "rps", true);
-        // m_desiredSpeedLog = new LoggableDouble(moduleName + "ms DesiredSpeed", true);
-        // m_currentSpeedLog = new LoggableDouble(moduleName + "ms CurrentSpeed", true, true, () -> getState().speedMetersPerSecond);
+        m_rpsLog = new LoggableDouble(moduleName + "rps", true);
+        m_desiredSpeedLog = new LoggableDouble(moduleName + "ms DesiredSpeed", true);
+        m_currentSpeedLog = new LoggableDouble(moduleName + "ms CurrentSpeed", true, true, () -> getState().speedMetersPerSecond);
 
 
-        // Logger.getInstance().addLoggable(m_rpsLog);
-        // Logger.getInstance().addLoggable(m_desiredSpeedLog);
-        // Logger.getInstance().addLoggable(m_currentSpeedLog);
+        Logger.addLoggable(m_rpsLog);
+        Logger.addLoggable(m_desiredSpeedLog);
+        Logger.addLoggable(m_currentSpeedLog);
     }
 
     public Translation2d getPos() {

@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.util.Constants.IntakeConstants;
 import frc.robot.stateMachine.IntakeState;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.IntakeState.IntakeStateEnum;

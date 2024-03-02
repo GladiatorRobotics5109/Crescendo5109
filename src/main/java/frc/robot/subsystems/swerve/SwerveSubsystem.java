@@ -7,7 +7,9 @@ import java.util.function.DoubleSupplier;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.SwerveState;
 import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
-import frc.robot.subsystems.logging.LoggablePose2d;
+import frc.robot.util.logging.LoggablePose2d;
+import frc.robot.util.logging.LoggableSwerveModuleStates;
+
 import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -31,12 +33,12 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.util.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.SwerveConstants;
-import frc.robot.subsystems.logging.LoggableBoolean;
-import frc.robot.subsystems.logging.LoggableDouble;
-import frc.robot.subsystems.logging.Logger;
+import frc.robot.util.Constants.SwerveConstants;
+import frc.robot.util.logging.LoggableBoolean;
+import frc.robot.util.logging.LoggableDouble;
+import frc.robot.util.logging.Logger;
 import frc.robot.vision.EstimatedRobotPoses;
 import frc.robot.vision.VisionManager;
 
@@ -62,17 +64,16 @@ public class SwerveSubsystem extends SubsystemBase {
     private final PIDController m_autoAimPID;
     private boolean m_autoAiming;
 
-    private final Logger m_logger;
     // private final LoggableDouble m_autoAimAngleLog;
     // private final LoggableDouble m_autoAimPIDSetpointLog;
     // private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
+    private final LoggableSwerveModuleStates m_moduleStatesLog;
+    private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
     
     private final SwerveState m_state;
 
     public SwerveSubsystem() {
-        m_logger = Logger.getInstance();
-
         m_state = StateMachine.getSwerveState();
 
         // TODO: select right CAN ids for motors
@@ -118,12 +119,13 @@ public class SwerveSubsystem extends SubsystemBase {
         // m_autoAimAngleLog = new LoggableDouble(getName(), "AutoAimPIDAngle", true, false, null);
         // m_autoAimPIDSetpointLog = new LoggableDouble(getName(), "AutoAimPIDSetpoint", true, false, null);
         // m_autoAimStateLog = new LoggableBoolean(getName(), "AutoAimState", true, true, () -> m_autoAiming);
-        m_poseLog = new LoggablePose2d(getName(), "RobotPose", true, true, this::getPose);
+        m_poseLog = new LoggablePose2d("pose", true, true, this::getPose);
+        m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
+        m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
 
-        // m_logger.addLoggable(m_autoAimAngleLog);
-        // m_logger.addLoggable(m_autoAimPIDSetpointLog);
-        // m_logger.addLoggable(m_autoAimStateLog);
-        m_logger.addLoggable(m_poseLog);
+        Logger.addLoggable(m_poseLog);
+        Logger.addLoggable(m_moduleStatesLog);
+        Logger.addLoggable(m_moduleDesiredStatesLog);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),
@@ -152,6 +154,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFR.setDesiredState(swerveModuleStates[1]);
         m_moduleBL.setDesiredState(swerveModuleStates[2]);
         m_moduleBR.setDesiredState(swerveModuleStates[3]);
+
+        m_moduleDesiredStatesLog.log(swerveModuleStates);
     }
 
     /** drive with desired chassis speeds */
@@ -178,6 +182,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_moduleFR.setDesiredState(frBl);
         m_moduleBL.setDesiredState(frBl);
+
+        m_moduleDesiredStatesLog.log(new SwerveModuleState[] {flBr, frBl, frBl, flBr});
 
         brakeAll();
     }
@@ -241,6 +247,8 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleFR.setDesiredState(states[1], false);
             m_moduleBL.setDesiredState(states[2], false);
             m_moduleBR.setDesiredState(states[3], false);
+
+            m_moduleDesiredStatesLog.log(states);
         }).withName("alignWheelCommand");
     }
 

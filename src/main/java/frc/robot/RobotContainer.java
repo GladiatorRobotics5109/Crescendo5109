@@ -8,13 +8,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.DriveTeamConstants;
+import frc.robot.util.Constants.DriveTeamConstants;
 import frc.robot.commands.CentralCommandFactory;
-import frc.robot.subsystems.logging.Logger;
+import frc.robot.util.logging.Logger;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.logging.Logger;
+import frc.robot.util.logging.Logger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -46,7 +46,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    Logger.init();
     StateMachine.init();
     // Instantiate swerve
     m_swerve = new SwerveSubsystem();

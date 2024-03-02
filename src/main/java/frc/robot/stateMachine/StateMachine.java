@@ -10,8 +10,6 @@ public final class StateMachine {
     // private static Logger s_logger;
 
     public static void init() {
-        // s_logger = Logger.getInstance();
-
         s_swerveState = new SwerveState();
         s_shooterState = new ShooterState();
         s_intakeState = new IntakeState();
