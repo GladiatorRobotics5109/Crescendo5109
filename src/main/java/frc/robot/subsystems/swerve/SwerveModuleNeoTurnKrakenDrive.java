@@ -39,9 +39,9 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     private final SparkPIDController m_turnPIDController;
 
-    // private final LoggableDouble m_rpsLog;
-    // private final LoggableDouble m_desiredSpeedLog;
-    // private final LoggableDouble m_currentSpeedLog;
+    private final LoggableDouble m_rpsLog;
+    private final LoggableDouble m_desiredSpeedLog;
+    private final LoggableDouble m_currentSpeedLog;
 
 
     public SwerveModuleNeoTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort, double zeroOffset) {
