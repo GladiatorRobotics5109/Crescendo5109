@@ -18,9 +18,9 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": null
+            "pathName": "TestPath2"
           }
         }
       ]

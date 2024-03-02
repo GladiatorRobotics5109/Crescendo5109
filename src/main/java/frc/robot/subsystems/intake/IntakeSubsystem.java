@@ -41,18 +41,28 @@ public class IntakeSubsystem extends SubsystemBase {
     
     public void startIntake() {
         //m_pidController.setReference(1000, ControlType.kSmartVelocity);
-        m_intakeMotor.set(-0.2);
+        m_intakeMotor.set(-0.5);
         m_state.addState(IntakeStateEnum.INTAKING);
+    }
+
+    public void reverseIntake() {
+        m_intakeMotor.set(0.5);
+        m_state.addState(IntakeStateEnum.REVERSING);
     }
     
     public void stopIntake() {
         //m_pidController.setReference(0, ControlType.kSmartVelocity);
         m_intakeMotor.set(0);
         m_state.removeState(IntakeStateEnum.INTAKING);
+        m_state.removeState(IntakeStateEnum.REVERSING);
     }
     
     public Command getStartIntakeCommand() {
         return this.runOnce(() -> startIntake()).withName("startIntakeCommand");
+    }
+
+    public Command getReverseIntakeCommand() {
+        return this.runOnce(() -> reverseIntake()).withName("reverseIntakeCommand");
     }
     
     public Command getStopIntakeCommand() {
@@ -63,8 +73,20 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.runOnce(() -> {
             if (m_state.is(IntakeStateEnum.INTAKING)) {
                 stopIntake();
-            } else {
+            } 
+            else {
                 startIntake();
+            }
+        });
+    }
+
+    public Command getToggleReverseIntakeCommand() {
+        return this.runOnce(() -> {
+            if (m_state.is(IntakeStateEnum.REVERSING)) {
+                stopIntake();
+            }
+            else {
+                reverseIntake();
             }
         });
     }

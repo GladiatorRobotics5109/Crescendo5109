@@ -11,6 +11,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.SPI;
@@ -35,7 +36,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 10;
+    public static final double kMaxSpeed = 3;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -110,7 +111,7 @@ public final class Constants {
       public static final double kDriveI = 0;
       public static final double kDriveD = 0.05;
   
-      public static final double kTurnP = 1.5;
+      public static final double kTurnP = 0.1;
       public static final double kTurnI = 0;
       public static final double kTurnD = 0;
     
@@ -120,7 +121,7 @@ public final class Constants {
     public static final int kLeftShooterMotorPort = 55;
     public static final int kRightShooterMotorPort = 9;
     public static final int kFeederMotorPort = 6;
-    public static final int kWinchMotorPort = 56;
+    public static final int kWinchMotorPort = 62;
     public static final int kBarMotorPort = 78;
 
     public static final double kShooterP = 1;
@@ -135,7 +136,7 @@ public final class Constants {
     public static final double kBarI = 0;
     public static final double kBarD = 0;
     
-    public static final double kWinchP = 0;
+    public static final double kWinchP = 0.007;
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
@@ -143,14 +144,15 @@ public final class Constants {
     
     public static final double kPivotWinchInitialRadius = 0;
     public static final double kPivotWinchFinalRadius = 0;
-    public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
+    // public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
+    public static final double kPivotWinchAverageRadius = 0.75 / 2;
     
     public static final double kBarWinchInitialRadius = 0;
     public static final double kBarWinchFinalRadius = 0;
     public static final double kBarWinchAverageRadius = (kBarWinchInitialRadius + kBarWinchFinalRadius) / 2;
     
     public static final double kBarGearRatio = 0;
-    public static final double kWinchGearRatio = 0;
+    public static final double kWinchGearRatio = 25;
     
     public static final double kBarPositionConversionFactor = kBarWinchAverageRadius * (2 * Math.PI) / kBarGearRatio; 
     public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;

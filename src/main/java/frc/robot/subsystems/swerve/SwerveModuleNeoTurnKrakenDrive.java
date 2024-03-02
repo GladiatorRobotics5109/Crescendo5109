@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Conversions;
 import frc.robot.RevOptimizer;
@@ -39,9 +40,9 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     private final SparkPIDController m_turnPIDController;
 
-    private final LoggableDouble m_rpsLog;
-    private final LoggableDouble m_desiredSpeedLog;
-    private final LoggableDouble m_currentSpeedLog;
+    // private final LoggableDouble m_rpsLog;
+    // private final LoggableDouble m_desiredSpeedLog;
+    // private final LoggableDouble m_currentSpeedLog;
 
 
     public SwerveModuleNeoTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort, double zeroOffset) {
@@ -89,14 +90,14 @@ public class SwerveModuleNeoTurnKrakenDrive {
         //m_turnAbsEncoder.setZeroOffset(zeroOffset);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
 
-        m_rpsLog = new LoggableDouble("SwerveModule", moduleName + "rps", true, false, null);
-        m_desiredSpeedLog = new LoggableDouble("SewrveModule", moduleName + "desired ms", true, false, null);
-        m_currentSpeedLog = new LoggableDouble("SewrveModule", moduleName + "current ms", true, true, () -> this.getState().speedMetersPerSecond);
+        // m_rpsLog = new LoggableDouble("SwerveModule", moduleName + "rps", true, false, null);
+        // m_desiredSpeedLog = new LoggableDouble("SewrveModule", moduleName + "desired ms", true, false, null);
+        // m_currentSpeedLog = new LoggableDouble("SewrveModule", moduleName + "current ms", true, true, () -> this.getState().speedMetersPerSecond);
 
 
-        Logger.getInstance().addLoggable(m_rpsLog);
-        Logger.getInstance().addLoggable(m_desiredSpeedLog);
-        Logger.getInstance().addLoggable(m_currentSpeedLog);
+        // Logger.getInstance().addLoggable(m_rpsLog);
+        // Logger.getInstance().addLoggable(m_desiredSpeedLog);
+        // Logger.getInstance().addLoggable(m_currentSpeedLog);
     }
 
     public Translation2d getPos() {
@@ -107,11 +108,11 @@ public class SwerveModuleNeoTurnKrakenDrive {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition())) : state;
         
         double rps = Conversions.metersToRot(optimizedState.speedMetersPerSecond);
-        m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
-        m_rpsLog.log(rps);
+        // m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
+        // m_rpsLog.log(rps);
         m_driveMotor.setControl(new VelocityVoltage(rps));
-        // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
-        m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        m_turnPIDController.setReference(Math.PI / 2, ControlType.kPosition);
+        // m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }
 
 

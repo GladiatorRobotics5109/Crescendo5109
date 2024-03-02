@@ -12,11 +12,12 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.stateMachine.ShooterState;
 import frc.robot.stateMachine.StateMachine;
@@ -32,19 +33,19 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_leftShooterMotor;  // Left Side Shooter Wheels
     private final CANSparkMax m_rightShooterMotor; // Right Side Shooter Wheels
     private final CANSparkMax m_feederMotor; // Feeder Wheels
-    // private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
+    private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
     // private final CANSparkMax m_barMotor; // Amp Bar
 
     private final SparkPIDController m_leftShooterPIDController;
     private final SparkPIDController m_rightShooterPIDController;
     private final SparkPIDController m_feederPIDController;
-    // private final SparkPIDController m_winchPIDController;
+    private final SparkPIDController m_winchPIDController;
     // private final SparkPIDController m_barPIDController;
 
     private final RelativeEncoder m_leftShooterEncoder;
     private final RelativeEncoder m_rightShooterEncoder;
     private final RelativeEncoder m_feederEncoder;
-    // private final AbsoluteEncoder m_tiltEncoder;
+    private final RelativeEncoder m_winchEncoder;
     // private final RelativeEncoder m_barEncoder;
 
     // private final DigitalInput m_feederSensor;
@@ -66,26 +67,26 @@ public class ShooterSubsystem extends SubsystemBase {
         m_leftShooterMotor = new CANSparkMax(ShooterConstants.kLeftShooterMotorPort, MotorType.kBrushless);
         m_rightShooterMotor = new CANSparkMax(ShooterConstants.kRightShooterMotorPort, MotorType.kBrushless);
         m_feederMotor = new CANSparkMax(ShooterConstants.kFeederMotorPort, MotorType.kBrushless);
-        // m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
+        m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
         // m_barMotor = new CANSparkMax(ShooterConstants.kBarMotorPort, MotorType.kBrushless);
 
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
     
         m_feederPIDController = m_feederMotor.getPIDController();
-        // m_winchPIDController = m_winchMotor.getPIDController();
+        m_winchPIDController = m_winchMotor.getPIDController();
         // m_barPIDController = m_barMotor.getPIDController();
 
         m_leftShooterEncoder = m_leftShooterMotor.getEncoder();
         m_rightShooterEncoder = m_rightShooterMotor.getEncoder();
         m_feederEncoder = m_feederMotor.getEncoder();
-        // m_tiltEncoder = m_winchMotor.getAbsoluteEncoder(Type.kDutyCycle);
+        m_winchEncoder = m_winchMotor.getEncoder();
         // m_barEncoder = m_barMotor.getEncoder();
 
         m_leftShooterMotor.setIdleMode(IdleMode.kCoast);
         m_rightShooterMotor.setIdleMode(IdleMode.kCoast);
         m_feederMotor.setIdleMode(IdleMode.kCoast);
-        // m_winchMotor.setIdleMode(IdleMode.kBrake);
+        m_winchMotor.setIdleMode(IdleMode.kBrake);
         // m_barMotor.setIdleMode(IdleMode.kBrake);
 
         m_leftShooterPIDController.setP(ShooterConstants.kShooterP);
@@ -98,11 +99,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_feederPIDController.setP(ShooterConstants.kFeederP);
         m_feederPIDController.setI(ShooterConstants.kFeederI);
+        m_feederPIDController.setIZone(5);
         m_feederPIDController.setD(ShooterConstants.kFeederD);
 
-        // m_winchPIDController.setP(ShooterConstants.kWinchP);
-        // m_winchPIDController.setI(ShooterConstants.kWinchI);
-        // m_winchPIDController.setD(ShooterConstants.kWinchD);
+        m_winchPIDController.setP(ShooterConstants.kWinchP);
+        m_winchPIDController.setI(ShooterConstants.kWinchI);
+        m_winchPIDController.setD(ShooterConstants.kWinchD);
+        m_winchPIDController.setFF(0.001);
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -118,6 +121,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         //TODO: Need gear ratios and position conversion factor for bar and winch (maybe not winch)
         // m_barEncoder.setPositionConversionFactor(ShooterConstants.kBarPositionConversionFactor);
+
+        m_winchEncoder.setPosition(0);
 
 
         // m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
@@ -152,7 +157,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            setAngle(Units.degreesToRadians(58));
+            // setAngle(Units.degreesToRadians(58));
             setBarExtension(0);
         }); 
     }
@@ -208,7 +213,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getSetAngleCommand(double angle) {
         return this.runOnce(() -> {
-            setAngle(angle);
+            // setAngle(angle);
         });
     }
 
@@ -219,7 +224,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAngle(double angle) {
-        // m_winchPIDController.setReference(angle, ControlType.kPosition);
+        double desiredRot = (angle - 57.8763) / (-1.07687);
+
+        m_winchPIDController.setReference(desiredRot, ControlType.kPosition);
     }
 
     //TODO: Figure out optimal RPM for shooter
@@ -227,7 +234,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-1);
+        // m_leftShooterMotor.set(-1);
         m_rightShooterMotor.set(1);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
@@ -288,7 +295,20 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_barPIDController.setReference(length, ControlType.kPosition);
     }
 
+    public double getAngle() {
+        // return Math.PI - Math.acos((Math.pow((m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25, 2) - 462.25 - 52.128) / (-144.4)) + Units.degreesToRadians(16);
+        // Desmos linear regression model
+        return Units.degreesToRadians(57.8763 + (-1.07687 * m_winchEncoder.getPosition()));
+    }
 
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("pos", m_winchEncoder.getPosition());
+        // SmartDashboard.putNumber("Len", (m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25);
+        SmartDashboard.putNumber("Shooter Angle", getAngle());
+        SmartDashboard.putNumber("Desired angle", Units.degreesToRadians(40));
 
+        // setAngle(40);
+    }
 }
 
