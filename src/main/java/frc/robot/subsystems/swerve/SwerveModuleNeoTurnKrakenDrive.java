@@ -17,7 +17,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Conversions;
 import frc.robot.RevOptimizer;
@@ -80,7 +79,7 @@ public class SwerveModuleNeoTurnKrakenDrive {
         driveMotorConfiguration.Slot0.kI = Constants.ModuleConstants.kDriveI;
         driveMotorConfiguration.Slot0.kD = Constants.ModuleConstants.kDriveD;
         driveMotorConfiguration.Feedback.RotorToSensorRatio = 1;
-        //driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kSwerveDriveGearRatio;
+        driveMotorConfiguration.Feedback.SensorToMechanismRatio = 8.14;
         // driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kDrivePositionConversionFactor;
 
         m_driveMotor.getConfigurator().apply(driveMotorConfiguration);
@@ -90,9 +89,9 @@ public class SwerveModuleNeoTurnKrakenDrive {
         //m_turnAbsEncoder.setZeroOffset(zeroOffset);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
 
-        // m_rpsLog = new LoggableDouble("SwerveModule", moduleName + "rps", true, false, null);
-        // m_desiredSpeedLog = new LoggableDouble("SewrveModule", moduleName + "desired ms", true, false, null);
-        // m_currentSpeedLog = new LoggableDouble("SewrveModule", moduleName + "current ms", true, true, () -> this.getState().speedMetersPerSecond);
+        // m_rpsLog = new LoggableDouble(moduleName + "rps", true);
+        // m_desiredSpeedLog = new LoggableDouble(moduleName + "ms DesiredSpeed", true);
+        // m_currentSpeedLog = new LoggableDouble(moduleName + "ms CurrentSpeed", true, true, () -> getState().speedMetersPerSecond);
 
 
         // Logger.getInstance().addLoggable(m_rpsLog);
@@ -107,12 +106,12 @@ public class SwerveModuleNeoTurnKrakenDrive {
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition())) : state;
         
-        double rps = Conversions.metersToRot(optimizedState.speedMetersPerSecond);
+        double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
         // m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
         // m_rpsLog.log(rps);
         m_driveMotor.setControl(new VelocityVoltage(rps));
-        m_turnPIDController.setReference(Math.PI / 2, ControlType.kPosition);
-        // m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
+        // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
+        m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }
 
 
@@ -139,10 +138,12 @@ public class SwerveModuleNeoTurnKrakenDrive {
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(Conversions.rotToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        // return new SwerveModuleState(Conversions.wheelToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModuleState(m_driveMotor.getVelocity().getValueAsDouble(), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(Conversions.rotToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        // return new SwerveModulePosition(Conversions.wheelToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModulePosition(m_driveMotor.getPosition().getValueAsDouble(), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 }
