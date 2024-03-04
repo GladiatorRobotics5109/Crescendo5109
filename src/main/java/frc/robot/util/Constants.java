@@ -37,7 +37,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 15;
+    public static final double kMaxSpeed = 3;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -137,7 +137,7 @@ public final class Constants {
     public static final double kBarI = 0;
     public static final double kBarD = 0;
     
-    public static final double kWinchP = 0.05;
+    public static final double kWinchP = 0.1;
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
