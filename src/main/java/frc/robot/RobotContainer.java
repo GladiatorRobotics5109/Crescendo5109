@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  */
 public class RobotContainer {
   private final CommandXboxController m_driverController = new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
-  // private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
+  private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
 
   private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(20);
@@ -62,8 +62,6 @@ public class RobotContainer {
       ) // field relative
     );
 
-    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
-
     // TODO: change intake motor port
     m_intake = new IntakeSubsystem();
     
@@ -73,6 +71,8 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
     NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
+
+    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose(), m_intake.getStopIntakeCommand());
 
     m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
 
@@ -90,18 +90,14 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    // m_driverController.y().onTrue(m_swerve.getBrakeAndXCommand());
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
-    //m_driverController.x().onTrue(m_swerve.getToggleAutoAimCommand());
-    // m_driverController.x().onTrue(m_intake.getToggleIntakeCommand());
-    // m_driverController.x().onTrue(m_shooter.getToggleAutoAimCommand());
     m_driverController.x().onTrue(Commands.parallel(m_shooter.getToggleAutoAimCommand(), m_swerve.getToggleAutoAimCommand()));
-    m_driverController.y().onTrue(m_intake.getToggleReverseIntakeCommand());
-    // m_driverController.y().whileTrue(m_intake.getStartIntakeCommand());
-    //m_driverController.y().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
+    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
+    m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
 
-    // m_operatorJoystick.button(3).onTrue(m_shooter.getToggleReverseBothCommand());
+    m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
+    m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
   }
 
   /**

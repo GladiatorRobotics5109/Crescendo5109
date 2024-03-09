@@ -43,4 +43,11 @@ public final class CentralCommandFactory {
             m_shooterSubsystem.getStartShooterCommand()
         );
     }
+
+    public Command getReverseAllCommand() {
+        return Commands.parallel(
+            m_intakeSubsystem.getToggleReverseIntakeCommand(),
+            m_shooterSubsystem.getToggleReverseBothCommand()
+        );
+    }
 }

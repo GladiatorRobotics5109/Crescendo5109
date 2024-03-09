@@ -54,11 +54,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder m_winchEncoder;
     // private final RelativeEncoder m_barEncoder;
 
-//    private final DigitalInput m_feederSensor;
+    private final DigitalInput m_feederSensor;
 
 
-//    private final Trigger m_feederSensorTrigger;
-//    private final Trigger m_debouncedFeederSensorTrigger;
+    private final Trigger m_feederSensorTrigger;
+    private final Trigger m_debouncedFeederSensorTrigger;
 
     private Supplier<Pose2d> m_poseSupplier;
 
@@ -70,12 +70,16 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableDouble m_desiredAngleLog;
     private final LoggableDouble m_currentAngleLog;
     private final LoggableBoolean m_autoAimingLog;
-//    private final LoggableBoolean m_sensorStateLog;
 
 //    private final LoggableBoolean m_feederSensorLog;
 
+    private final LoggableDouble m_rpmLLog;
+    private final LoggableDouble m_rpmRLog;
 
-    public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
+    private final Command m_stopIntakeCommand;
+
+
+    public ShooterSubsystem(Supplier<Pose2d> poseSupplier, Command stopIntakeCommand) {
 
         m_state = StateMachine.getShooterState();
 
@@ -87,7 +91,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
-    
+
         m_feederPIDController = m_feederMotor.getPIDController();
         m_winchPIDController = m_winchMotor.getPIDController();
         // m_barPIDController = m_barMotor.getPIDController();
@@ -127,7 +131,11 @@ public class ShooterSubsystem extends SubsystemBase {
         m_desiredAngleLog = new LoggableDouble("Shooter Desired Angle", true);
         m_currentAngleLog = new LoggableDouble("Shooter Current Angle", true);
         m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
-//        m_sensorStateLog = new LoggableBoolean("Sensor State", true);
+        m_rpmLLog = new LoggableDouble("Shooter L RPM", true);
+        m_rpmRLog = new LoggableDouble("Shooter R RPM", true);
+        //        m_feederSensorLog = new LoggableBoolean("HasNote", true);
+
+        m_stopIntakeCommand = stopIntakeCommand;
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -139,7 +147,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_barPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
 
-//        m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
+
+        m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
 
         //TODO: Need gear ratios and position conversion factor for bar and winch (maybe not winch)
         // m_barEncoder.setPositionConversionFactor(ShooterConstants.kBarPositionConversionFactor);
@@ -147,11 +156,15 @@ public class ShooterSubsystem extends SubsystemBase {
         m_winchEncoder.setPosition(0);
 
 
-//        m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
+        m_feederSensorTrigger = new Trigger(() -> {
+                if (!m_state.is(ShooterStateEnum.HAS_NOTE))
+                        return m_feederSensor.get();
+                return false;
+        });
 
         //negated since the beambreak will return true until beam is broken
- 
-//        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.1).negate();
+
+        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.5).negate();
 
         configureBindings();
     }
@@ -160,19 +173,25 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
+        m_debouncedFeederSensorTrigger.onTrue(
+            Commands.sequence(
+                getAddHasNoteStateCommand(),
+                getStopShooterCommand(),
+                Commands.run(() -> {
+                    m_feederMotor.set(0.0125);
+                }),
+                Commands.waitSeconds(0.00125),
+                getStopFeederCommand(),
+                m_stopIntakeCommand
+            )
+         );
 
-//         m_debouncedFeederSensorTrigger.onTrue(
-//             Commands.sequence(
-//                 getRemoveHasNoteStateCommand(),
-//                 getStopFeederCommand(),
-//                 getStopShooterCommand()
-//             )
-//         );
+         m_debouncedFeederSensorTrigger.onFalse(getRemoveHasNoteStateCommand());
     }
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            // setAngle(Units.degreesToRadians(58));
+            setAngle(Units.degreesToRadians(58));
             setBarExtension(0);
         }); 
     }
@@ -250,14 +269,27 @@ public class ShooterSubsystem extends SubsystemBase {
         return this.runOnce(() -> stopAutoAim());
     }
 
+    public Command getIncreaseAngleCommand() {
+        return this.run(() -> increaseAngle());
+    }
+
+    public Command getDecreaseAngleCommand() {
+        return this.run(() -> decreaseAngle());
+    }
+
     public void setAngle(double angle) {
-        if (!(angle < 58 && angle > 38)) {
+        if (!(angle < 58.1 && angle > 38)) {
             System.out.println(angle);
             // System.out.println("NONONO");
-
             return;
-        }        
+        }
+
+        if (angle > 58.1) angle = 58;
+        if (angle < 38) angle = 38;
+
         double desiredRot = (angle - 57.8763) / (-1.07687);
+
+        m_desiredAngleLog.log(Units.degreesToRadians(angle));
 
         m_winchPIDController.setReference(desiredRot, ControlType.kPosition);
     }
@@ -267,8 +299,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        // m_leftShooterMotor.set(-1);
-        m_rightShooterMotor.set(1);
+         m_leftShooterMotor.set(-0.3);
+        m_rightShooterMotor.set(0.3);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -345,6 +377,14 @@ public class ShooterSubsystem extends SubsystemBase {
         m_state.removeState(ShooterStateEnum.AUTO_AIMING);
     }
 
+    public void increaseAngle() {
+        setAngle(Units.radiansToDegrees(getAngle()) + 2);
+    }
+
+    public void decreaseAngle() {
+        setAngle(Units.radiansToDegrees(getAngle()) - 2);
+    }
+
     public double getAngle() {
         // return Math.PI - Math.acos((Math.pow((m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25, 2) - 462.25 - 52.128) / (-144.4)) + Units.degreesToRadians(16);
         // Desmos linear regression model
@@ -373,7 +413,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double height = Units.feetToMeters(6.6) + Units.inchesToMeters(5);
         double angle = Math.atan(height / dist);
 
-        return Units.radiansToDegrees(angle);
+        return Units.radiansToDegrees(angle) + (2.5 * dist);
     }
 
     @Override
@@ -386,6 +426,13 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         m_currentAngleLog.log(getAngle());
+
+        m_rpmLLog.log(-m_leftShooterEncoder.getVelocity());
+        m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
+
+//        m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
+//        boolean test = m_state.is(ShooterStateEnum.HAS_NOTE);
+//        SmartDashboard.putBoolean("HasNote", test);
     }
 }
 
