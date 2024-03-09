@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
  */
 public class RobotContainer {
   private final CommandXboxController m_driverController = new CommandXboxController(DriveTeamConstants.kDriverControllerPort);
-  private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
+  // private final CommandJoystick m_operatorJoystick = new CommandJoystick(DriveTeamConstants.kOperatorJoystickPort);
 
   private final SlewRateLimiter m_driverXLimiter = new SlewRateLimiter(20);
   private final SlewRateLimiter m_driverYLimiter = new SlewRateLimiter(20);
@@ -98,15 +98,10 @@ public class RobotContainer {
     // m_driverController.x().onTrue(m_shooter.getToggleAutoAimCommand());
     m_driverController.x().onTrue(Commands.parallel(m_shooter.getToggleAutoAimCommand(), m_swerve.getToggleAutoAimCommand()));
     m_driverController.y().onTrue(m_intake.getToggleReverseIntakeCommand());
-    m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
-    m_driverController.leftBumper().onTrue(m_intake.getToggleIntakeCommand());
     // m_driverController.y().whileTrue(m_intake.getStartIntakeCommand());
     //m_driverController.y().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
 
     // m_operatorJoystick.button(3).onTrue(m_shooter.getToggleReverseBothCommand());
-
-    m_operatorJoystick.button(5).whileTrue(m_shooter.getAddHalfDegreeCommand());
-    m_operatorJoystick.button(4).whileTrue(m_shooter.getSubtractHalfDegreeCommand());
   }
 
   /**

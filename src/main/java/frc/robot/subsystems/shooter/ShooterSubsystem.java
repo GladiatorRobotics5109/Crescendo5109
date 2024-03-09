@@ -169,7 +169,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            setAngle(58);
+            // setAngle(Units.degreesToRadians(58));
             setBarExtension(0);
         }); 
     }
@@ -247,17 +247,13 @@ public class ShooterSubsystem extends SubsystemBase {
         return this.runOnce(() -> stopAutoAim());
     }
 
-    public Command getAddHalfDegreeCommand() {
-        return this.run(() -> setAngle(Units.radiansToDegrees(getAngle()) + 1));
-    }
-
-    public Command getSubtractHalfDegreeCommand() {
-        return this.run(() -> setAngle(Units.radiansToDegrees(getAngle()) - 1));
-    }
-
     public void setAngle(double angle) {
+<<<<<<< HEAD
         m_desiredAngleLog.log(Units.degreesToRadians(angle));
         if (!(angle < 58.5 && angle > 38)) {
+=======
+        if (!(angle < 58 && angle > 38)) {
+>>>>>>> 2ec09c7 (Revert "shooter stuff")
             System.out.println(angle);
             // System.out.println("NONONO");
 
@@ -273,7 +269,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-1);
+        // m_leftShooterMotor.set(-1);
         m_rightShooterMotor.set(1);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
