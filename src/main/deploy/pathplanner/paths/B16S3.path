@@ -1,0 +1,68 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.61,
+        "y": 7.06
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.6105869352016478,
+        "y": 7.04548360638388
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.445189027530833,
+        "y": 6.101360093345187
+      },
+      "prevControl": {
+        "x": 5.334510367167436,
+        "y": 6.41887989358878
+      },
+      "nextControl": {
+        "x": 7.55586768789423,
+        "y": 5.783840293101594
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.05459974635227,
+        "y": 5.772021535362515
+      },
+      "prevControl": {
+        "x": 8.053064498490107,
+        "y": 5.771693230886463
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "B16S",
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.9871998737053029,
+      "y": 6.9380448222702
+    },
+    "rotation": -132.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B16S7"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Blue Driver Station",
+  "choreoAuto": false
+}

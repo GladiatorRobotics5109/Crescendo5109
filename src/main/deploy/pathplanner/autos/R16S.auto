@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 15.565183100852314,
+      "y": 7.189637617122457
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S5"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R16S7"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Red Driver Station",
+  "choreoAuto": false
+}

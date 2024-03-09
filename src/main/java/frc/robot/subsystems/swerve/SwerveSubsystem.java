@@ -230,8 +230,8 @@ public class SwerveSubsystem extends SubsystemBase {
             double vrot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
             // apply max speeds
-            vx *= m_currentSpeed + (10 * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
-            vy *= m_currentSpeed + (10 * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            vx *= m_currentSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            vy *= m_currentSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
             vrot *= m_maxAngularSpeed;
 
             drive(vx, vy, vrot, fieldRelative.getAsBoolean());

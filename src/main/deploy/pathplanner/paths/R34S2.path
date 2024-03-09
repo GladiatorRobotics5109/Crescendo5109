@@ -1,0 +1,65 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 13.84,
+        "y": 4.11
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 13.84783168233003,
+        "y": 4.114854011444134
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 14.618079809076285,
+        "y": 5.344746158242317
+      },
+      "prevControl": {
+        "x": 14.623361895161292,
+        "y": 4.981370781982015
+      },
+      "nextControl": {
+        "x": 14.612797722991278,
+        "y": 5.708121534502618
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 13.84,
+        "y": 5.562809563119126
+      },
+      "prevControl": {
+        "x": 13.824881678096688,
+        "y": 5.571822171422122
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "R34S",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}

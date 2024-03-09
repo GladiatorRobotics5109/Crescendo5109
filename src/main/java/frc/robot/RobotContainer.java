@@ -58,8 +58,8 @@ public class RobotContainer {
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
         () -> m_driverController.getLeftTriggerAxis(), // super speed
         () -> m_driverController.getRightTriggerAxis(), // super slow
-        () -> true
-      ) // field relative
+        () -> true // Field relative
+      )
     );
 
     // TODO: change intake motor port
@@ -93,11 +93,13 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     m_driverController.x().onTrue(Commands.parallel(m_shooter.getToggleAutoAimCommand(), m_swerve.getToggleAutoAimCommand()));
-    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
+//    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
+    m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
+    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShootAmp());
   }
 
   /**

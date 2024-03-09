@@ -1,31 +1,37 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 15.43,
+      "y": 7.0
+    },
+    "rotation": -50.0
+  },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "enableAutoAim"
+            "pathName": "R14S1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "a"
+            "pathName": "R14S2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "c"
+            "pathName": "R14S3"
           }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "Red Driver Station",
   "choreoAuto": false
 }

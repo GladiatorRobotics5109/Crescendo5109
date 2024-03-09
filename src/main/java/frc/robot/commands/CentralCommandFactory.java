@@ -32,7 +32,8 @@ public final class CentralCommandFactory {
     public Command getToggleIntakeAndFeederCommand() {
         return Commands.sequence(
             m_intakeSubsystem.getToggleIntakeCommand(),
-            m_shooterSubsystem.getToggleFeederCommand()
+            m_shooterSubsystem.getToggleFeederCommand(),
+            m_shooterSubsystem.getSetAngleCommand(38)
         );
     }
  

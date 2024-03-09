@@ -37,7 +37,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 15;
+    public static final double kMaxSpeed = 5;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -107,7 +107,7 @@ public final class Constants {
       public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
   
       public static final double kModuleTurnPositionConversionFactor = (2 * Math.PI);
-      
+
       public static final double kDriveP = 1;
       public static final double kDriveI = 0;
       public static final double kDriveD = 0.05;

@@ -80,6 +80,7 @@ public class SwerveModuleNeoTurnKrakenDrive {
         driveMotorConfiguration.Slot0.kD = Constants.ModuleConstants.kDriveD;
         driveMotorConfiguration.Feedback.RotorToSensorRatio = 1;
         driveMotorConfiguration.Feedback.SensorToMechanismRatio = 8.14;
+//        driveMotorConfiguration.Feedback.SensorToMechanismRatio = (1 / 8.14) * (2 * Math.PI * Constants.ModuleConstants.kWheelRadius);
         // driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kDrivePositionConversionFactor;
 
         m_driveMotor.getConfigurator().apply(driveMotorConfiguration);
@@ -139,11 +140,11 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     public SwerveModuleState getState() {
         // return new SwerveModuleState(Conversions.wheelToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModuleState(m_driveMotor.getVelocity().getValueAsDouble(), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModuleState(m_driveMotor.getVelocity().getValueAsDouble() * 2 * Math.PI * Constants.ModuleConstants.kWheelRadius, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
         // return new SwerveModulePosition(Conversions.wheelToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModulePosition(Units.feetToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModulePosition(m_driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI * Constants.ModuleConstants.kWheelRadius, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 }

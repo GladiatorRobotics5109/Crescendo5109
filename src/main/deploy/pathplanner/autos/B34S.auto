@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.8491664726385009,
+      "y": 3.5716043307086616
+    },
+    "rotation": -60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B34S1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B34S2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B34S3"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Blue Driver Station",
+  "choreoAuto": false
+}

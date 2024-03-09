@@ -71,7 +71,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableDouble m_currentAngleLog;
     private final LoggableBoolean m_autoAimingLog;
 
-//    private final LoggableBoolean m_feederSensorLog;
+    private final LoggableBoolean m_feederSensorLog;
 
     private final LoggableDouble m_rpmLLog;
     private final LoggableDouble m_rpmRLog;
@@ -80,7 +80,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     public ShooterSubsystem(Supplier<Pose2d> poseSupplier, Command stopIntakeCommand) {
-
         m_state = StateMachine.getShooterState();
 
         m_leftShooterMotor = new CANSparkMax(ShooterConstants.kLeftShooterMotorPort, MotorType.kBrushless);
@@ -133,7 +132,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
         m_rpmLLog = new LoggableDouble("Shooter L RPM", true);
         m_rpmRLog = new LoggableDouble("Shooter R RPM", true);
-        //        m_feederSensorLog = new LoggableBoolean("HasNote", true);
+        m_feederSensorLog = new LoggableBoolean("HasNote", true);
 
         m_stopIntakeCommand = stopIntakeCommand;
 
@@ -164,7 +163,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         //negated since the beambreak will return true until beam is broken
 
-        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.5).negate();
+        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01).negate();
 
         configureBindings();
     }
@@ -178,10 +177,13 @@ public class ShooterSubsystem extends SubsystemBase {
                 getAddHasNoteStateCommand(),
                 getStopShooterCommand(),
                 Commands.run(() -> {
-                    m_feederMotor.set(0.0125);
+                    m_feederMotor.set(0.02);
+                    m_leftShooterMotor.set(0.001);
+                    m_rightShooterMotor.set(-0.001);
                 }),
-                Commands.waitSeconds(0.00125),
+                Commands.waitSeconds(0.000001),
                 getStopFeederCommand(),
+                getStopShooterCommand(),
                 m_stopIntakeCommand
             )
          );
@@ -191,7 +193,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            setAngle(Units.degreesToRadians(58));
+            setAngle(58);
             setBarExtension(0);
         }); 
     }
@@ -277,15 +279,23 @@ public class ShooterSubsystem extends SubsystemBase {
         return this.run(() -> decreaseAngle());
     }
 
-    public void setAngle(double angle) {
-        if (!(angle < 58.1 && angle > 38)) {
-            System.out.println(angle);
-            // System.out.println("NONONO");
-            return;
-        }
+    public Command getStartShootAmpCommand() {
+        return this.runOnce(() -> startShootAmp());
+    }
 
-        if (angle > 58.1) angle = 58;
-        if (angle < 38) angle = 38;
+    public Command getToggleShootAmp() {
+        return this.runOnce(() -> toggleShootAmp());
+    }
+
+    public void setAngle(double angle) {
+        if (angle > 58) {
+            System.out.println("MAX: " + angle);
+            angle = 58;
+        }
+        if (angle < 38) {
+            System.out.println("MIN: " + angle);
+            angle = 38;
+        }
 
         double desiredRot = (angle - 57.8763) / (-1.07687);
 
@@ -299,8 +309,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-         m_leftShooterMotor.set(-0.3);
-        m_rightShooterMotor.set(0.3);
+        m_leftShooterMotor.set(-1);
+        m_rightShooterMotor.set(1);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -318,6 +328,21 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         else {
             startShooter();
+        }
+    }
+
+    public void startShootAmp() {
+        m_leftShooterMotor.set(-0.24);
+        m_rightShooterMotor.set(0.24);
+        m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
+    }
+
+    public void toggleShootAmp() {
+        if (m_state.is(ShooterStateEnum.SHOOTER_WHEEL_SPINNING)) {
+            stopShooter();
+        }
+        else {
+            startShootAmp();
         }
     }
 
@@ -430,9 +455,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmLLog.log(-m_leftShooterEncoder.getVelocity());
         m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
 
-//        m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
-//        boolean test = m_state.is(ShooterStateEnum.HAS_NOTE);
-//        SmartDashboard.putBoolean("HasNote", test);
+        m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
     }
 }
 

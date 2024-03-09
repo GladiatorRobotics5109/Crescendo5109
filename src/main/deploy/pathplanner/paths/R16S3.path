@@ -1,0 +1,65 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 11.77,
+        "y": 7.01
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 11.783572570061807,
+        "y": 7.017278366917845
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 10.668178983927412,
+        "y": 6.2667635925549625
+      },
+      "prevControl": {
+        "x": 11.707484671774898,
+        "y": 6.5684480034281245
+      },
+      "nextControl": {
+        "x": 9.628873296079925,
+        "y": 5.9650791816818005
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.606203080461716,
+        "y": 5.8044088049981655
+      },
+      "prevControl": {
+        "x": 8.593124259165185,
+        "y": 5.782298634041714
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0,
+    "rotateFast": false
+  },
+  "reversed": false,
+  "folder": "R16S",
+  "previewStartingState": null,
+  "useDefaultConstraints": false
+}
