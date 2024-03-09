@@ -10,11 +10,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Constants.DriveTeamConstants;
 import frc.robot.commands.CentralCommandFactory;
-import frc.robot.util.logging.Logger;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.util.logging.Logger;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -64,17 +62,17 @@ public class RobotContainer {
 
     // TODO: change intake motor port
     m_intake = new IntakeSubsystem();
+
+    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose(), m_intake.getStopIntakeCommand());
+
+    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
     // Register all commands for auto
     NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
     NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
 
-    NamedCommands.registerCommand("enableAutoAim", m_swerve.getEnableAutoAimCommand());
-    NamedCommands.registerCommand("disableAutoAim", m_swerve.getDisableAutoAimCommand());
-
-    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose(), m_intake.getStopIntakeCommand());
-
-    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
+    NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
+    NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
 
     // Get auto chooser
     m_autoChooser = AutoBuilder.buildAutoChooser();

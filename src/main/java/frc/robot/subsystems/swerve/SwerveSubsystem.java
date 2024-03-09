@@ -352,11 +352,11 @@ public class SwerveSubsystem extends SubsystemBase {
         return this.runOnce(() -> toggleAutoAim()).withName("toggleAutoAimCommand");
     }
 
-    public Command getEnableAutoAimCommand() {
+    public Command getStartAutoAimCommand() {
         return this.runOnce(() -> m_autoAiming = true).withName("enableAutoAimCommand");
     }
 
-    public Command getDisableAutoAimCommand() {
+    public Command getStopAutoAimCommand() {
         return this.runOnce(() -> m_autoAiming = false).withName("disableAutoAimCommand");
     }
 

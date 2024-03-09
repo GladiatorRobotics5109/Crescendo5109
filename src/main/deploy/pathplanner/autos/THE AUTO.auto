@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 15.432411611351,
-      "y": 6.997067969830384
+      "x": 2.0,
+      "y": 7.0
     },
-    "rotation": -50.0
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
@@ -14,25 +14,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R14A1"
+            "pathName": "THE PATH"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startAutoAim"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R14A2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R14A3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R14A4"
+            "pathName": "B14S2"
           }
         }
       ]

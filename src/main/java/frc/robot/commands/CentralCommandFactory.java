@@ -36,6 +36,20 @@ public final class CentralCommandFactory {
             m_shooterSubsystem.getSetAngleCommand(38)
         );
     }
+
+    public Command getStartAutoAimCommand() {
+        return Commands.sequence(
+            m_swerveSubsystem.getStartAutoAimCommand(),
+            m_shooterSubsystem.getStartAutoAimCommand()
+        );
+    }
+
+    public Command getStopAutoAimCommand() {
+        return Commands.sequence(
+            m_swerveSubsystem.getStopAutoAimCommand(),
+            m_shooterSubsystem.getStopAutoAimCommand()
+        );
+    }
  
     public Command getFeederSensorTrueCommand() {
         return Commands.sequence(
