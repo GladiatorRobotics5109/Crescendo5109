@@ -72,7 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableBoolean m_autoAimingLog;
 //    private final LoggableBoolean m_sensorStateLog;
 
-    private final LoggableBoolean m_feederSensorLog;
+//    private final LoggableBoolean m_feederSensorLog;
 
 
     public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
@@ -124,17 +124,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_poseSupplier = poseSupplier;
 
-<<<<<<< HEAD
         m_desiredAngleLog = new LoggableDouble("Shooter Desired Angle", true);
         m_currentAngleLog = new LoggableDouble("Shooter Current Angle", true);
         m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
 //        m_sensorStateLog = new LoggableBoolean("Sensor State", true);
-=======
-        m_desiredAngle = new LoggableDouble("Shooter Desired Angle", true);
-        m_currentAngle = new LoggableDouble("Shooter Current Angle", true);
-        m_autoAiming = new LoggableBoolean("Shooter Auto Aiming", true);
-        m_feederSensorLog = new LoggableBoolean("Sensor State", true);
->>>>>>> b79cc3e (shooter changes)
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -168,13 +161,13 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     private void configureBindings() {
 
-         m_debouncedFeederSensorTrigger.onTrue(
-             Commands.sequence(
-                 getRemoveHasNoteStateCommand(),
-                 getStopFeederCommand(),
-                 getStopShooterCommand()
-             )
-         );
+//         m_debouncedFeederSensorTrigger.onTrue(
+//             Commands.sequence(
+//                 getRemoveHasNoteStateCommand(),
+//                 getStopFeederCommand(),
+//                 getStopShooterCommand()
+//             )
+//         );
     }
 
     public Command getAimAmpCommand() {
@@ -392,10 +385,7 @@ public class ShooterSubsystem extends SubsystemBase {
             setAngle(calcAutoAim());
         }
 
-        m_currentAngle.log(getAngle());
-        m_autoAiming.log(m_state.is(ShooterStateEnum.AUTO_AIMING));
-
-        m_feederSensorLog.log(m_feederSensor.get());
+        m_currentAngleLog.log(getAngle());
     }
 }
 
