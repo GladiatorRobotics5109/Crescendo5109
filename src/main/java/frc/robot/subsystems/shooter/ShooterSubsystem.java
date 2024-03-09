@@ -3,16 +3,11 @@ package frc.robot.subsystems.shooter;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.xml.namespace.QName;
-
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
-import com.revrobotics.SparkPIDController.AccelStrategy;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -59,11 +54,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder m_winchEncoder;
     // private final RelativeEncoder m_barEncoder;
 
-    // private final DigitalInput m_feederSensor;
+//    private final DigitalInput m_feederSensor;
 
 
-    // private final Trigger m_feederSensorTrigger;
-    // private final Trigger m_debouncedFeederSensorTrigger;
+//    private final Trigger m_feederSensorTrigger;
+//    private final Trigger m_debouncedFeederSensorTrigger;
 
     private Supplier<Pose2d> m_poseSupplier;
 
@@ -72,9 +67,10 @@ public class ShooterSubsystem extends SubsystemBase {
     // private final LoggableDouble m_desiredRps;
     // private final LoggableDouble m_currentRps;
 
-    private final LoggableDouble m_desiredAngle;
-    private final LoggableDouble m_currentAngle;
-    private final LoggableBoolean m_autoAiming;
+    private final LoggableDouble m_desiredAngleLog;
+    private final LoggableDouble m_currentAngleLog;
+    private final LoggableBoolean m_autoAimingLog;
+//    private final LoggableBoolean m_sensorStateLog;
 
 
     public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
@@ -126,9 +122,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_poseSupplier = poseSupplier;
 
-        m_desiredAngle = new LoggableDouble("Shooter Desired Angle", true);
-        m_currentAngle = new LoggableDouble("Shooter Current Angle", true);
-        m_autoAiming = new LoggableBoolean("Shooter Auto Aiming", true);
+        m_desiredAngleLog = new LoggableDouble("Shooter Desired Angle", true);
+        m_currentAngleLog = new LoggableDouble("Shooter Current Angle", true);
+        m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
+//        m_sensorStateLog = new LoggableBoolean("Sensor State", true);
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -140,7 +137,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_barPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
 
-        // m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
+//        m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
 
         //TODO: Need gear ratios and position conversion factor for bar and winch (maybe not winch)
         // m_barEncoder.setPositionConversionFactor(ShooterConstants.kBarPositionConversionFactor);
@@ -148,11 +145,11 @@ public class ShooterSubsystem extends SubsystemBase {
         m_winchEncoder.setPosition(0);
 
 
-        // m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
+//        m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
 
         //negated since the beambreak will return true until beam is broken
  
-        // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.1).negate();
+//        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.1).negate();
 
         configureBindings();
     }
@@ -161,16 +158,14 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
-        
-        // m_debouncedFeederSensorTrigger.onTrue(
-        //     Commands.sequence(
-        //         getRemoveHasNoteStateCommand(),
-        //         getStopFeederCommand(),
-        //         getStopShooterCommand()
-        //     )
-        // );
+//        m_debouncedFeederSensorTrigger.onTrue(
+//            Commands.sequence(
+//                getRemoveHasNoteStateCommand(),
+//                getStopFeederCommand(),
+//                getStopShooterCommand()
+//            )
+//        );
     }
-
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
@@ -261,6 +256,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAngle(double angle) {
+        m_desiredAngleLog.log(Units.degreesToRadians(angle));
         if (!(angle < 58.5 && angle > 38)) {
             System.out.println(angle);
             // System.out.println("NONONO");
@@ -383,7 +379,6 @@ public class ShooterSubsystem extends SubsystemBase {
         double height = Units.feetToMeters(6.6) + Units.inchesToMeters(5);
         double angle = Math.atan(height / dist);
 
-        m_desiredAngle.log(angle);
         return Units.radiansToDegrees(angle);
     }
 
@@ -396,8 +391,10 @@ public class ShooterSubsystem extends SubsystemBase {
             setAngle(calcAutoAim());
         }
 
-        m_currentAngle.log(getAngle());
-        m_autoAiming.log(m_state.is(ShooterStateEnum.AUTO_AIMING));
+        m_currentAngleLog.log(getAngle());
+        m_autoAimingLog.log(m_state.is(ShooterStateEnum.AUTO_AIMING));
+
+//        m_sensorStateLog.log(m_feederSensor.get());
     }
 }
 
