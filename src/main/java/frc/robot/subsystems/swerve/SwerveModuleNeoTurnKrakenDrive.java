@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.SparkPIDController.AccelStrategy;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -70,6 +71,10 @@ public class SwerveModuleNeoTurnKrakenDrive {
         m_turnPIDController.setPositionPIDWrappingMinInput(0);
         m_turnPIDController.setPositionPIDWrappingMaxInput(2 * Math.PI);
         m_turnPIDController.setPositionPIDWrappingEnabled(true);
+
+        m_turnPIDController.setSmartMotionMaxVelocity(Constants.ModuleConstants.kMaxTurnVelocity, 0);
+        m_turnPIDController.setSmartMotionMaxAccel(Constants.ModuleConstants.kMaxTurnAccel, 0);
+        m_turnPIDController.setSmartMotionAccelStrategy(AccelStrategy.kSCurve, 0);
 
         m_turnAbsEncoder.setPositionConversionFactor(Constants.ModuleConstants.kModuleTurnPositionConversionFactor);
 
