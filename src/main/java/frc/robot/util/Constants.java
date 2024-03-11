@@ -171,6 +171,20 @@ public final class Constants {
     public static final int kOperatorJoystickPort = 1;
   }
 
+  public static class ClimbConstants {
+    public static final int kLeftClimbMotorPort = 0;
+    public static final int kRightClimbMotorPort = 0;
+
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    
+    public static final double kClimbPositionConversionFactor = 0;
+
+    public static final double kMaxExtension = 0;
+    public static final double kMinExtension = 0;
+  }
+
   public static class VisionConstants {
 
     public static final Map<String, Transform3d> kVisionSources = new HashMap<>(){{
