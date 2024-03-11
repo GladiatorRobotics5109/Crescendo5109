@@ -115,8 +115,8 @@ public final class Constants {
       public static final double kTurnP = 1.5;
       public static final double kTurnI = 0;
       public static final double kTurnD = 0;
-      public static final double kMaxTurnVelocity = 1;
-      public static final double kMaxTurnAccel = 1;
+      public static final double kMaxTurnVelocity = 3 * Math.PI;
+      public static final double kMaxTurnAccel = 3 * Math.PI;
   }
 
   public static class ShooterConstants {
