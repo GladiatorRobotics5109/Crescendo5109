@@ -12,6 +12,7 @@ import frc.robot.util.Constants.DriveTeamConstants;
 import frc.robot.commands.CentralCommandFactory;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -38,7 +39,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  private final CentralCommandFactory m_centralCommandFactory;
+  private final ClimbSubsystem m_climb;
 
 
   private final SendableChooser<Command> m_autoChooser;
@@ -65,16 +66,18 @@ public class RobotContainer {
 
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
 
+    m_climb = new ClimbSubsystem();
+
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
 
-    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
+    CentralCommandFactory.init(m_intake, m_shooter, m_swerve, m_climb);
     
     // Register all commands for auto
     NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
     NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
 
-    NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
-    NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
+    NamedCommands.registerCommand("startAutoAim", CentralCommandFactory.getStartAutoAimCommand());
+    NamedCommands.registerCommand("stopAutoAim", CentralCommandFactory.getStopAutoAimCommand());
 
     NamedCommands.registerCommand("startShoot", m_shooter.getStartFeederCommand());
     NamedCommands.registerCommand("stopShoot", m_shooter.getStopFeederCommand());
@@ -97,7 +100,7 @@ public class RobotContainer {
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     m_driverController.x().onTrue(Commands.parallel(m_shooter.getToggleAutoAimCommand(), m_swerve.getToggleAutoAimCommand()));
 //    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
-    m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
+    m_driverController.leftBumper().onTrue(CentralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
