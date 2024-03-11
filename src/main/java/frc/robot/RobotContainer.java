@@ -63,7 +63,9 @@ public class RobotContainer {
     // TODO: change intake motor port
     m_intake = new IntakeSubsystem();
 
-    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose(), m_intake.getStopIntakeCommand());
+    m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
+
+    m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
 
     m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
@@ -73,6 +75,9 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
     NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
+
+    NamedCommands.registerCommand("startShoot", m_shooter.getStartFeederCommand());
+    NamedCommands.registerCommand("stopShoot", m_shooter.getStopFeederCommand());
 
     // Get auto chooser
     m_autoChooser = AutoBuilder.buildAutoChooser();

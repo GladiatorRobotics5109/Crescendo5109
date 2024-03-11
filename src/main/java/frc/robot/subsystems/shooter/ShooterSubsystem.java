@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.util.Constants.ShooterConstants;
+import frc.robot.util.logging.Loggable;
 import frc.robot.util.logging.LoggableBoolean;
 import frc.robot.util.logging.LoggableDouble;
 import frc.robot.stateMachine.ShooterState;
@@ -72,14 +74,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableBoolean m_autoAimingLog;
 
     private final LoggableBoolean m_feederSensorLog;
+    private final LoggableBoolean m_feederSensor2Log;
 
     private final LoggableDouble m_rpmLLog;
     private final LoggableDouble m_rpmRLog;
 
-    private final Command m_stopIntakeCommand;
-
-
-    public ShooterSubsystem(Supplier<Pose2d> poseSupplier, Command stopIntakeCommand) {
+    public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
         m_state = StateMachine.getShooterState();
 
         m_leftShooterMotor = new CANSparkMax(ShooterConstants.kLeftShooterMotorPort, MotorType.kBrushless);
@@ -133,8 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmLLog = new LoggableDouble("Shooter L RPM", true);
         m_rpmRLog = new LoggableDouble("Shooter R RPM", true);
         m_feederSensorLog = new LoggableBoolean("HasNote", true);
-
-        m_stopIntakeCommand = stopIntakeCommand;
+        m_feederSensor2Log = new LoggableBoolean("Has Note2", true);
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -155,15 +154,13 @@ public class ShooterSubsystem extends SubsystemBase {
         m_winchEncoder.setPosition(0);
 
 
-        m_feederSensorTrigger = new Trigger(() -> {
-                if (!m_state.is(ShooterStateEnum.HAS_NOTE))
-                        return m_feederSensor.get();
-                return false;
-        });
+        m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
 
         //negated since the beambreak will return true until beam is broken
 
-        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01).negate();
+        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
+        // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.negate();
+
 
         configureBindings();
     }
@@ -176,19 +173,21 @@ public class ShooterSubsystem extends SubsystemBase {
             Commands.sequence(
                 getAddHasNoteStateCommand(),
                 getStopShooterCommand(),
-                Commands.run(() -> {
-                    m_feederMotor.set(0.02);
+                Commands.runOnce(() -> {
+                    m_feederMotor.set(0.1);
                     m_leftShooterMotor.set(0.001);
                     m_rightShooterMotor.set(-0.001);
                 }),
-                Commands.waitSeconds(0.000001),
+                Commands.waitSeconds(0.15),
                 getStopFeederCommand(),
-                getStopShooterCommand(),
-                m_stopIntakeCommand
+                getStopShooterCommand()
             )
          );
 
-         m_debouncedFeederSensorTrigger.onFalse(getRemoveHasNoteStateCommand());
+         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
+            System.out.println("yes");
+            m_state.removeState(ShooterStateEnum.HAS_NOTE);
+         }));
     }
 
     public Command getAimAmpCommand() {
@@ -441,6 +440,10 @@ public class ShooterSubsystem extends SubsystemBase {
         return Units.radiansToDegrees(angle) + (2.5 * dist);
     }
 
+    public Trigger getHasNoteTrigger() {
+        return new Trigger(() -> m_state.is(ShooterStateEnum.HAS_NOTE));
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("pos", m_winchEncoder.getPosition());
@@ -456,6 +459,9 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
 
         m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
+        m_feederSensor2Log.log(m_feederSensorTrigger .getAsBoolean());
+
+        // m_state.removeState(ShooterStateEnum.HAS_NOTE);
     }
 }
 

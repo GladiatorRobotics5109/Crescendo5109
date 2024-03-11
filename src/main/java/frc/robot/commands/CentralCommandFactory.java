@@ -40,14 +40,16 @@ public final class CentralCommandFactory {
     public Command getStartAutoAimCommand() {
         return Commands.sequence(
             m_swerveSubsystem.getStartAutoAimCommand(),
-            m_shooterSubsystem.getStartAutoAimCommand()
+            m_shooterSubsystem.getStartAutoAimCommand(),
+            m_shooterSubsystem.getStartShooterCommand()
         );
     }
 
     public Command getStopAutoAimCommand() {
         return Commands.sequence(
             m_swerveSubsystem.getStopAutoAimCommand(),
-            m_shooterSubsystem.getStopAutoAimCommand()
+            m_shooterSubsystem.getStopAutoAimCommand(),
+            m_shooterSubsystem.getStopShooterCommand()
         );
     }
  
