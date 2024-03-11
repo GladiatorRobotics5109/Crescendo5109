@@ -1,7 +1,5 @@
 package frc.robot.stateMachine;
 
-// import frc.robot.subsystems.logging.Logger;
-
 public final class StateMachine {
     private static SwerveState s_swerveState;
     private static ShooterState s_shooterState;
