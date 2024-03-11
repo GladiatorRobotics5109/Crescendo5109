@@ -58,9 +58,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final DigitalInput m_feederSensor;
 
+    private double m_desiredAngle;
+
 
     private final Trigger m_feederSensorTrigger;
     private final Trigger m_debouncedFeederSensorTrigger;
+
+    private final Trigger m_reachedAngleSetpointTrigger;
 
     private Supplier<Pose2d> m_poseSupplier;
 
@@ -103,7 +107,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_leftShooterMotor.setIdleMode(IdleMode.kCoast);
         m_rightShooterMotor.setIdleMode(IdleMode.kCoast);
-        m_feederMotor.setIdleMode(IdleMode.kCoast);
+        m_feederMotor.setIdleMode(IdleMode.kBrake);
         m_winchMotor.setIdleMode(IdleMode.kBrake);
         // m_barMotor.setIdleMode(IdleMode.kBrake);
 
@@ -161,6 +165,9 @@ public class ShooterSubsystem extends SubsystemBase {
         m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
         // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.negate();
 
+        m_desiredAngle = 58;
+        m_reachedAngleSetpointTrigger = new Trigger(() -> atAngleSetpoint());
+
 
         configureBindings();
     }
@@ -184,10 +191,7 @@ public class ShooterSubsystem extends SubsystemBase {
             )
          );
 
-         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
-            System.out.println("yes");
-            m_state.removeState(ShooterStateEnum.HAS_NOTE);
-         }));
+         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> m_state.removeState(ShooterStateEnum.HAS_NOTE)));
     }
 
     public Command getAimAmpCommand() {
@@ -286,6 +290,17 @@ public class ShooterSubsystem extends SubsystemBase {
         return this.runOnce(() -> toggleShootAmp());
     }
 
+    public Command getAutoAimAndShootCommand() {
+        return this.run(() -> {
+            setAngle(calcAutoAim());
+
+            if (atAngleSetpoint()) {
+                startFeeder();
+            }
+        });
+    }
+
+
     public void setAngle(double angle) {
         if (angle > 58) {
             System.out.println("MAX: " + angle);
@@ -295,6 +310,8 @@ public class ShooterSubsystem extends SubsystemBase {
             System.out.println("MIN: " + angle);
             angle = 38;
         }
+
+        m_desiredAngle = angle;
 
         double desiredRot = (angle - 57.8763) / (-1.07687);
 
@@ -442,6 +459,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Trigger getHasNoteTrigger() {
         return new Trigger(() -> m_state.is(ShooterStateEnum.HAS_NOTE));
+    }
+
+    public boolean atAngleSetpoint() {
+        return Math.abs(m_desiredAngle - getAngle()) < 1;
     }
 
     @Override

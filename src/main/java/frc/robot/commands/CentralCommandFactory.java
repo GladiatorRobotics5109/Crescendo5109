@@ -52,6 +52,14 @@ public final class CentralCommandFactory {
             m_shooterSubsystem.getStopShooterCommand()
         );
     }
+
+    public Command getToggleAutoAimCommand() {
+        return Commands.sequence(
+            m_swerveSubsystem.getToggleAutoAimCommand(),
+            m_shooterSubsystem.getToggleAutoAimCommand(),
+            m_shooterSubsystem.getToggleShooterCommand()
+        );
+    }
  
     public Command getFeederSensorTrueCommand() {
         return Commands.sequence(
@@ -65,6 +73,13 @@ public final class CentralCommandFactory {
         return Commands.parallel(
             m_intakeSubsystem.getToggleReverseIntakeCommand(),
             m_shooterSubsystem.getToggleReverseBothCommand()
+        );
+    }
+
+    public Command getAutoAimAndShootCommand() {
+        return Commands.sequence(
+            m_shooterSubsystem.getAutoAimAndShootCommand(),
+            m_swerveSubsystem.getStartAutoAimCommand()
         );
     }
 }

@@ -66,6 +66,7 @@ public class RobotContainer {
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
 
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
+    m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
     m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
@@ -76,8 +77,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
     NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
 
-    NamedCommands.registerCommand("startShoot", m_shooter.getStartFeederCommand());
-    NamedCommands.registerCommand("stopShoot", m_shooter.getStopFeederCommand());
+    NamedCommands.registerCommand("startFeed", m_shooter.getStartFeederCommand());
+    NamedCommands.registerCommand("stopFeed", m_shooter.getStopFeederCommand());
 
     // Get auto chooser
     m_autoChooser = AutoBuilder.buildAutoChooser();
@@ -95,7 +96,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
-    m_driverController.x().onTrue(Commands.parallel(m_shooter.getToggleAutoAimCommand(), m_swerve.getToggleAutoAimCommand()));
+    m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
 //    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());

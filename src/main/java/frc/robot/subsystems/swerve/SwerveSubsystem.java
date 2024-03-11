@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.util.Constants;
 import frc.robot.Robot;
 import frc.robot.util.Constants.SwerveConstants;
@@ -73,6 +74,8 @@ public class SwerveSubsystem extends SubsystemBase {
     
     private final SwerveState m_state;
 
+    private final Trigger m_reachedAutoAimSetpointTrigger;
+
     public SwerveSubsystem() {
         m_state = StateMachine.getSwerveState();
 
@@ -108,18 +111,23 @@ public class SwerveSubsystem extends SubsystemBase {
         m_defaultSpeed = SwerveConstants.kMaxSpeed;
         m_currentSpeed = m_defaultSpeed;
         m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
-
+        
         // m_autoAimPID = new PIDController(0.25, 0, 0.27); // works pretty well
         m_autoAimPID = new PIDController(0.25, 0, 0.3); // works pretty well
-
+        
         // m_autoAimPID = new PIDController(0.18, 0, 0.27);
         m_autoAimPID.setIZone(.5);
         m_autoAimPID.setIntegratorRange(-1, 1);
         m_autoAimPID.setI(0.2);
-
+        
         m_autoAimPID.enableContinuousInput(-180, 180);
 
+        // TODO: Tolerance
+        m_autoAimPID.setTolerance(1);
+        
         m_autoAiming = false;
+
+        m_reachedAutoAimSetpointTrigger = new Trigger(() -> m_autoAiming && m_autoAimPID.atSetpoint());
         
         m_autoAimAngleLog = new LoggableDouble("AutoAimPIDAngle", true, false, null);
         m_autoAimPIDSetpointLog = new LoggableDouble("AutoAimPIDSetpoint", true, false, null);
@@ -143,6 +151,7 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         this.coast();
+
     }
 
     /** drive with desired x/y/rot velocities */
