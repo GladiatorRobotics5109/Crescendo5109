@@ -189,19 +189,18 @@ public final class Constants {
   public static class VisionConstants {
 
     public static final Map<String, Transform3d> kVisionSources = new HashMap<>(){{
-      // put("Camera1", new Transform3d(
-      //   0.2921,
-      //   0.3683,
-      //   0.3048,
-      //   new Rotation3d())
-      // );
+       put("Camera1", new Transform3d(
+         Units.inchesToMeters(11),
+         Units.inchesToMeters(6),
+         Units.inchesToMeters(29.5 / 2),
+         new Rotation3d())
+       );
       put("Camera2", new Transform3d(
-        0.0,
-        Units.inchesToMeters(9.5),
-        Units.inchesToMeters(19.5 / 2),
+        Units.inchesToMeters(-11),
+        Units.inchesToMeters(6),
+        Units.inchesToMeters(29.5 / 2),
         new Rotation3d())
       );
-      //put("CameraTwo", new Transform3d());
     }};
 
       public static final Transform3d kCameraPos = new Transform3d(

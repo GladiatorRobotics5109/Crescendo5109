@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.SwerveState;
 import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
@@ -85,7 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_navX = SwerveConstants.kNavX;
         // m_navX.reset(); <-- Test this?????
         m_navX.reset();
-        m_navX.setAngleAdjustment(90);
+        m_navX.setAngleAdjustment(180);
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
@@ -153,7 +154,7 @@ public class SwerveSubsystem extends SubsystemBase {
         else
             m_autoAimStateLog.log(false);
       
-        Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
+        Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
@@ -324,7 +325,9 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
-            m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+            Pose2d pose2d = new Pose2d(pose.estimatedPose.toPose2d().getTranslation(), getHeading());
+
+            m_poseEstimator.addVisionMeasurement(pose2d, pose.timestampSeconds);
         }
     }
 

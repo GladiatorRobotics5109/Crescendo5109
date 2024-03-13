@@ -317,8 +317,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-1);
-        m_rightShooterMotor.set(1);
+        m_leftShooterMotor.set(-0.8);
+        m_rightShooterMotor.set(0.8);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -362,12 +362,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void startFeederSlow() {
-        m_feederMotor.set(-0.2);
+        m_feederMotor.set(0.2);
         m_state.addState(ShooterStateEnum.FEEDER_WHEELS_SPINNING);
     }
 
     public void reverseFeederSlow() {
-        m_feederMotor.set(0.2);
+        m_feederMotor.set(-0.2);
         m_state.addState(ShooterStateEnum.FEEDER_WHEELS_SPINNING);
     }
 
