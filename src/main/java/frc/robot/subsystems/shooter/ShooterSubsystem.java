@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,6 +44,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_feederMotor; // Feeder Wheels
     private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
     // private final CANSparkMax m_barMotor; // Amp Bar
+    private final Servo m_barActuator;
 
     private final SparkPIDController m_leftShooterPIDController;
     private final SparkPIDController m_rightShooterPIDController;
@@ -91,6 +93,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederMotor = new CANSparkMax(ShooterConstants.kFeederMotorPort, MotorType.kBrushless);
         m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
         // m_barMotor = new CANSparkMax(ShooterConstants.kBarMotorPort, MotorType.kBrushless);
+        m_barActuator = new Servo(ShooterConstants.kBarActuatorChannel);
+
 
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
@@ -300,6 +304,38 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
+    public Command getExtendBarCommand() {
+        return this.runOnce(() -> {
+            m_barActuator.set(1);
+        });
+    }
+
+    public Command getRetractBarCommand() {
+        return this.runOnce(() -> {
+            m_barActuator.set(0);
+        });
+    }
+
+    public Command getToggleBarCommand() {
+        
+        return this.runOnce(() -> {
+            if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
+                resetBar();
+            } else {
+                extendBar();
+            }
+        });
+    }
+
+    public void extendBar() {
+        m_barActuator.set(1.0);
+        m_state.addState(ShooterStateEnum.BAR_EXTENDED);
+    }
+
+    public void resetBar() {
+        m_barActuator.set(0);
+        m_state.removeState(ShooterStateEnum.BAR_EXTENDED);
+    }
 
     public void setAngle(double angle) {
         if (angle > 58) {
@@ -350,6 +386,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void startShootAmp() {
         m_leftShooterMotor.set(-0.24);
         m_rightShooterMotor.set(0.24);
+        extendBar();
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -395,10 +432,6 @@ public class ShooterSubsystem extends SubsystemBase {
             m_rightShooterPIDController.setReference(0, ControlType.kVelocity);
             m_feederPIDController.setReference(0, ControlType.kVelocity);
         }
-    }
-
-    public void setBarExtension(double length) {
-        // m_barPIDController.setReference(length, ControlType.kPosition);
     }
 
     public void toggleAutoAim() {

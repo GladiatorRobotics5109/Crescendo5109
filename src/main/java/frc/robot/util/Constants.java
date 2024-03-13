@@ -124,7 +124,7 @@ public final class Constants {
     public static final int kRightShooterMotorPort = 9;
     public static final int kFeederMotorPort = 6;
     public static final int kWinchMotorPort = 62;
-    public static final int kBarMotorPort = 78;
+    public static final int kBarActuatorChannel = 0;
 
     public static final double kShooterP = 1;
     public static final double kShooterI = 0;
