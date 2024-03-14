@@ -94,19 +94,20 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
+    //m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
+    //    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
-    m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
-//    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
-    m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
-
-    m_driverController.leftTrigger().onTrue(m_shooter.getExtendBarCommand());
-    m_driverController.rightTrigger().onTrue(m_shooter.getRetractBarCommand());
+    m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
 
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShootAmp());
+    m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShooterCommand());
+    m_operatorJoystick.button(3).onTrue(m_shooter.getToggleBarCommand());
+
+
   }
 
   /**

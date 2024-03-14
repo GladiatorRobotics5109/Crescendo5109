@@ -130,40 +130,33 @@ public final class Constants {
     public static final double kShooterI = 0;
     public static final double kShooterD = 0.05;
     
-    public static final double kFeederP = 2;
+    //FOR POSITION CONTROL
+    public static final double kFeederP = 1;
     public static final double kFeederI = 0;
     public static final double kFeederD = 0;
-    
-    public static final double kBarP = 0;
-    public static final double kBarI = 0;
-    public static final double kBarD = 0;
     
     public static final double kWinchP = 0.05;
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
     public static final int kFeederSensorChannel = 0;
+    public static final int kLimitSwitchChannel = 1;
     
-    public static final double kPivotWinchInitialRadius = 0;
-    public static final double kPivotWinchFinalRadius = 0;
+    public static final double kWinchInitialRadius = 0;
+    public static final double kWinchFinalRadius = 0;
     // public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
-    public static final double kPivotWinchAverageRadius = 0.75 / 2;
+    public static final double kWinchAverageRadius = 0.75 / 2;
     
-    public static final double kBarWinchInitialRadius = 0;
-    public static final double kBarWinchFinalRadius = 0;
-    public static final double kBarWinchAverageRadius = (kBarWinchInitialRadius + kBarWinchFinalRadius) / 2;
+
+    public static final double kWinchGearRatio = 5*5;
     
-    public static final double kBarGearRatio = 0;
-    public static final double kWinchGearRatio = 25;
-    
-    public static final double kBarPositionConversionFactor = kBarWinchAverageRadius * (2 * Math.PI) / kBarGearRatio; 
-    public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;
+    public static final double kWinchPositionConversionFactor = kWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;
     
   }
   
   public static class IntakeConstants {
     public static final int kIntakeMotorPort = 56;
-    public static final int kIntakeSensorChannel = 0;
+
 
   }
 
@@ -176,9 +169,12 @@ public final class Constants {
     public static final int kLeftClimbMotorPort = 0;
     public static final int kRightClimbMotorPort = 0;
 
-    public static final double kP = 0;
+    public static final double kWinchAverageRadius = 0.75 / 2;
+
+    public static final double kP = 1;
     public static final double kI = 0;
     public static final double kD = 0;
+    
     
     public static final double kClimbPositionConversionFactor = 0;
 
