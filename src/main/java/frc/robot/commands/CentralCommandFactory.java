@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -11,15 +12,18 @@ public final class CentralCommandFactory {
     private final IntakeSubsystem m_intakeSubsystem;
     private final ShooterSubsystem m_shooterSubsystem;
     private final SwerveSubsystem m_swerveSubsystem;
+    private final ClimbSubsystem m_climbSubsystem;
 
     public CentralCommandFactory(
         IntakeSubsystem intakeSubsystem,
         ShooterSubsystem shooterSubsystem,
-        SwerveSubsystem swerveSubsystem
+        SwerveSubsystem swerveSubsystem,
+        ClimbSubsystem climbSubsystem
     ) {
         m_intakeSubsystem = intakeSubsystem;
         m_shooterSubsystem = shooterSubsystem;
         m_swerveSubsystem = swerveSubsystem;
+        m_climbSubsystem = climbSubsystem;
     }
 
     public Command getStartIntakeAndFeederCommand() {

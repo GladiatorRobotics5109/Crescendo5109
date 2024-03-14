@@ -130,6 +130,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederPIDController.setIZone(5);
         m_feederPIDController.setD(ShooterConstants.kFeederD);
 
+        m_feederEncoder.setPositionConversionFactor(ShooterConstants.kFeederPositionConversionFactor);
+
         m_winchPIDController.setP(ShooterConstants.kWinchP);
         m_winchPIDController.setI(ShooterConstants.kWinchI);
         m_winchPIDController.setD(ShooterConstants.kWinchD);
@@ -178,21 +180,23 @@ public class ShooterSubsystem extends SubsystemBase {
         m_debouncedFeederSensorTrigger.onTrue(
             Commands.sequence(
                 getAddHasNoteStateCommand(),
-                getStopShooterCommand(),
+                //getStopShooterCommand(), (not needed)
                 Commands.runOnce(() -> {
-                    m_feederMotor.set(0.1);
-                    m_leftShooterMotor.set(0.001);
-                    m_rightShooterMotor.set(-0.001);
+                    // m_feederMotor.set(0.1);
+                    // m_leftShooterMotor.set(0.001);
+                    // m_rightShooterMotor.set(-0.001);
+                    m_feederPIDController.setReference(m_feederEncoder.getPosition() + 0.25, ControlType.kPosition); // Rotate the wheels 1/4 of the way backwards
                 }),
-                Commands.waitSeconds(0.15),
-                getStopFeederCommand(),
-                getStopShooterCommand()
+                getStopFeederCommand()
+                // getStopShooterCommand()
             )
          );
 
         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
             m_state.removeState(ShooterStateEnum.HAS_NOTE);
-            resetBar();
+            if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
+                resetBar();
+            }
         }
             ));
         

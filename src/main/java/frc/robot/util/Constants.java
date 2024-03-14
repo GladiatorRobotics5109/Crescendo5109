@@ -149,7 +149,8 @@ public final class Constants {
     
 
     public static final double kWinchGearRatio = 5*5;
-    
+
+    public static final double kFeederPositionConversionFactor = 1 / 5; // one rotation for every five motor turns
     public static final double kWinchPositionConversionFactor = kWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;
     
   }
@@ -175,7 +176,7 @@ public final class Constants {
     public static final double kI = 0;
     public static final double kD = 0;
     
-    
+
     public static final double kClimbPositionConversionFactor = 0;
 
     public static final double kMaxExtension = 0;

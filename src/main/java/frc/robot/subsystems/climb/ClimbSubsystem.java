@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.stateMachine.ClimbState;
 import frc.robot.stateMachine.StateMachine;
+import frc.robot.stateMachine.ClimbState.ClimbStateEnum;
 import frc.robot.util.Constants;
 import frc.robot.util.Constants.ClimbConstants;
 
@@ -66,9 +67,21 @@ public class ClimbSubsystem extends SubsystemBase {
         });
     }
 
+
     public Command getSetExtensionCommand(double extension) {
         return this.runOnce(()->{
             setExtension(extension);
+        });
+    }
+
+    public Command getToggleExtensionCommand() {
+
+        return this.runOnce(() -> {
+            if (m_state.is(ClimbStateEnum.EXTENDED)) {
+                retract();
+            } else {
+                extend();
+            }
         });
     }
 
@@ -82,6 +95,16 @@ public class ClimbSubsystem extends SubsystemBase {
         if (extension <= ClimbConstants.kMaxExtension && extension >= ClimbConstants.kMinExtension) {
             m_rightPIDController.setReference(extension, ControlType.kPosition);
         }
+    }
+
+    public void retract() {
+        setExtension(ClimbConstants.kMaxExtension);
+        m_state.removeState(ClimbStateEnum.EXTENDED);
+    }
+
+    public void extend() {
+        setExtension(ClimbConstants.kMaxExtension);
+        m_state.addState(ClimbStateEnum.EXTENDED);
     }
 
     public void setExtension(double extension) {

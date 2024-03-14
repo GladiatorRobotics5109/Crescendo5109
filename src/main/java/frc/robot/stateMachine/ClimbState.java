@@ -4,8 +4,7 @@ import java.util.HashSet;
 
 public class ClimbState extends SubsystemState<ClimbState.ClimbStateEnum> {
     public enum ClimbStateEnum {
-        INTAKING,
-        REVERSING
+        EXTENDED
     }
     
     public ClimbState() {
