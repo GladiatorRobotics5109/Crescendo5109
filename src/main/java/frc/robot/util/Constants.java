@@ -37,7 +37,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 5;
+    public static final double kMaxSpeed = 15;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -193,13 +193,13 @@ public final class Constants {
          Units.inchesToMeters(11),
          Units.inchesToMeters(6),
          Units.inchesToMeters(29.5 / 2),
-         new Rotation3d())
+         new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(8)))
        );
       put("Camera2", new Transform3d(
         Units.inchesToMeters(-11),
         Units.inchesToMeters(6),
         Units.inchesToMeters(29.5 / 2),
-        new Rotation3d())
+        new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(-20)))
       );
     }};
 

@@ -69,6 +69,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final LoggableDouble m_autoAimPIDSetpointLog;
     private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
+
     private final LoggableSwerveModuleStates m_moduleStatesLog;
     private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
     
@@ -125,7 +126,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimAngleLog = new LoggableDouble("AutoAimPIDAngle", true, false, null);
         m_autoAimPIDSetpointLog = new LoggableDouble("AutoAimPIDSetpoint", true, false, null);
         m_autoAimStateLog = new LoggableBoolean("AutoAimState", true, true, () -> m_autoAiming);
-        m_poseLog = new LoggablePose2d("pose", true, true, this::getPose);
+        m_poseLog = new LoggablePose2d("RobotPose", true, true, this::getPose);
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
 
@@ -230,9 +231,15 @@ public class SwerveSubsystem extends SubsystemBase {
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
             double vrot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
+            double right = joyRightTrigger.getAsDouble();
+            double left = joyLeftTrigger.getAsDouble();
+
+            double newSpeed = m_defaultSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            setMaxSpeed(newSpeed);
+
             // apply max speeds
-            vx *= m_currentSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
-            vy *= m_currentSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            vx *= newSpeed;
+            vy *= newSpeed;
             vrot *= m_maxAngularSpeed;
 
             drive(vx, vy, vrot, fieldRelative.getAsBoolean());
@@ -326,6 +333,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
             Pose2d pose2d = new Pose2d(pose.estimatedPose.toPose2d().getTranslation(), getHeading());
+
 
             m_poseEstimator.addVisionMeasurement(pose2d, pose.timestampSeconds);
         }

@@ -182,7 +182,6 @@ public class ShooterSubsystem extends SubsystemBase {
          );
 
          m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
-            System.out.println("yes");
             m_state.removeState(ShooterStateEnum.HAS_NOTE);
          }));
     }
@@ -317,8 +316,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-0.8);
-        m_rightShooterMotor.set(0.8);
+        m_leftShooterMotor.set(-0.6);
+        m_rightShooterMotor.set(0.6);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
