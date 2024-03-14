@@ -131,6 +131,9 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederPIDController.setD(ShooterConstants.kFeederD);
 
         m_feederEncoder.setPositionConversionFactor(ShooterConstants.kFeederPositionConversionFactor);
+        m_feederPIDController.setPositionPIDWrappingEnabled(true);
+        m_feederPIDController.setPositionPIDWrappingMinInput(0);
+        m_feederPIDController.setPositionPIDWrappingMaxInput(1);
 
         m_winchPIDController.setP(ShooterConstants.kWinchP);
         m_winchPIDController.setI(ShooterConstants.kWinchI);
