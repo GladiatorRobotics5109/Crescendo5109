@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.SwerveState;
 import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
@@ -69,6 +70,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final LoggableDouble m_autoAimPIDSetpointLog;
     private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
+
     private final LoggableSwerveModuleStates m_moduleStatesLog;
     private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
     
@@ -88,7 +90,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_navX = SwerveConstants.kNavX;
         // m_navX.reset(); <-- Test this?????
         m_navX.reset();
-        m_navX.setAngleAdjustment(90);
+        m_navX.setAngleAdjustment(180);
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
@@ -132,7 +134,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimAngleLog = new LoggableDouble("AutoAimPIDAngle", true, false, null);
         m_autoAimPIDSetpointLog = new LoggableDouble("AutoAimPIDSetpoint", true, false, null);
         m_autoAimStateLog = new LoggableBoolean("AutoAimState", true, true, () -> m_autoAiming);
-        m_poseLog = new LoggablePose2d("pose", true, true, this::getPose);
+        m_poseLog = new LoggablePose2d("RobotPose", true, true, this::getPose);
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
 
@@ -162,7 +164,7 @@ public class SwerveSubsystem extends SubsystemBase {
         else
             m_autoAimStateLog.log(false);
       
-        Rotation2d navXVal = new Rotation2d((-m_navX.getAngle() % 360) * Math.PI / 180);
+        Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
@@ -238,9 +240,15 @@ public class SwerveSubsystem extends SubsystemBase {
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
             double vrot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
+            double right = joyRightTrigger.getAsDouble();
+            double left = joyLeftTrigger.getAsDouble();
+
+            double newSpeed = m_defaultSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            setMaxSpeed(newSpeed);
+
             // apply max speeds
-            vx *= m_currentSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
-            vy *= m_currentSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            vx *= newSpeed;
+            vy *= newSpeed;
             vrot *= m_maxAngularSpeed;
 
             drive(vx, vy, vrot, fieldRelative.getAsBoolean());
@@ -333,7 +341,10 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
-            m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+            Pose2d pose2d = new Pose2d(pose.estimatedPose.toPose2d().getTranslation(), getHeading());
+
+
+            m_poseEstimator.addVisionMeasurement(pose2d, pose.timestampSeconds);
         }
     }
 

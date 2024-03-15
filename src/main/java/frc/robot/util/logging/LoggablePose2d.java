@@ -25,7 +25,7 @@ public final class LoggablePose2d extends Loggable<Pose2d> {
         
         m_valueSupplier = valueSupplier;
         
-        m_publisher = NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct).publish();
+        m_publisher = NetworkTableInstance.getDefault().getStructTopic(name, Pose2d.struct).publish();
 
         m_wpiEntry = new StringLogEntry(m_wpiLog, name);
     }
@@ -33,7 +33,7 @@ public final class LoggablePose2d extends Loggable<Pose2d> {
     public LoggablePose2d(String name, boolean logToNetworkTables) {
         super(name, logToNetworkTables);
 
-        m_publisher = NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct).publish();
+        m_publisher = NetworkTableInstance.getDefault().getStructTopic(name, Pose2d.struct).publish();
 
         m_wpiEntry = new StringLogEntry(m_wpiLog, name);
     }
@@ -41,7 +41,7 @@ public final class LoggablePose2d extends Loggable<Pose2d> {
     public LoggablePose2d(String name) {
         super(name);
 
-        m_publisher = NetworkTableInstance.getDefault().getStructTopic("MyPose", Pose2d.struct).publish();
+        m_publisher = NetworkTableInstance.getDefault().getStructTopic(name, Pose2d.struct).publish();
 
         m_wpiEntry = new StringLogEntry(m_wpiLog, name);
     }

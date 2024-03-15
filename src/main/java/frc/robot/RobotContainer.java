@@ -101,9 +101,11 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
-    m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
-    m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShootAmp());
+    m_operatorJoystick.button(2).onTrue(m_shooter.getStartFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
+    m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
+    m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
+    m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
   }
 
   /**

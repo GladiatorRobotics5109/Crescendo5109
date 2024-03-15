@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.IOException;
 
 // import frc.robot.subsystems.logging.Logger;
+import frc.robot.util.logging.LoggablePose2d;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -19,6 +20,9 @@ public class VisionManager {
     private final List<PhotonCamera> m_cameras = new ArrayList<>();
     private final List<PhotonPoseEstimator> m_estimators = new ArrayList<>();
 
+    private final LoggablePose2d m_poseCam1Log;
+    private final LoggablePose2d m_poseCam2Log;
+
     private AprilTagFieldLayout m_aprilTagFieldLayout;
 
     public VisionManager(Map<String, Transform3d> visionSources) {
@@ -28,6 +32,8 @@ public class VisionManager {
             
         }
 
+        m_poseCam1Log = new LoggablePose2d("Cam1Pose", true);
+        m_poseCam2Log = new LoggablePose2d("Cam2Pose", true);
 
         for (Map.Entry<String, Transform3d> source : visionSources.entrySet()) {
             PhotonCamera camera = new PhotonCamera(source.getKey());
@@ -52,6 +58,15 @@ public class VisionManager {
             Optional<EstimatedRobotPose> pose = m_estimators.get(i).update();
 
             if (pose.isPresent()) {
+                if (i == 0) {
+                    m_poseCam1Log.log(pose.get().estimatedPose.toPose2d());
+                    System.out.println("Cam2: (" + pose.get().estimatedPose.getX() + ", " + pose.get().estimatedPose.getY());
+                }
+                else if (i == 1) {
+                    m_poseCam2Log.log(pose.get().estimatedPose.toPose2d());
+                    System.out.println("Cam1: (" + pose.get().estimatedPose.getX() + ", " + pose.get().estimatedPose.getY());
+                }
+
                 isAllEmpty = false;
                 poses[i] = pose.get();
             }

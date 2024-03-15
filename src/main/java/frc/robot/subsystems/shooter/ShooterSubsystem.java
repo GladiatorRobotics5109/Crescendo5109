@@ -24,15 +24,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.util.Constants.ShooterConstants;
-import frc.robot.util.logging.Loggable;
 import frc.robot.util.logging.LoggableBoolean;
 import frc.robot.util.logging.LoggableDouble;
 import frc.robot.stateMachine.ShooterState;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.ShooterState.ShooterStateEnum;
-// import frc.robot.subsystems.logging.Loggable;
-// import frc.robot.subsystems.logging.LoggableDouble;
-// import frc.robot.subsystems.logging.Logger;
+
 /**
  * Represents the Shooter
  */
@@ -191,7 +188,13 @@ public class ShooterSubsystem extends SubsystemBase {
             )
          );
 
+<<<<<<< HEAD
          m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> m_state.removeState(ShooterStateEnum.HAS_NOTE)));
+=======
+         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
+            m_state.removeState(ShooterStateEnum.HAS_NOTE);
+         }));
+>>>>>>> 745be78ddba934c34a91ec7ceae2a51b2212105f
     }
 
     public Command getAimAmpCommand() {
@@ -223,6 +226,18 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command getStartFeederCommand() {
         return this.runOnce(() -> {
             startFeeder();
+        });
+    }
+
+    public Command getStartFeederSlowCommand() {
+        return this.runOnce(() -> {
+            startFeederSlow();
+        });
+    }
+
+    public Command getReverseFeederSlowCommand() {
+        return this.runOnce(() -> {
+            reverseFeederSlow();
         });
     }
 
@@ -325,8 +340,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-1);
-        m_rightShooterMotor.set(1);
+        m_leftShooterMotor.set(-0.6);
+        m_rightShooterMotor.set(0.6);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -366,6 +381,16 @@ public class ShooterSubsystem extends SubsystemBase {
     public void startFeeder() {
         //m_feederPIDController.setReference(500, ControlType.kVelocity);
         m_feederMotor.set(-1);
+        m_state.addState(ShooterStateEnum.FEEDER_WHEELS_SPINNING);
+    }
+
+    public void startFeederSlow() {
+        m_feederMotor.set(0.2);
+        m_state.addState(ShooterStateEnum.FEEDER_WHEELS_SPINNING);
+    }
+
+    public void reverseFeederSlow() {
+        m_feederMotor.set(-0.2);
         m_state.addState(ShooterStateEnum.FEEDER_WHEELS_SPINNING);
     }
 
@@ -480,9 +505,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
 
         m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
-        m_feederSensor2Log.log(m_feederSensorTrigger .getAsBoolean());
-
-        // m_state.removeState(ShooterStateEnum.HAS_NOTE);
+        m_feederSensor2Log.log(m_feederSensorTrigger.getAsBoolean());
     }
 }
 
