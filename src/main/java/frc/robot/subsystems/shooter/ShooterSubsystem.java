@@ -29,6 +29,7 @@ import frc.robot.util.logging.LoggableDouble;
 import frc.robot.stateMachine.ShooterState;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.ShooterState.ShooterStateEnum;
+import frc.robot.util.logging.Logger;
 
 /**
  * Represents the Shooter
@@ -75,6 +76,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final LoggableDouble m_rpmLLog;
     private final LoggableDouble m_rpmRLog;
+
+    private final LoggableDouble m_rBusCurrent;
+    private final LoggableDouble m_lBusCurrent;
+
+    private final LoggableDouble m_rOutputCurrent;
+    private final LoggableDouble m_lOutputCurrent;
 
     public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
         m_state = StateMachine.getShooterState();
@@ -131,6 +138,18 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmRLog = new LoggableDouble("Shooter R RPM", true);
         m_feederSensorLog = new LoggableBoolean("HasNote", true);
         m_feederSensor2Log = new LoggableBoolean("Has Note2", true);
+
+        m_rBusCurrent = new LoggableDouble("Bus Current R", true, true, () -> m_rightShooterMotor.getBusVoltage());
+        m_lBusCurrent = new LoggableDouble("Bus Current L", true, true, () -> m_leftShooterMotor.getBusVoltage());
+
+        m_rOutputCurrent = new LoggableDouble("Output Current R", true, true, () -> m_rightShooterMotor.getOutputCurrent());
+        m_lOutputCurrent = new LoggableDouble("Output Currenty L", true, true, () -> m_leftShooterMotor.getOutputCurrent());
+
+        Logger.addLoggable(m_rBusCurrent);
+        Logger.addLoggable(m_lBusCurrent);
+        Logger.addLoggable(m_rOutputCurrent);
+        Logger.addLoggable(m_lOutputCurrent);
+
 
         // m_barPIDController.setP(ShooterConstants.kBarP);
         // m_barPIDController.setI(ShooterConstants.kBarI);
@@ -316,8 +335,8 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_desiredRps.log(2000.0);
         //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-0.6);
-        m_rightShooterMotor.set(0.6);
+        m_leftShooterMotor.set(-1);
+        m_rightShooterMotor.set(1);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 

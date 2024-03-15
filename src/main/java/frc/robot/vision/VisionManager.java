@@ -5,6 +5,7 @@ import java.io.IOException;
 
 // import frc.robot.subsystems.logging.Logger;
 import frc.robot.util.logging.LoggablePose2d;
+import frc.robot.util.logging.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -16,7 +17,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.util.Constants;
 
 public class VisionManager {
-
     private final List<PhotonCamera> m_cameras = new ArrayList<>();
     private final List<PhotonPoseEstimator> m_estimators = new ArrayList<>();
 
@@ -29,7 +29,7 @@ public class VisionManager {
         try {
             m_aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(Constants.VisionConstants.kApriltagLayout.m_resourceFile);
         } catch (IOException e) {
-            
+            Logger.error("Failed to load apriltag field layout!", e.getStackTrace());
         }
 
         m_poseCam1Log = new LoggablePose2d("Cam1Pose", true);

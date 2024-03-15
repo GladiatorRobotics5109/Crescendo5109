@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Constants.DriveTeamConstants;
@@ -20,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.util.logging.LoggableDouble;
+import frc.robot.util.logging.Logger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -40,6 +43,9 @@ public class RobotContainer {
   private final IntakeSubsystem m_intake;
   private final CentralCommandFactory m_centralCommandFactory;
 
+  private final PowerDistribution m_pdp;
+  private final LoggableDouble m_shooter1Log;
+  private final LoggableDouble m_shooter2Log;
 
   private final SendableChooser<Command> m_autoChooser;
 
@@ -83,7 +89,13 @@ public class RobotContainer {
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData("autoChooser", m_autoChooser);
 
-    
+    m_pdp = new PowerDistribution();
+
+    m_shooter1Log = new LoggableDouble("Shooter L Input Current", true, true, () -> m_pdp.getCurrent(10));
+    m_shooter2Log = new LoggableDouble("Shooter R Input Current", true, true, () -> m_pdp.getCurrent(13));
+
+    Logger.addLoggable(m_shooter1Log);
+    Logger.addLoggable(m_shooter2Log);
 
     // Configure the controller bindings
     configureButtonBindings();
