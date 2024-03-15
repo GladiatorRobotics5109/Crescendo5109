@@ -39,7 +39,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  private final ClimbSubsystem m_climb;
+  //private final ClimbSubsystem m_climb;
 
   private final CentralCommandFactory m_centralCommandFactory;
 
@@ -71,9 +71,9 @@ public class RobotContainer {
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
     m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
-    m_climb = new ClimbSubsystem();
+    //m_climb = new ClimbSubsystem();
 
-    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve, m_climb);
+    m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
     // Register all commands for auto
     NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
@@ -105,13 +105,14 @@ public class RobotContainer {
     m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
-    m_driverController.y().onTrue(m_climb.getToggleExtensionCommand());
+    //m_driverController.y().onTrue(m_climb.getToggleExtensionCommand());
 
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShootAmp());
     m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShooterCommand());
     m_operatorJoystick.button(3).onTrue(m_shooter.getToggleBarCommand());
+    //m_operatorJoystick.button(8).onTrue(m_shooter.getHomingCommand());
 
 
 

@@ -12,18 +12,15 @@ public final class CentralCommandFactory {
     private final IntakeSubsystem m_intakeSubsystem;
     private final ShooterSubsystem m_shooterSubsystem;
     private final SwerveSubsystem m_swerveSubsystem;
-    private final ClimbSubsystem m_climbSubsystem;
 
     public CentralCommandFactory(
         IntakeSubsystem intakeSubsystem,
         ShooterSubsystem shooterSubsystem,
-        SwerveSubsystem swerveSubsystem,
-        ClimbSubsystem climbSubsystem
+        SwerveSubsystem swerveSubsystem
     ) {
         m_intakeSubsystem = intakeSubsystem;
         m_shooterSubsystem = shooterSubsystem;
         m_swerveSubsystem = swerveSubsystem;
-        m_climbSubsystem = climbSubsystem;
     }
 
     public Command getStartIntakeAndFeederCommand() {

@@ -183,30 +183,30 @@ public class ShooterSubsystem extends SubsystemBase {
         m_debouncedFeederSensorTrigger.onTrue(
             Commands.sequence(
                 getAddHasNoteStateCommand(),
-                //getStopShooterCommand(), (not needed)
+                getStopShooterCommand(), //(not needed)
                 Commands.runOnce(() -> {
                     // m_feederMotor.set(0.1);
-                    // m_leftShooterMotor.set(0.001);
-                    // m_rightShooterMotor.set(-0.001);
-                    m_feederPIDController.setReference(m_feederEncoder.getPosition() + 0.25, ControlType.kPosition); // Rotate the wheels 1/4 of the way backwards
+                    m_leftShooterMotor.set(0.001);
+                    m_rightShooterMotor.set(-0.001);
+                    //m_feederPIDController.setReference(m_feederEncoder.getPosition() + 0.25, ControlType.kPosition); // Rotate the wheels 1/4 of the way backwards
                 }),
-                getStopFeederCommand()
-                // getStopShooterCommand()
+                getStopFeederCommand(),
+                getStopShooterCommand()
             )
          );
 
         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
             m_state.removeState(ShooterStateEnum.HAS_NOTE);
-            if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
-                resetBar();
-            }
+            // if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
+            //     resetBar();
+            // }
         }
             ));
         
-        m_limitSwitchTrigger.onTrue(Commands.run(() -> {
-            m_winchMotor.set(0);
-            resetAngle();
-        }));
+        // m_limitSwitchTrigger.onTrue(Commands.run(() -> {
+        //     m_winchMotor.set(0);
+        //     resetAngle();
+        // }));
     }
 
     public Command getAimAmpCommand() {
@@ -335,7 +335,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command getHomingCommand() {
-        return this.runOnce(() -> {
+        return this.run(() -> {
             m_winchMotor.set(-0.4);
         });
     }
