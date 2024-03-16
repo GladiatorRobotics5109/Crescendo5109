@@ -44,7 +44,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_feederMotor; // Feeder Wheels
     private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
     // private final CANSparkMax m_barMotor; // Amp Bar
-    private final Servo m_barActuator;
+    private final Servo m_leftBarActuator;
+    private final Servo m_rightBarAcutuator;
+
 
     private final SparkPIDController m_leftShooterPIDController;
     private final SparkPIDController m_rightShooterPIDController;
@@ -58,7 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     private final DigitalInput m_feederSensor;
-    private final DigitalInput m_angleLimitSwitch;
+    //private final DigitalInput m_angleLimitSwitch;
 
     private double m_desiredAngle;
 
@@ -66,7 +68,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final Trigger m_feederSensorTrigger;
     private final Trigger m_debouncedFeederSensorTrigger;
 
-    private final Trigger m_limitSwitchTrigger;
+    //private final Trigger m_limitSwitchTrigger;
 
     private final Trigger m_reachedAngleSetpointTrigger;
 
@@ -94,11 +96,12 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightShooterMotor = new CANSparkMax(ShooterConstants.kRightShooterMotorPort, MotorType.kBrushless);
         m_feederMotor = new CANSparkMax(ShooterConstants.kFeederMotorPort, MotorType.kBrushless);
         m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
-        m_barActuator = new Servo(ShooterConstants.kBarActuatorChannel);
-        
+        m_leftBarActuator = new Servo(ShooterConstants.kLeftBarActuatorChannel);
+        m_rightBarAcutuator = new Servo(ShooterConstants.kRightBarActuatorChannel);
+
         //taken from example: yourActuator.setBounds(2.0, 1.8, 1.5, 1.2, 1.0); (assuming values are in ms in example)
-        m_barActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000); 
-        
+        m_leftBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000); 
+        m_rightBarAcutuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
@@ -155,7 +158,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // m_winchPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
         m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
-        m_angleLimitSwitch = new DigitalInput(ShooterConstants.kLimitSwitchChannel);
+        //m_angleLimitSwitch = new DigitalInput(ShooterConstants.kLimitSwitchChannel);
 
         m_winchEncoder.setPosition(0);
 
@@ -167,7 +170,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
 
-        m_limitSwitchTrigger = new Trigger((() -> m_angleLimitSwitch.get()));
+        //m_limitSwitchTrigger = new Trigger((() -> m_angleLimitSwitch.get()));
 
         m_desiredAngle = 58;
         m_reachedAngleSetpointTrigger = new Trigger(() -> atAngleSetpoint());
@@ -353,12 +356,14 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void extendBar() {
-        m_barActuator.set(1.0);
+        m_leftBarActuator.set(1.0);
+        m_rightBarAcutuator.set(1.0);
         m_state.addState(ShooterStateEnum.BAR_EXTENDED);
     }
 
     public void resetBar() {
-        m_barActuator.set(0);
+        m_leftBarActuator.set(0);
+        m_rightBarAcutuator.set(0);
         m_state.removeState(ShooterStateEnum.BAR_EXTENDED);
     }
 

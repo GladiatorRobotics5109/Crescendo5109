@@ -111,7 +111,7 @@ public class RobotContainer {
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShootAmp());
     m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShooterCommand());
-    m_operatorJoystick.button(3).onTrue(m_shooter.getToggleBarCommand());
+    m_operatorJoystick.button(3).onTrue(m_shooter.getResetBarCommand());
     //m_operatorJoystick.button(8).onTrue(m_shooter.getHomingCommand());
 
 
