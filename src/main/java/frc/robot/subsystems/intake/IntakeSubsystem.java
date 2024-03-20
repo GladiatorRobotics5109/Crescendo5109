@@ -8,6 +8,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -89,5 +90,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 reverseIntake();
             }
         });
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("Intake Spinning", m_state.is(IntakeStateEnum.INTAKING));
     }
 }

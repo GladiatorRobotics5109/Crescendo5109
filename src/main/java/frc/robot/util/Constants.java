@@ -37,7 +37,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 15;
+    public static final double kMaxSpeed = 10;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -113,6 +113,7 @@ public final class Constants {
       public static final double kDriveD = 0.05;
   
       public static final double kTurnP = 1.5;
+      // public static final double kTurnP = 3;
       public static final double kTurnI = 0;
       public static final double kTurnD = 0;
       public static final double kMaxTurnVelocity = 3 * Math.PI;
@@ -124,7 +125,8 @@ public final class Constants {
     public static final int kRightShooterMotorPort = 9;
     public static final int kFeederMotorPort = 6;
     public static final int kWinchMotorPort = 62;
-    public static final int kBarMotorPort = 78;
+    public static final int kLeftBarActuatorChannel = 2;
+    public static final int kRightBarActuatorChannel = 0;
 
     public static final double kShooterP = 1;
     public static final double kShooterI = 0;
@@ -138,25 +140,20 @@ public final class Constants {
     public static final double kBarI = 0;
     public static final double kBarD = 0;
     
-    public static final double kWinchP = 0.05;
+    public static final double kWinchP = 0.12;
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
     public static final int kFeederSensorChannel = 0;
+    public static final int kLimitSwitchChannel = 1;
     
     public static final double kPivotWinchInitialRadius = 0;
     public static final double kPivotWinchFinalRadius = 0;
     // public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
     public static final double kPivotWinchAverageRadius = 0.75 / 2;
     
-    public static final double kBarWinchInitialRadius = 0;
-    public static final double kBarWinchFinalRadius = 0;
-    public static final double kBarWinchAverageRadius = (kBarWinchInitialRadius + kBarWinchFinalRadius) / 2;
-    
-    public static final double kBarGearRatio = 0;
     public static final double kWinchGearRatio = 25;
     
-    public static final double kBarPositionConversionFactor = kBarWinchAverageRadius * (2 * Math.PI) / kBarGearRatio; 
     public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;
     
   }
@@ -173,17 +170,19 @@ public final class Constants {
   }
 
   public static class ClimbConstants {
-    public static final int kLeftClimbMotorPort = 0;
-    public static final int kRightClimbMotorPort = 0;
+    public static final int kLeftClimbMotorPort = 38;
+    public static final int kRightClimbMotorPort = 37;
 
-    public static final double kP = 0;
+    public static final double kSpoolAverageRadius = 0.75 / 2;
+
+    public static final double kP = 1;
     public static final double kI = 0;
     public static final double kD = 0;
     
-    public static final double kClimbPositionConversionFactor = 0;
+    public static final double kClimbPositionConversionFactor = kSpoolAverageRadius / (10 * 10);
 
-    public static final double kMaxExtension = 0;
-    public static final double kMinExtension = 0;
+    public static final double kMaxExtension = Units.inchesToMeters(34);
+    public static final double kMinExtension = Units.inchesToMeters(20.75);
   }
 
   public static class VisionConstants {
@@ -193,14 +192,16 @@ public final class Constants {
          Units.inchesToMeters(11),
          Units.inchesToMeters(6),
          Units.inchesToMeters(29.5 / 2),
-         new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(8)))
+        //  new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(8)))
+        new Rotation3d(0, Units.degreesToRadians(60), 0))
        );
       put("Camera2", new Transform3d(
         Units.inchesToMeters(-11),
         Units.inchesToMeters(6),
         Units.inchesToMeters(29.5 / 2),
-        new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(-20)))
-      );
+        // new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(-20)))
+        new Rotation3d(0, Units.degreesToRadians(60), 0))
+        );
     }};
 
       public static final Transform3d kCameraPos = new Transform3d(

@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,7 +41,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_rightShooterMotor; // Right Side Shooter Wheels
     private final CANSparkMax m_feederMotor; // Feeder Wheels
     private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
-    // private final CANSparkMax m_barMotor; // Amp Bar
+    // private final Servo m_leftBarActuator;
+    // private final Servo m_rightBarActuator;
+
+    private boolean m_overrideMinMaxAngle;
 
     private final SparkPIDController m_leftShooterPIDController;
     private final SparkPIDController m_rightShooterPIDController;
@@ -55,12 +59,15 @@ public class ShooterSubsystem extends SubsystemBase {
     // private final RelativeEncoder m_barEncoder;
 
     private final DigitalInput m_feederSensor;
+    private final DigitalInput m_angleLimitSwitch;
 
     private double m_desiredAngle;
 
 
     private final Trigger m_feederSensorTrigger;
     private final Trigger m_debouncedFeederSensorTrigger;
+
+    private final Trigger m_limitSwitchTrigger;
 
     private final Trigger m_reachedAngleSetpointTrigger;
 
@@ -87,6 +94,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableDouble m_rOutputCurrent;
     private final LoggableDouble m_lOutputCurrent;
 
+    private final LoggableDouble m_winchOutputCurrentLog;
+
     public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
         m_state = StateMachine.getShooterState();
 
@@ -94,26 +103,29 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightShooterMotor = new CANSparkMax(ShooterConstants.kRightShooterMotorPort, MotorType.kBrushless);
         m_feederMotor = new CANSparkMax(ShooterConstants.kFeederMotorPort, MotorType.kBrushless);
         m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
-        // m_barMotor = new CANSparkMax(ShooterConstants.kBarMotorPort, MotorType.kBrushless);
+        // m_leftBarActuator = new Servo(ShooterConstants.kLeftBarActuatorChannel);
+        // m_rightBarActuator = new Servo(ShooterConstants.kRightBarActuatorChannel);
+
+
+        //taken from example: yourActuator.setBounds(2.0, 1.8, 1.5, 1.2, 1.0) (assuming values are in ms in examlpe)
+        // m_leftBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+        // m_rightBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
 
         m_feederPIDController = m_feederMotor.getPIDController();
         m_winchPIDController = m_winchMotor.getPIDController();
-        // m_barPIDController = m_barMotor.getPIDController();
 
         m_leftShooterEncoder = m_leftShooterMotor.getEncoder();
         m_rightShooterEncoder = m_rightShooterMotor.getEncoder();
         m_feederEncoder = m_feederMotor.getEncoder();
         m_winchEncoder = m_winchMotor.getEncoder();
-        // m_barEncoder = m_barMotor.getEncoder();
 
-        m_leftShooterMotor.setIdleMode(IdleMode.kCoast);
-        m_rightShooterMotor.setIdleMode(IdleMode.kCoast);
+        m_leftShooterMotor.setIdleMode(IdleMode.kBrake);
+        m_rightShooterMotor.setIdleMode(IdleMode.kBrake);
         m_feederMotor.setIdleMode(IdleMode.kBrake);
         m_winchMotor.setIdleMode(IdleMode.kBrake);
-        // m_barMotor.setIdleMode(IdleMode.kBrake);
 
         m_leftShooterPIDController.setP(ShooterConstants.kShooterP);
         m_leftShooterPIDController.setI(ShooterConstants.kShooterI);
@@ -149,32 +161,29 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rOutputCurrent = new LoggableDouble("Output Current R", true, true, () -> m_rightShooterMotor.getOutputCurrent());
         m_lOutputCurrent = new LoggableDouble("Output Currenty L", true, true, () -> m_leftShooterMotor.getOutputCurrent());
 
+        m_winchOutputCurrentLog = new LoggableDouble("Winch Output Current", true, true, () -> m_winchMotor.getOutputCurrent());
+
         Logger.addLoggable(m_rBusCurrent);
         Logger.addLoggable(m_lBusCurrent);
         Logger.addLoggable(m_rOutputCurrent);
         Logger.addLoggable(m_lOutputCurrent);
+        Logger.addLoggable(m_winchOutputCurrentLog);
 
-
-        // m_barPIDController.setP(ShooterConstants.kBarP);
-        // m_barPIDController.setI(ShooterConstants.kBarI);
-        // m_barPIDController.setD(ShooterConstants.kBarD);
+        m_overrideMinMaxAngle = false;
 
         // m_shooterPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         // m_feederPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         // m_winchPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         // m_barPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
-
-
         m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
+        m_angleLimitSwitch = new DigitalInput(ShooterConstants.kLimitSwitchChannel);
 
-        //TODO: Need gear ratios and position conversion factor for bar and winch (maybe not winch)
-        // m_barEncoder.setPositionConversionFactor(ShooterConstants.kBarPositionConversionFactor);
-
-        m_winchEncoder.setPosition(0);
+        m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
 
 
         m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
+        m_limitSwitchTrigger = new Trigger(() -> m_angleLimitSwitch.get()).negate();
 
         //negated since the beambreak will return true until beam is broken
 
@@ -207,13 +216,20 @@ public class ShooterSubsystem extends SubsystemBase {
             )
          );
 
-<<<<<<< HEAD
-         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> m_state.removeState(ShooterStateEnum.HAS_NOTE)));
-=======
-         m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
+        m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
             m_state.removeState(ShooterStateEnum.HAS_NOTE);
          }));
->>>>>>> 745be78ddba934c34a91ec7ceae2a51b2212105f
+
+        m_debouncedFeederSensorTrigger.onFalse(Commands.sequence(
+            Commands.waitSeconds(0.5),
+            getStopShooterCommand(),
+            getStopFeederCommand()
+        ));
+
+        // m_limitSwitchTrigger.onTrue(Commands.run(() -> {
+        // m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
+        // setAngle(50);
+        // }));
     }
 
     public Command getAimAmpCommand() {
@@ -334,15 +350,70 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
+    public Command getResetEncoderMinCommand() {
+        return this.runOnce(() -> {
+            m_winchEncoder.setPosition((38 - 57.8763) / (-1.07687));
+            setAngle(38);
+        });
+    }
+
+    public Command getResetEncoderMaxCommand() {
+        return this.runOnce(() -> {
+            m_winchEncoder.setPosition((58 - 57.8763) / (-1.07687));
+            setAngle(58);
+        });
+    }
+
+
+
+    public Command getSetOverrideMinMaxAngleCommand(boolean value) {
+        return this.runOnce(() -> m_overrideMinMaxAngle = value);
+    }
+
+    public Command getExtendBarCommand() {
+        return this.runOnce(() -> extendBar());
+    }
+
+    public Command getResetBarCommand() {
+        return this.runOnce(() -> resetBar());
+    }
+
+    public Command getToggleBarCommand() {
+        return this.runOnce(() -> {
+            if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
+                resetBar();
+            } else {
+                extendBar();
+            }
+        });
+    }
+
+    public void extendBar() {
+        // m_leftBarActuator.set(1.0);
+        // m_rightBarActuator.set(1.0);
+        m_state.addState(ShooterStateEnum.BAR_EXTENDED);
+    }
+
+    public void setLimitSwitchAngle() {
+        m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
+    }
+
+    public void resetBar() {
+        // m_leftBarActuator.set(0);
+        // m_rightBarActuator.set(0);
+        m_state.removeState(ShooterStateEnum.BAR_EXTENDED);
+    }
 
     public void setAngle(double angle) {
-        if (angle > 58) {
+        if (!m_overrideMinMaxAngle && angle > 58) {
             System.out.println("MAX: " + angle);
-            angle = 58;
+            // angle = 58;
+            return;
         }
-        if (angle < 38) {
+        if (!m_overrideMinMaxAngle && angle < 38) {
             System.out.println("MIN: " + angle);
-            angle = 38;
+            // angle = 38;
+            return;
         }
 
         m_desiredAngle = angle;
@@ -509,10 +580,18 @@ public class ShooterSubsystem extends SubsystemBase {
         return Math.abs(m_desiredAngle - getAngle()) < 1;
     }
 
+    public boolean getLimitSwitchState() {
+        return m_angleLimitSwitch.get();
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("pos", m_winchEncoder.getPosition());
         // SmartDashboard.putNumber("Len", (m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25);
+
+        SmartDashboard.putBoolean("Limit Switch State", getLimitSwitchState());
+        SmartDashboard.putBoolean("Shooter Spinning", m_state.is(ShooterStateEnum.SHOOTER_WHEEL_SPINNING));
+        SmartDashboard.putBoolean("Feeder Spinning", m_state.is(ShooterStateEnum.FEEDER_WHEELS_SPINNING));
 
         if (m_state.is(ShooterStateEnum.AUTO_AIMING)) {
             setAngle(calcAutoAim());
