@@ -18,6 +18,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -57,7 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics m_kinematics;
 
-    private final VisionManager m_vision;
+    //private final VisionManager m_vision;
 
     private final SwerveDrivePoseEstimator m_poseEstimator;
     
@@ -88,7 +89,6 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 3, 30, Constants.SwerveConstants.kModuleEncoderOffsetBackRight);
     
         m_navX = SwerveConstants.kNavX;
-        // m_navX.reset(); <-- Test this?????
         m_navX.reset();
         m_navX.setAngleAdjustment(180);
         
@@ -99,15 +99,15 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBR.getPos()
         );
 
-        m_vision = new VisionManager(Constants.VisionConstants.kVisionSources);
+        // m_vision = new VisionManager(Constants.VisionConstants.kVisionSources);
 
-        Optional<EstimatedRobotPoses> startingPose = m_vision.getPose();
+        // Optional<EstimatedRobotPoses> startingPose = m_vision.getPose();
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
             m_kinematics,
             getHeading(),
             getPositions(),
-            startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose2d()
+            new Pose2d() //startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose2d()
         );
 
         m_defaultSpeed = SwerveConstants.kMaxSpeed;
@@ -153,6 +153,7 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         this.coast();
+
 
     }
 
@@ -243,7 +244,7 @@ public class SwerveSubsystem extends SubsystemBase {
             double right = joyRightTrigger.getAsDouble();
             double left = joyLeftTrigger.getAsDouble();
 
-            double newSpeed = m_defaultSpeed + (SwerveConstants.kMaxSpeed * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            double newSpeed = m_defaultSpeed + ((SwerveConstants.kMaxSpeed * 0.99) * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
             setMaxSpeed(newSpeed);
 
             // apply max speeds
@@ -331,22 +332,22 @@ public class SwerveSubsystem extends SubsystemBase {
         return m_kinematics.toChassisSpeeds(getStates());
     }
 
-    private void updatePose() {
-        m_poseEstimator.update(getHeading(), getPositions());
+    // private void updatePose() {
+    //     m_poseEstimator.update(getHeading(), getPositions());
 
-        Optional<EstimatedRobotPoses> poses = m_vision.getPose();
+    //     //Optional<EstimatedRobotPoses> poses = m_vision.getPose();
 
-        if (poses.isEmpty()) {
-            return;
-        }
+    //     if (poses.isEmpty()) {
+    //         return;
+    //     }
 
-        for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
-            Pose2d pose2d = new Pose2d(pose.estimatedPose.toPose2d().getTranslation(), getHeading());
+    //     for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
+    //         Pose2d pose2d = new Pose2d(pose.estimatedPose.toPose2d().getTranslation(), getHeading());
 
 
-            m_poseEstimator.addVisionMeasurement(pose2d, pose.timestampSeconds);
-        }
-    }
+    //         m_poseEstimator.addVisionMeasurement(pose2d, pose.timestampSeconds);
+    //     }
+    // }
 
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
@@ -472,7 +473,7 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("vy", getSpeeds().vyMetersPerSecond);
         SmartDashboard.putNumber("vrot", getSpeeds().omegaRadiansPerSecond);
 
-        updatePose();
+        // updatePose();
 
         Pose2d pose = getPose();
         SmartDashboard.putNumber("posx", pose.getX());

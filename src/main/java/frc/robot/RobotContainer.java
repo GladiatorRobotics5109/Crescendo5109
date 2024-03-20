@@ -4,18 +4,22 @@
 
 package frc.robot;
 
+import org.opencv.features2d.MSER;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Constants.DriveTeamConstants;
+import frc.robot.commands.AutonFactory;
 import frc.robot.commands.CentralCommandFactory;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
+import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -41,11 +45,8 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
+  //private final ClimbSubsystem m_climb;
   private final CentralCommandFactory m_centralCommandFactory;
-
-  private final PowerDistribution m_pdp;
-  private final LoggableDouble m_shooter1Log;
-  private final LoggableDouble m_shooter2Log;
 
   private final SendableChooser<Command> m_autoChooser;
 
@@ -70,7 +71,7 @@ public class RobotContainer {
     m_intake = new IntakeSubsystem();
 
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
-
+    //m_climb = new ClimbSubsystem();
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
     m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
@@ -87,19 +88,17 @@ public class RobotContainer {
     NamedCommands.registerCommand("stopFeed", m_shooter.getStopFeederCommand());
 
     // Get auto chooser
-    m_autoChooser = AutoBuilder.buildAutoChooser();
+    // m_autoChooser = AutoBuilder.buildAutoChooser();
+    m_autoChooser = new SendableChooser<Command>();
+    m_autoChooser.addOption("None", Commands.none());
+    m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
+    m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
     SmartDashboard.putData("autoChooser", m_autoChooser);
-
-    m_pdp = new PowerDistribution();
-
-    m_shooter1Log = new LoggableDouble("Shooter L Input Current", true, true, () -> m_pdp.getCurrent(10));
-    m_shooter2Log = new LoggableDouble("Shooter R Input Current", true, true, () -> m_pdp.getCurrent(13));
-
-    Logger.addLoggable(m_shooter1Log);
-    Logger.addLoggable(m_shooter2Log);
 
     // Configure the controller bindings
     configureButtonBindings();
+
+    CameraServer.startAutomaticCapture();
   }
 
   /** 
@@ -108,16 +107,21 @@ public class RobotContainer {
   private void configureButtonBindings() {
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
-    m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
+    //m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
 //    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
-    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShootAmp());
-    m_operatorJoystick.button(2).onTrue(m_shooter.getStartFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
+    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShooterCommand());
+    m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShootAmp());
+    // m_operatorJoystick.button(2).onTrue(m_shooter.getStartFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
     m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
+    m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
+    m_operatorJoystick.button(7).onTrue(m_shooter.getResetEncoderMinCommand());
+    m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
+    m_operatorJoystick.button(9).onTrue(m_shooter.getToggleBarCommand());
   }
 
   /**

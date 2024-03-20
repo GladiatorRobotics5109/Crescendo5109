@@ -6,6 +6,7 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.stateMachine.ClimbState;
@@ -72,6 +73,37 @@ public class ClimbSubsystem extends SubsystemBase {
         });
     }
 
+    public Command getIncreaseLeftExtensionCommand() {
+        return this.runOnce(() -> increaseLeftExtension());
+    }
+
+    public Command getDecreaseLeftExtensionCommand() {
+        return this.runOnce(() -> decreaseLeftExtension());
+    }
+
+
+    public Command getIncreaseRightExtensionCommand() {
+        return this.runOnce(() -> increaseRightExtension());
+    }
+
+    public Command getDecreaseRightExtensionCommand() {
+        return this.runOnce(() -> decreaseRightExtension());
+    }
+
+    public Command getIncreaseExtensionCommand() {
+        return this.runOnce(() -> {
+            increaseLeftExtension();
+            increaseRightExtension();
+        });
+    }
+
+    public Command getDecreaseExtensionCommand() {
+        return this.runOnce(() -> {
+            decreaseLeftExtension();
+            decreaseRightExtension();
+        });
+    }
+
     public void setLeftExtension(double extension) {
         if (extension <= ClimbConstants.kMaxExtension && extension >= ClimbConstants.kMinExtension) {
             m_leftPIDController.setReference(extension, ControlType.kPosition);
@@ -82,6 +114,22 @@ public class ClimbSubsystem extends SubsystemBase {
         if (extension <= ClimbConstants.kMaxExtension && extension >= ClimbConstants.kMinExtension) {
             m_rightPIDController.setReference(extension, ControlType.kPosition);
         }
+    }
+
+    public void increaseLeftExtension() {
+        setLeftExtension(m_leftEncoder.getPosition() + Units.inchesToMeters(1));
+    }
+
+    public void decreaseLeftExtension() {
+        setLeftExtension(m_leftEncoder.getPosition() - Units.inchesToMeters(1));
+    }
+
+    public void increaseRightExtension() {
+        setRightExtension(m_rightEncoder.getPosition() + Units.inchesToMeters(1));
+    }
+
+    public void decreaseRightExtension() {
+        setRightExtension(m_rightEncoder.getPosition() - Units.inchesToMeters(1));
     }
 
     public void setExtension(double extension) {
