@@ -3,7 +3,6 @@ package frc.robot.vision;
 import java.util.*;
 import java.io.IOException;
 
-// import frc.robot.subsystems.logging.Logger;
 import frc.robot.util.logging.LoggablePose2d;
 import frc.robot.util.logging.Logger;
 import org.photonvision.EstimatedRobotPose;
@@ -60,11 +59,9 @@ public class VisionManager {
             if (pose.isPresent()) {
                 if (i == 0) {
                     m_poseCam1Log.log(pose.get().estimatedPose.toPose2d());
-                    System.out.println("Cam2: (" + pose.get().estimatedPose.getX() + ", " + pose.get().estimatedPose.getY());
                 }
                 else if (i == 1) {
                     m_poseCam2Log.log(pose.get().estimatedPose.toPose2d());
-                    System.out.println("Cam1: (" + pose.get().estimatedPose.getX() + ", " + pose.get().estimatedPose.getY());
                 }
 
                 isAllEmpty = false;

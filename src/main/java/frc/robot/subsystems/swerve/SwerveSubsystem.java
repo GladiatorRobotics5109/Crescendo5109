@@ -58,7 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final SwerveDriveKinematics m_kinematics;
 
-    //private final VisionManager m_vision;
+    private final VisionManager m_vision;
 
     private final SwerveDrivePoseEstimator m_poseEstimator;
     
@@ -99,15 +99,15 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBR.getPos()
         );
 
-        // m_vision = new VisionManager(Constants.VisionConstants.kVisionSources);
+        m_vision = new VisionManager(Constants.VisionConstants.kVisionSources);
 
-        // Optional<EstimatedRobotPoses> startingPose = m_vision.getPose();
+        Optional<EstimatedRobotPoses> startingPose = m_vision.getPose();
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
             m_kinematics,
             getHeading(),
             getPositions(),
-            new Pose2d() //startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose2d()
+            startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose2d()
         );
 
         m_defaultSpeed = SwerveConstants.kMaxSpeed;
@@ -116,12 +116,10 @@ public class SwerveSubsystem extends SubsystemBase {
         
         // m_autoAimPID = new PIDController(0.25, 0, 0.27); // works pretty well
         m_autoAimPID = new PIDController(0.25, 0, 0.3); // works pretty well
-        
         // m_autoAimPID = new PIDController(0.18, 0, 0.27);
         m_autoAimPID.setIZone(.5);
         m_autoAimPID.setIntegratorRange(-1, 1);
         m_autoAimPID.setI(0.2);
-        
         m_autoAimPID.enableContinuousInput(-180, 180);
 
         // TODO: Tolerance
@@ -153,8 +151,6 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         this.coast();
-
-
     }
 
     /** drive with desired x/y/rot velocities */
@@ -332,22 +328,19 @@ public class SwerveSubsystem extends SubsystemBase {
         return m_kinematics.toChassisSpeeds(getStates());
     }
 
-    // private void updatePose() {
-    //     m_poseEstimator.update(getHeading(), getPositions());
+    private void updatePose() {
+        m_poseEstimator.update(getHeading(), getPositions());
 
-    //     //Optional<EstimatedRobotPoses> poses = m_vision.getPose();
+        Optional<EstimatedRobotPoses> poses = m_vision.getPose();
 
-    //     if (poses.isEmpty()) {
-    //         return;
-    //     }
+        if (poses.isEmpty()) {
+            return;
+        }
 
-    //     for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
-    //         Pose2d pose2d = new Pose2d(pose.estimatedPose.toPose2d().getTranslation(), getHeading());
-
-
-    //         m_poseEstimator.addVisionMeasurement(pose2d, pose.timestampSeconds);
-    //     }
-    // }
+        for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
+            m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+        }
+    }
 
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
@@ -473,7 +466,7 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("vy", getSpeeds().vyMetersPerSecond);
         SmartDashboard.putNumber("vrot", getSpeeds().omegaRadiansPerSecond);
 
-        // updatePose();
+        updatePose();
 
         Pose2d pose = getPose();
         SmartDashboard.putNumber("posx", pose.getX());

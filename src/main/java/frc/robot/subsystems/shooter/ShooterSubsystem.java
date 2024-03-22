@@ -190,7 +190,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
         // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.negate();
 
-        m_desiredAngle = 58;
+        m_desiredAngle = 52;
         m_reachedAngleSetpointTrigger = new Trigger(() -> atAngleSetpoint());
 
 
@@ -234,7 +234,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            setAngle(58);
+            setAngle(52);
             setBarExtension(0);
         }); 
     }
@@ -302,6 +302,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getSetAngleCommand(double angle) {
         return this.runOnce(() -> {
+            m_state.removeState(ShooterStateEnum.AUTO_AIMING);
             setAngle(angle);
         });
     }
@@ -352,15 +353,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getResetEncoderMinCommand() {
         return this.runOnce(() -> {
-            m_winchEncoder.setPosition((38 - 57.8763) / (-1.07687));
-            setAngle(38);
+            m_winchEncoder.setPosition((30 - 57.8763) / (-1.07687));
+            setAngle(30);
         });
     }
 
     public Command getResetEncoderMaxCommand() {
         return this.runOnce(() -> {
-            m_winchEncoder.setPosition((58 - 57.8763) / (-1.07687));
-            setAngle(58);
+            m_winchEncoder.setPosition((52 - 57.8763) / (-1.07687));
+            setAngle(52);
         });
     }
 
@@ -405,14 +406,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAngle(double angle) {
-        if (!m_overrideMinMaxAngle && angle > 58) {
+        if (!m_overrideMinMaxAngle && angle > 52) {
             System.out.println("MAX: " + angle);
-            // angle = 58;
             return;
         }
-        if (!m_overrideMinMaxAngle && angle < 38) {
+        if (!m_overrideMinMaxAngle && angle < 30) {
             System.out.println("MIN: " + angle);
-            // angle = 38;
             return;
         }
 

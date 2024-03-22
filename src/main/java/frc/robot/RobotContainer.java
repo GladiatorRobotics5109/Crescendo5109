@@ -98,7 +98,7 @@ public class RobotContainer {
     // Configure the controller bindings
     configureButtonBindings();
 
-    CameraServer.startAutomaticCapture();
+    //CameraServer.startAutomaticCapture();
   }
 
   /** 
@@ -107,8 +107,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
-    //m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
-//    m_driverController.y().onTrue(m_centralCommandFactory.getReverseAllCommand());
+    m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
+    m_driverController.y().onTrue(m_shooter.getSetAngleCommand(30));
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 

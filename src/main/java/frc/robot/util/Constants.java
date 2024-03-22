@@ -37,7 +37,7 @@ public final class Constants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
 
-    public static final double kMaxSpeed = 10;
+    public static final double kMaxSpeed = 5;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -140,7 +140,8 @@ public final class Constants {
     public static final double kBarI = 0;
     public static final double kBarD = 0;
     
-    public static final double kWinchP = 0.12;
+    // public static final double kWinchP = 0.12;
+    public static final double kWinchP = 0.01;
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
@@ -192,14 +193,12 @@ public final class Constants {
          Units.inchesToMeters(11),
          Units.inchesToMeters(6),
          Units.inchesToMeters(29.5 / 2),
-        //  new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(8)))
         new Rotation3d(0, Units.degreesToRadians(60), 0))
        );
       put("Camera2", new Transform3d(
         Units.inchesToMeters(-11),
         Units.inchesToMeters(6),
         Units.inchesToMeters(29.5 / 2),
-        // new Rotation3d(0, Units.degreesToRadians(70), Units.degreesToRadians(-20)))
         new Rotation3d(0, Units.degreesToRadians(60), 0))
         );
     }};
