@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.opencv.features2d.MSER;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.PowerDistribution;

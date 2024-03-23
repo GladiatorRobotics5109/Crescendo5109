@@ -565,10 +565,23 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         double dist = m_poseSupplier.get().getTranslation().getDistance(targetPose);
+
         double height = Units.feetToMeters(6.6) + Units.inchesToMeters(5);
         double angle = Math.atan(height / dist);
 
-        return Units.radiansToDegrees(angle) + (2.5 * dist);
+        // double result = Units.radiansToDegrees(angle) + (2.3 * dist);
+        double result = Units.radiansToDegrees(angle) + (0.6 * dist * dist);
+        System.out.print("Auto Aim Request: " + result + "Gravity Compensation: " + (0.6 * dist * dist));
+
+        if (result > 52) {
+            return 52;
+        }
+        else if (result < 32) {
+            return 32;
+        }
+        else {
+            return result;
+        }
     }
 
     public Trigger getHasNoteTrigger() {

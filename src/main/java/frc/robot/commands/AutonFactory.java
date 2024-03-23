@@ -9,13 +9,14 @@ public final class AutonFactory {
     public static Command getTaxiCommand(SwerveSubsystem swerve) {
         return Commands.sequence(
             Commands.runOnce(() -> swerve.drive(0, 1, 0, true), swerve),
-            Commands.waitSeconds(1),
+            Commands.waitSeconds(1.25),
             Commands.runOnce(() -> swerve.drive(0, 0, 0, true), swerve)
         );
     }
 
     public static Command getShootAndTaxiCommand(SwerveSubsystem swerve, ShooterSubsystem shooter) {
         return Commands.sequence(
+            getTaxiCommand(swerve),
             shooter.getStartShooterCommand(),
             shooter.getAimAmpCommand(),
             Commands.waitSeconds(3),
@@ -23,7 +24,6 @@ public final class AutonFactory {
             Commands.waitSeconds(2),
             shooter.getStopFeederCommand(),
             shooter.getStopShooterCommand()
-            // getTaxiCommand(swerve)
         );
     }
 
