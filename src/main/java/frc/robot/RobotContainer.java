@@ -88,6 +88,7 @@ public class RobotContainer {
     // Get auto chooser
     // m_autoChooser = AutoBuilder.buildAutoChooser();
     m_autoChooser = new SendableChooser<Command>();
+    m_autoChooser.setDefaultOption("None", Commands.none());
     m_autoChooser.addOption("None", Commands.none());
     m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
     m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));

@@ -45,6 +45,8 @@ public class SwerveModuleNeoTurnKrakenDrive {
     private final LoggableDouble m_desiredSpeedLog;
     private final LoggableDouble m_currentSpeedLog;
 
+    private final VelocityVoltage m_velocityVoltage;
+
 
     public SwerveModuleNeoTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort, double zeroOffset) {
         m_modulePos = modulePos;
@@ -98,6 +100,8 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
         m_turnPIDController.setOutputRange(-1, 1);
 
+        m_velocityVoltage = new VelocityVoltage(0);
+
         //m_turnAbsEncoder.setZeroOffset(zeroOffset);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
 
@@ -121,7 +125,8 @@ public class SwerveModuleNeoTurnKrakenDrive {
         double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
         // m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
         m_rpsLog.log(rps);
-        m_driveMotor.setControl(new VelocityVoltage(rps));
+        m_velocityVoltage.Velocity = rps;
+        m_driveMotor.setControl(m_velocityVoltage);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }
