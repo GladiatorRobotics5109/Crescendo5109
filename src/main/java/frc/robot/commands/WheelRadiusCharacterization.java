@@ -12,7 +12,7 @@ public class WheelRadiusCharacterization extends Command {
     private final SwerveSubsystem m_swerve;
     private final DoubleSupplier m_gyroYawRadSupplier;
     private double m_lastGyroYawRad;
-    private double m_accumGyroRad;
+    private double m_accumGyroYawRad;
 
     private final SlewRateLimiter m_thetaLimiter;
     private double[] m_startingWheelPositionsRad;
@@ -29,7 +29,7 @@ public class WheelRadiusCharacterization extends Command {
     public void initialize() {
         m_startingWheelPositionsRad = m_swerve.getWheelPoses();
         currentEffectiveWheelRadius = 0.0;
-        m_accumGyroRad = 0.0;
+        m_accumGyroYawRad = 0.0;
         m_lastGyroYawRad = m_gyroYawRadSupplier.getAsDouble();
         m_thetaLimiter.reset(0);
     }
@@ -38,7 +38,7 @@ public class WheelRadiusCharacterization extends Command {
     public void execute() {
         m_swerve.drive(0,0, m_thetaLimiter.calculate(0.1), true);
 
-        m_accumGyroRad += MathUtil.angleModulus(m_lastGyroYawRad - m_gyroYawRadSupplier.getAsDouble());
+        m_accumGyroYawRad += MathUtil.angleModulus(m_lastGyroYawRad - m_gyroYawRadSupplier.getAsDouble());
         m_lastGyroYawRad = m_gyroYawRadSupplier.getAsDouble();
 
         double[] wheelPositionsRad = m_swerve.getWheelPoses();
@@ -48,12 +48,19 @@ public class WheelRadiusCharacterization extends Command {
           }
         averageWheelPositionDelta /= 4;
 
-        currentEffectiveWheelRadius = (m_accumGyroRad * Constants.SwerveConstants.kDriveBaseRadius) / averageWheelPositionDelta;
+        currentEffectiveWheelRadius = (m_accumGyroYawRad * Constants.SwerveConstants.kDriveBaseRadius) / averageWheelPositionDelta;
         
     }
 
     @Override
     public void end(boolean interrupted) {
-
+        if (m_accumGyroYawRad <= Math.PI * 2.0) {
+            System.out.println("Not enough data for characterization");
+          } else {
+            System.out.println(
+                "Effective Wheel Radius: "
+                    + currentEffectiveWheelRadius
+                    + " meters");
+          }
     }
 }
