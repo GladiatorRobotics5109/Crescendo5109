@@ -41,8 +41,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_rightShooterMotor; // Right Side Shooter Wheels
     private final CANSparkMax m_feederMotor; // Feeder Wheels
     private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
-    // private final Servo m_leftBarActuator;
-    // private final Servo m_rightBarActuator;
+    private final Servo m_leftBarServo;
+    private final Servo m_rightBarServo;
 
     private boolean m_overrideMinMaxAngle;
 
@@ -50,22 +50,23 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkPIDController m_rightShooterPIDController;
     private final SparkPIDController m_feederPIDController;
     private final SparkPIDController m_winchPIDController;
-    // private final SparkPIDController m_barPIDController;
 
     private final RelativeEncoder m_leftShooterEncoder;
     private final RelativeEncoder m_rightShooterEncoder;
     private final RelativeEncoder m_feederEncoder;
     private final RelativeEncoder m_winchEncoder;
-    // private final RelativeEncoder m_barEncoder;
 
     private final DigitalInput m_feederSensor;
+    private final DigitalInput m_intakeSensor;
     private final DigitalInput m_angleLimitSwitch;
 
     private double m_desiredAngle;
 
 
     private final Trigger m_feederSensorTrigger;
-    private final Trigger m_debouncedFeederSensorTrigger;
+    private final Trigger m_intakeSensorTrigger;
+    private final Trigger m_combinedSensorTrigger;
+
 
     private final Trigger m_limitSwitchTrigger;
 
@@ -103,15 +104,21 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightShooterMotor = new CANSparkMax(ShooterConstants.kRightShooterMotorPort, MotorType.kBrushless);
         m_feederMotor = new CANSparkMax(ShooterConstants.kFeederMotorPort, MotorType.kBrushless);
         m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
-        // m_leftBarActuator = new Servo(ShooterConstants.kLeftBarActuatorChannel);
-        // m_rightBarActuator = new Servo(ShooterConstants.kRightBarActuatorChannel);
+        m_leftBarServo = new Servo(ShooterConstants.kLeftBarServoChannel);
+        m_rightBarServo = new Servo(ShooterConstants.kRightBarServoChannel);
 
 
         //taken from example: yourActuator.setBounds(2.0, 1.8, 1.5, 1.2, 1.0) (assuming values are in ms in examlpe)
         // m_leftBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
         // m_rightBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
+        //working frequence: 50 - 333 Hz
+        //dead band: 3 us/ 2us ?????
+        //PWM Range: 500 us to 2500 us (270 degrees)
+        m_leftBarServo.setBoundsMicroseconds(2500, 1501, 1500, 1499, 500);
+        m_rightBarServo.setBoundsMicroseconds(2500, 1501, 1500, 1499, 500);
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
+
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
 
         m_feederPIDController = m_feederMotor.getPIDController();
@@ -171,24 +178,22 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_overrideMinMaxAngle = false;
 
-        // m_shooterPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        // m_feederPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        // m_winchPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
-        // m_barPIDController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
 
         m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
+        m_intakeSensor = new DigitalInput(ShooterConstants.kIntakeSensorChannel);
         m_angleLimitSwitch = new DigitalInput(ShooterConstants.kLimitSwitchChannel);
 
         m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
 
 
-        m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
+        //negated since the beambreak will return true until beam is broken
+        m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get()).debounce(0.1, DebounceType.kBoth).negate();
+        m_intakeSensorTrigger = new Trigger(() -> m_intakeSensor.get()).debounce(0.1, DebounceType.kBoth).negate();
+        m_combinedSensorTrigger = m_feederSensorTrigger.and(() -> m_intakeSensor.get());
         m_limitSwitchTrigger = new Trigger(() -> m_angleLimitSwitch.get()).negate();
 
-        //negated since the beambreak will return true until beam is broken
 
-        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
-        // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.negate();
+
 
         m_desiredAngle = 52;
         m_reachedAngleSetpointTrigger = new Trigger(() -> atAngleSetpoint());
@@ -201,7 +206,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
-        m_debouncedFeederSensorTrigger.onTrue(
+        m_feederSensorTrigger.onTrue(
             Commands.sequence(
                 getAddHasNoteStateCommand(),
                 getStopShooterCommand(),
@@ -216,15 +221,27 @@ public class ShooterSubsystem extends SubsystemBase {
             )
          );
 
-        m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
+        m_feederSensorTrigger.whileFalse(Commands.runOnce(() -> {
             m_state.removeState(ShooterStateEnum.HAS_NOTE);
          }));
 
-        m_debouncedFeederSensorTrigger.onFalse(Commands.sequence(
+        m_feederSensorTrigger.onFalse(Commands.sequence(
             Commands.waitSeconds(0.5),
             getStopShooterCommand(),
             getStopFeederCommand()
         ));
+
+        m_intakeSensorTrigger.onTrue(Commands.run(() -> m_state.addState(ShooterStateEnum.NOTE_ENTERED)));
+
+        m_combinedSensorTrigger.onTrue(Commands.run(() -> {
+            m_state.addState(ShooterStateEnum.HAS_NOTE);
+         }));
+
+        m_combinedSensorTrigger.onFalse(Commands.run(() -> {
+            if (m_intakeSensor.get()) {
+                // move up feeder slightly
+            } 
+        }));
 
         // m_limitSwitchTrigger.onTrue(Commands.run(() -> {
         // m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
@@ -365,14 +382,12 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
-
-
     public Command getSetOverrideMinMaxAngleCommand(boolean value) {
         return this.runOnce(() -> m_overrideMinMaxAngle = value);
     }
 
     public Command getExtendBarCommand() {
-        return this.runOnce(() -> extendBar());
+        return this.runOnce(() -> swingBar());
     }
 
     public Command getResetBarCommand() {
@@ -381,29 +396,30 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getToggleBarCommand() {
         return this.runOnce(() -> {
-            if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
+            if (m_state.is(ShooterStateEnum.BAR_SWUNG)) {
                 resetBar();
             } else {
-                extendBar();
+                swingBar();
             }
         });
     }
 
-    public void extendBar() {
-        // m_leftBarActuator.set(1.0);
-        // m_rightBarActuator.set(1.0);
-        m_state.addState(ShooterStateEnum.BAR_EXTENDED);
+    public void swingBar() {
+        m_leftBarServo.setAngle(270);
+        m_rightBarServo.set(270);
+        m_state.addState(ShooterStateEnum.BAR_SWUNG);
+    }
+
+    public void resetBar() {
+        m_leftBarServo.setAngle(180);
+        m_rightBarServo.setAngle(180);
+        m_state.removeState(ShooterStateEnum.BAR_SWUNG);
     }
 
     public void setLimitSwitchAngle() {
         m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
     }
 
-    public void resetBar() {
-        // m_leftBarActuator.set(0);
-        // m_rightBarActuator.set(0);
-        m_state.removeState(ShooterStateEnum.BAR_EXTENDED);
-    }
 
     public void setAngle(double angle) {
         if (!m_overrideMinMaxAngle && angle > 52) {
@@ -423,6 +439,30 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_winchPIDController.setReference(desiredRot, ControlType.kPosition);
     }
+
+    /**
+     * Sets the angle of the shooter based on the law of cosines and two static angles.
+     * 
+     * @param angle desired shooter angle in degrees 
+     */
+    // public void setAngle(double angle) {
+    //     if (angle > 57) {
+    //         System.out.println("MAX: " + angle);
+    //     } else if (angle < 30) {
+    //         System.out.println("Min: " + angle);
+    //     }
+
+    //     double a = Math.sqrt(Math.pow(10.37, 2) + Math.pow(1.77, 2));
+    //     double b = Math.sqrt(Math.pow(7, 2) + Math.pow(1.75, 2));
+    //     double theta_1 = Units.degreesToRadians(14.04);
+    //     double theta_2 = Units.degreesToRadians(25.41);
+
+    //     double desiredD = Math.PI - theta_1 - theta_2 - angle;
+
+    //     double desiredLength = Math.sqrt(Math.pow(a,2) + Math.pow(b,2) - 2 * a * b * Math.cos(Units.degreesToRadians(angle)));
+
+    //     m_winchPIDController.setReference(desiredLength, ControlType.kPosition);
+    // }   
 
     //TODO: Figure out optimal RPM for shooter
     public void startShooter() {
@@ -599,6 +639,8 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("pos", m_winchEncoder.getPosition());
+
+
         // SmartDashboard.putNumber("Len", (m_winchEncoder.getPosition() / 25) * (Constants.ShooterConstants.kPivotWinchAverageRadius * 2 * Math.PI) + 25);
 
         SmartDashboard.putBoolean("Limit Switch State", getLimitSwitchState());

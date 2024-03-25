@@ -125,8 +125,8 @@ public final class Constants {
     public static final int kRightShooterMotorPort = 9;
     public static final int kFeederMotorPort = 6;
     public static final int kWinchMotorPort = 62;
-    public static final int kLeftBarActuatorChannel = 2;
-    public static final int kRightBarActuatorChannel = 0;
+    public static final int kLeftBarServoChannel = 2;
+    public static final int kRightBarServoChannel = 0;
 
     public static final double kShooterP = 1;
     public static final double kShooterI = 0;
@@ -146,6 +146,7 @@ public final class Constants {
     public static final double kWinchD = 0;
     
     public static final int kFeederSensorChannel = 0;
+    public static final int kIntakeSensorChannel = 2;
     public static final int kLimitSwitchChannel = 1;
     
     public static final double kPivotWinchInitialRadius = 0;

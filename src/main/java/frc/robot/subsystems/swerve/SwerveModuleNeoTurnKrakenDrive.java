@@ -122,7 +122,7 @@ public class SwerveModuleNeoTurnKrakenDrive {
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition())) : state;
         
-        double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
+        double rps = Conversions.metersToWheelRot(optimizedState.speedMetersPerSecond);
         // m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
         m_rpsLog.log(rps);
         m_velocityVoltage.Velocity = rps;
@@ -156,11 +156,15 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     public SwerveModuleState getState() {
         // return new SwerveModuleState(Conversions.wheelToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModuleState(m_driveMotor.getVelocity().getValueAsDouble() * 2 * Math.PI * Constants.ModuleConstants.kWheelRadius, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModuleState(Conversions.wheelRotToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
         // return new SwerveModulePosition(Conversions.wheelToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModulePosition(m_driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI * Constants.ModuleConstants.kWheelRadius, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModulePosition(Conversions.wheelRotToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+    }
+
+    public double getWheelPos() {
+        return m_driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI;
     }
 }

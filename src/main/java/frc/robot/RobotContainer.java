@@ -12,11 +12,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Constants.DriveTeamConstants;
 import frc.robot.commands.AutonFactory;
 import frc.robot.commands.CentralCommandFactory;
+import frc.robot.commands.WheelRadiusCharacterization;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.climb.ClimbSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.swerve.SwerveSubsystem.ModuleOrientation;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -92,6 +94,12 @@ public class RobotContainer {
     m_autoChooser.addOption("None", Commands.none());
     m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
     m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
+    m_autoChooser.addOption("WheelRadiusCharacterization", 
+        Commands.sequence(
+            m_swerve.getOrientModulesCommand(ModuleOrientation.CIRCLE),
+            new WheelRadiusCharacterization(m_swerve, () -> m_swerve.getHeading().getRadians())
+          )
+        );
     SmartDashboard.putData("autoChooser", m_autoChooser);
 
     // Configure the controller bindings
