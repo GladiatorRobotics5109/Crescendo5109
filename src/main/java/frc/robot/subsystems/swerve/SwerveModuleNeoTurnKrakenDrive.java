@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -44,6 +45,8 @@ public class SwerveModuleNeoTurnKrakenDrive {
     private final LoggableDouble m_desiredSpeedLog;
     private final LoggableDouble m_currentSpeedLog;
 
+    private final VelocityVoltage m_velocityVoltage;
+
 
     public SwerveModuleNeoTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort, double zeroOffset) {
         m_modulePos = modulePos;
@@ -80,6 +83,10 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
         // TODO: drive motor PID tune
         TalonFXConfiguration driveMotorConfiguration = new TalonFXConfiguration();
+        CurrentLimitsConfigs ccconfig = new CurrentLimitsConfigs();
+        ccconfig.SupplyCurrentLimit = 40;
+        ccconfig.SupplyCurrentLimitEnable = true;
+        driveMotorConfiguration.withCurrentLimits(ccconfig);
         driveMotorConfiguration.Slot0.kP = Constants.ModuleConstants.kDriveP;
         driveMotorConfiguration.Slot0.kI = Constants.ModuleConstants.kDriveI;
         driveMotorConfiguration.Slot0.kD = Constants.ModuleConstants.kDriveD;
@@ -89,8 +96,11 @@ public class SwerveModuleNeoTurnKrakenDrive {
         // driveMotorConfiguration.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kDrivePositionConversionFactor;
 
         m_driveMotor.getConfigurator().apply(driveMotorConfiguration);
+        // m_driveMotor.enableCurren
 
         m_turnPIDController.setOutputRange(-1, 1);
+
+        m_velocityVoltage = new VelocityVoltage(0);
 
         //m_turnAbsEncoder.setZeroOffset(zeroOffset);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
@@ -114,8 +124,9 @@ public class SwerveModuleNeoTurnKrakenDrive {
         
         double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
         // m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
-        // m_rpsLog.log(rps);
-        m_driveMotor.setControl(new VelocityVoltage(rps));
+        m_rpsLog.log(rps);
+        m_velocityVoltage.Velocity = rps;
+        m_driveMotor.setControl(m_velocityVoltage);
         // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }

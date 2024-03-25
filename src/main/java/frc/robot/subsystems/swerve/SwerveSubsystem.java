@@ -71,6 +71,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final LoggableDouble m_autoAimPIDSetpointLog;
     private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
+    private final LoggableDouble m_currentMaxSpeedLog;
 
     private final LoggableSwerveModuleStates m_moduleStatesLog;
     private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
@@ -135,10 +136,12 @@ public class SwerveSubsystem extends SubsystemBase {
         m_poseLog = new LoggablePose2d("RobotPose", true, true, this::getPose);
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
+        m_currentMaxSpeedLog = new LoggableDouble("Current Max Speed", true, true, () -> Units.feetToMeters(m_currentSpeed));
 
         Logger.addLoggable(m_poseLog);
         Logger.addLoggable(m_moduleStatesLog);
         Logger.addLoggable(m_moduleDesiredStatesLog);
+        Logger.addLoggable(m_currentMaxSpeedLog);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),

@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.opencv.features2d.MSER;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -90,6 +88,7 @@ public class RobotContainer {
     // Get auto chooser
     // m_autoChooser = AutoBuilder.buildAutoChooser();
     m_autoChooser = new SendableChooser<Command>();
+    m_autoChooser.setDefaultOption("None", Commands.none());
     m_autoChooser.addOption("None", Commands.none());
     m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
     m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
