@@ -80,3 +80,4 @@ public class VisionManager {
         return Optional.of(pose);
     }
 }
+// Front right turn absolute encoder offset: 1.9823890 (broken sparkmax)

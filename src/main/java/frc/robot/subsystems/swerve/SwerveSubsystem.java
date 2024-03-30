@@ -136,7 +136,7 @@ public class SwerveSubsystem extends SubsystemBase {
         m_poseLog = new LoggablePose2d("RobotPose", true, true, this::getPose);
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
-        m_currentMaxSpeedLog = new LoggableDouble("Current Max Speed", true, true, () -> Units.feetToMeters(m_currentSpeed));
+        m_currentMaxSpeedLog = new LoggableDouble("Current Max Speed", true, true, () -> m_currentSpeed);
 
         Logger.addLoggable(m_poseLog);
         Logger.addLoggable(m_moduleStatesLog);
@@ -172,6 +172,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleFR.setDesiredState(swerveModuleStates[1]);
         m_moduleBL.setDesiredState(swerveModuleStates[2]);
         m_moduleBR.setDesiredState(swerveModuleStates[3]);
+
+        // System.out.println("Driving: (" + vx + ", " + vy + ", " + vrot + ")");
 
         m_moduleDesiredStatesLog.log(swerveModuleStates);
     }
@@ -243,7 +245,7 @@ public class SwerveSubsystem extends SubsystemBase {
             double right = joyRightTrigger.getAsDouble();
             double left = joyLeftTrigger.getAsDouble();
 
-            double newSpeed = m_defaultSpeed + ((SwerveConstants.kMaxSpeed * 0.99) * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
+            double newSpeed = m_defaultSpeed + ((SwerveConstants.kMaxSpeed * 0.5) * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
             setMaxSpeed(newSpeed);
 
             // apply max speeds
@@ -341,7 +343,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         for (EstimatedRobotPose pose : poses.get().getEstimatedRobotPoses()) {
-            m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+            m_poseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds, Constants.VisionConstants.kStdDevs);
         }
     }
 
@@ -374,7 +376,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command getStopAutoAimCommand() {
-        return this.runOnce(() -> m_autoAiming = false).withName("disableAutoAimCommand");
+        return this.runOnce(() -> {m_autoAiming = false; System.out.println("Stop Auto Aim");}).withName("disableAutoAimCommand");
     }
 
     /**

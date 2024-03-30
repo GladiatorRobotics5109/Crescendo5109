@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 15.44819734604747,
-        "y": 4.11386675203906
+        "x": 13.0,
+        "y": 5.56
       },
       "prevControl": null,
       "nextControl": {
-        "x": 15.450210247690839,
-        "y": 4.117353199956014
+        "x": 14.0,
+        "y": 5.56
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 13.843844588730844,
-        "y": 4.11386675203906
+        "x": 14.817588597924372,
+        "y": 5.56
       },
       "prevControl": {
-        "x": 13.845939651948747,
-        "y": 4.107827845864026
+        "x": 14.132233431310082,
+        "y": 5.546951236028178
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,21 +32,18 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
     "rotation": 0,
-    "rotateFast": true
+    "rotateFast": false
   },
   "reversed": false,
-  "folder": "R34S",
-  "previewStartingState": {
-    "rotation": 60.0,
-    "velocity": 0
-  },
+  "folder": null,
+  "previewStartingState": null,
   "useDefaultConstraints": false
 }

@@ -82,6 +82,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
     NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
 
+    NamedCommands.registerCommand("startShooter", m_shooter.getStartShooterCommand());
+    NamedCommands.registerCommand("stopShooter", m_shooter.getStopShooterCommand());
+
     NamedCommands.registerCommand("startFeed", m_shooter.getStartFeederCommand());
     NamedCommands.registerCommand("stopFeed", m_shooter.getStopFeederCommand());
 
@@ -92,6 +95,9 @@ public class RobotContainer {
     m_autoChooser.addOption("None", Commands.none());
     m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
     m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
+    m_autoChooser.addOption("R32S", AutoBuilder.buildAuto("R32S"));
+    m_autoChooser.addOption("Test", AutoBuilder.buildAuto("Test"));
+
     SmartDashboard.putData("autoChooser", m_autoChooser);
 
     // Configure the controller bindings

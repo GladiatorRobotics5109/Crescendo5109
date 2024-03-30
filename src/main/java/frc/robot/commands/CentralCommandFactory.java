@@ -48,7 +48,8 @@ public final class CentralCommandFactory {
     public Command getStopAutoAimCommand() {
         return Commands.sequence(
             m_swerveSubsystem.getStopAutoAimCommand(),
-            m_shooterSubsystem.getStopAutoAimCommand()
+            m_shooterSubsystem.getStopAutoAimCommand(),
+            Commands.runOnce(() -> System.out.println("Stop auto aim"))
             // m_shooterSubsystem.getStopShooterCommand()
         );
     }

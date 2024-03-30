@@ -2,37 +2,49 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 15.432411611351,
-      "y": 6.997067969830384
+      "x": 15.2,
+      "y": 5.56
     },
-    "rotation": -50.0
+    "rotation": 0
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "R14A1"
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startAutoAim"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startFeed"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R14A2"
+            "pathName": "R32S1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R14A3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R14A4"
+            "pathName": "R32S2"
           }
         }
       ]

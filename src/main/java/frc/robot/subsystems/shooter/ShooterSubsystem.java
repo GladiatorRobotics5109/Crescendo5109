@@ -216,11 +216,11 @@ public class ShooterSubsystem extends SubsystemBase {
             )
          );
 
-        m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
-            m_state.removeState(ShooterStateEnum.HAS_NOTE);
-         }));
+        // m_debouncedFeederSensorTrigger.whileFalse(Commands.runOnce(() -> {
+        //  }));
 
         m_debouncedFeederSensorTrigger.onFalse(Commands.sequence(
+            // Commands.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
             Commands.waitSeconds(0.5),
             getStopShooterCommand(),
             getStopFeederCommand()
@@ -234,7 +234,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            setAngle(52);
+            setAngle(59);
             setBarExtension(0);
         }); 
     }
@@ -260,6 +260,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getStartFeederCommand() {
         return this.runOnce(() -> {
+            System.out.println("Start feed");
             startFeeder();
         });
     }
@@ -406,7 +407,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAngle(double angle) {
-        if (!m_overrideMinMaxAngle && angle > 52) {
+        if (!m_overrideMinMaxAngle && angle > 59) {
             System.out.println("MAX: " + angle);
             return;
         }
@@ -452,8 +453,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void startShootAmp() {
-        m_leftShooterMotor.set(-0.24);
-        m_rightShooterMotor.set(0.24);
+        m_leftShooterMotor.setVoltage(-1.3);
+        m_rightShooterMotor.setVoltage(1.3);
+        // m_leftShooterMotor.set(-0.24);
+        // m_rightShooterMotor.set(0.24);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -570,11 +573,12 @@ public class ShooterSubsystem extends SubsystemBase {
         double angle = Math.atan(height / dist);
 
         // double result = Units.radiansToDegrees(angle) + (2.3 * dist);
-        double result = Units.radiansToDegrees(angle) + (0.6 * dist * dist);
-        System.out.print("Auto Aim Request: " + result + "Gravity Compensation: " + (0.6 * dist * dist));
+        // double result = Units.radiansToDegrees(angle) + (0.6 * dist * dist);
+        double result = Units.radiansToDegrees(angle) + (0.5 * dist * dist);
+        // System.out.println("Auto Aim Request: " + result + "Gravity Compensation: " + (0.5 * dist * dist));
 
-        if (result > 52) {
-            return 52;
+        if (result > 59) {
+            return 59;
         }
         else if (result < 32) {
             return 32;
