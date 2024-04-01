@@ -409,7 +409,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.waitUntil(m_debouncedFeederSensorTrigger::getAsBoolean).andThen(
             Commands.sequence(
                 Commands.print("    STATE"),
-                this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
+                // this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
                 Commands.print("    STOP SHOOTER"),
                 getStopShooterCommand(),
                 Commands.print("    REVERSE REVERSE"),
@@ -432,6 +432,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command getWaitForNoteExitCommand() {
         return Commands.waitUntil(() -> m_debouncedFeederSensorTrigger.getAsBoolean() == false).andThen(
             Commands.sequence(
+                Commands.print("WAIT NOTE EXIT"),
                 this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
                 Commands.waitSeconds(0.5),
                 // getStopShooterCommand(),

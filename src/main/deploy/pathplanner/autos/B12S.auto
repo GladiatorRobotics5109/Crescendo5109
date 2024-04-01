@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 15.2,
-      "y": 5.56
+      "x": 0.8221644973960404,
+      "y": 4.4
     },
-    "rotation": 0
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
@@ -42,7 +42,7 @@
           }
         },
         {
-          "type": "named"
+          "type": "named",
           "data": {
             "name": "stopAutoAim"
           }
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R32S1"
+            "pathName": "B12S1"
           }
         },
         {
@@ -68,7 +68,7 @@
         {
           "type": "named",
           "data": {
-            "name": "stopIntake"
+            "name": "startShooter"
           }
         },
         {
@@ -78,21 +78,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "startShooter"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "R32S2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.5
+            "pathName": "B12S2"
           }
         },
         {
@@ -100,10 +88,28 @@
           "data": {
             "name": "startFeed"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteExit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopAutoAim"
+          }
         }
       ]
     }
   },
-  "folder": null,
+  "folder": "B1",
   "choreoAuto": false
 }

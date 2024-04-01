@@ -79,7 +79,7 @@ public final class CentralCommandFactory {
     }
 
     public Command getReverseAllCommand() {
-        return Commands.parallel(
+        return Commands.sequence(
             m_intakeSubsystem.getToggleReverseIntakeCommand(),
             m_shooterSubsystem.getToggleReverseBothCommand()
         );

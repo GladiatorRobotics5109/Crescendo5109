@@ -96,9 +96,16 @@ public class RobotContainer {
     m_autoChooser = new SendableChooser<Command>();
     m_autoChooser.setDefaultOption("None", Commands.none());
     m_autoChooser.addOption("None", Commands.none());
-    m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
-    m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
-    m_autoChooser.addOption("R32S", AutoBuilder.buildAuto("R32S"));
+    // -- BASIC AUTOS --
+    m_autoChooser.addOption("OldTaxi", AutonFactory.getTaxiCommand(m_swerve));
+    m_autoChooser.addOption("OldShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
+   
+    // -- PATH PLANNER AUTOS -- 
+    m_autoChooser.addOption("R22S", AutoBuilder.buildAuto("R22S"));
+    m_autoChooser.addOption("B12S", AutoBuilder.buildAuto("B12S"));
+    m_autoChooser.addOption("B22S", AutoBuilder.buildAuto("B22S"));
+   
+    // -- TEST AUTOS --
     m_autoChooser.addOption("Test", AutoBuilder.buildAuto("Test"));
     m_autoChooser.addOption("WaitForNoteEnter", Commands.sequence(
       Commands.print("START INTAKE + FEED"),

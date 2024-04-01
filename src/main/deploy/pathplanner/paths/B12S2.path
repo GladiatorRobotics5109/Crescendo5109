@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 13.0,
-        "y": 5.56
+        "x": 8.9,
+        "y": 0.82
       },
       "prevControl": null,
       "nextControl": {
-        "x": 14.0,
-        "y": 5.56
+        "x": 3.0605107364060893,
+        "y": 1.0754967663781487
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 14.817588597924372,
-        "y": 5.56
+        "x": 1.8172759422441938,
+        "y": 3.512631640647897
       },
       "prevControl": {
-        "x": 14.132233431310082,
-        "y": 5.546951236028178
+        "x": 2.30075613997382,
+        "y": 2.3680662745940877
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,18 +32,21 @@
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 180.0,
     "rotateFast": false
   },
   "reversed": false,
-  "folder": null,
-  "previewStartingState": null,
-  "useDefaultConstraints": false
+  "folder": "B12S",
+  "previewStartingState": {
+    "rotation": 180.0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
 }
