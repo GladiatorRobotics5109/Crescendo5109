@@ -25,7 +25,15 @@ public final class CentralCommandFactory {
     public Command getStartIntakeAndFeederCommand() {
         return Commands.sequence(
             m_intakeSubsystem.getStartIntakeCommand(),
-            m_shooterSubsystem.getStartFeederCommand()
+            m_shooterSubsystem.getStartFeederCommand(),
+            m_shooterSubsystem.getSetAngleCommand(30)
+        );
+    }
+
+    public Command getStopIntakeAndFeederCommand() {
+        return Commands.sequence(
+            m_intakeSubsystem.getStopIntakeCommand(),
+            m_shooterSubsystem.getStopFeederCommand()
         );
     }
 
@@ -48,7 +56,8 @@ public final class CentralCommandFactory {
     public Command getStopAutoAimCommand() {
         return Commands.sequence(
             m_swerveSubsystem.getStopAutoAimCommand(),
-            m_shooterSubsystem.getStopAutoAimCommand()
+            m_shooterSubsystem.getStopAutoAimCommand(),
+            Commands.runOnce(() -> System.out.println("Stop auto aim"))
             // m_shooterSubsystem.getStopShooterCommand()
         );
     }
@@ -70,7 +79,7 @@ public final class CentralCommandFactory {
     }
 
     public Command getReverseAllCommand() {
-        return Commands.parallel(
+        return Commands.sequence(
             m_intakeSubsystem.getToggleReverseIntakeCommand(),
             m_shooterSubsystem.getToggleReverseBothCommand()
         );

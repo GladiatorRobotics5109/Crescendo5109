@@ -42,12 +42,12 @@ public class IntakeSubsystem extends SubsystemBase {
     
     public void startIntake() {
         //m_pidController.setReference(1000, ControlType.kSmartVelocity);
-        m_intakeMotor.set(-0.5);
+        m_intakeMotor.set(1);
         m_state.addState(IntakeStateEnum.INTAKING);
     }
 
     public void reverseIntake() {
-        m_intakeMotor.set(0.5);
+        m_intakeMotor.set(-0.5);
         m_state.addState(IntakeStateEnum.REVERSING);
     }
     
@@ -59,7 +59,10 @@ public class IntakeSubsystem extends SubsystemBase {
     }
     
     public Command getStartIntakeCommand() {
-        return this.runOnce(() -> startIntake()).withName("startIntakeCommand");
+        return this.runOnce(() -> {
+            startIntake(); 
+            System.out.println("start intake command");
+        } ).withName("startIntakeCommand");
     }
 
     public Command getReverseIntakeCommand() {
@@ -67,7 +70,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
     
     public Command getStopIntakeCommand() {
-        return this.runOnce(() -> stopIntake()).withName("stopIntakeCommand");
+        return this.runOnce(() -> {stopIntake(); System.out.println("Stop Intake");}).withName("stopIntakeCommand");
     }
 
     public Command getToggleIntakeCommand() {

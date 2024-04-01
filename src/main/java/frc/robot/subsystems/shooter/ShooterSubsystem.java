@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import java.sql.Driver;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -74,6 +76,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private Supplier<Pose2d> m_poseSupplier;
 
     private final ShooterState m_state;
+
+    private final Command m_onNoteEnterCommand;
+    private final Command m_onNoteExitCommand;
 
     // private final LoggableDouble m_desiredRps;
     // private final LoggableDouble m_currentRps;
@@ -147,6 +152,31 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_poseSupplier = poseSupplier;
 
+        m_onNoteExitCommand = Commands.sequence(
+            this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
+            Commands.waitSeconds(0.5),
+            // getStopShooterCommand(),
+            Commands.runOnce(this::stopShooter, this),
+            getStopFeederCommand(),
+            Commands.print("NOTE EXIT")
+        );
+
+        // m_onNoteExitCommand = Commands.none();
+
+        m_onNoteEnterCommand = Commands.sequence(
+            getAddHasNoteStateCommand(),
+            getStopShooterCommand(),
+            this.runOnce(() -> {
+                m_feederMotor.set(0.1);
+                m_leftShooterMotor.set(0.001);
+                m_rightShooterMotor.set(-0.001);
+            }),
+            Commands.waitSeconds(0.15),
+            getStopFeederCommand(),
+            getStopShooterCommand(),
+            Commands.print("NOTE ENTER")
+        );
+
         m_desiredAngleLog = new LoggableDouble("Shooter Desired Angle", true);
         m_currentAngleLog = new LoggableDouble("Shooter Current Angle", true);
         m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
@@ -187,7 +217,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
         //negated since the beambreak will return true until beam is broken
 
-        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
+        // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
+        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.05, DebounceType.kBoth).negate();
+
         // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.negate();
 
         m_desiredAngle = 52;
@@ -201,30 +233,13 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
-        m_debouncedFeederSensorTrigger.onTrue(
-            Commands.sequence(
-                getAddHasNoteStateCommand(),
-                getStopShooterCommand(),
-                Commands.runOnce(() -> {
-                    m_feederMotor.set(0.1);
-                    m_leftShooterMotor.set(0.001);
-                    m_rightShooterMotor.set(-0.001);
-                }),
-                Commands.waitSeconds(0.15),
-                getStopFeederCommand(),
-                getStopShooterCommand()
-            )
-         );
+        m_debouncedFeederSensorTrigger.and(() -> !DriverStation.isAutonomous()).onTrue(
+            m_onNoteEnterCommand
+        );
 
-        m_debouncedFeederSensorTrigger.whileFalse(Commands.run(() -> {
-            m_state.removeState(ShooterStateEnum.HAS_NOTE);
-         }));
-
-        m_debouncedFeederSensorTrigger.onFalse(Commands.sequence(
-            Commands.waitSeconds(0.5),
-            getStopShooterCommand(),
-            getStopFeederCommand()
-        ));
+        m_debouncedFeederSensorTrigger.and(() -> !DriverStation.isAutonomous()).onFalse(
+            m_onNoteExitCommand
+        );
 
         // m_limitSwitchTrigger.onTrue(Commands.run(() -> {
         // m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
@@ -234,7 +249,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getAimAmpCommand() {
         return this.runOnce(() -> {
-            setAngle(52);
+            setAngle(59);
             setBarExtension(0);
         }); 
     }
@@ -260,6 +275,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getStartFeederCommand() {
         return this.runOnce(() -> {
+            System.out.println("Start feed");
             startFeeder();
         });
     }
@@ -389,6 +405,46 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
+    public Command getWaitForNoteEnterCommand() {
+        return Commands.waitUntil(m_debouncedFeederSensorTrigger::getAsBoolean).andThen(
+            Commands.sequence(
+                Commands.print("    STATE"),
+                // this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
+                Commands.print("    STOP SHOOTER"),
+                getStopShooterCommand(),
+                Commands.print("    REVERSE REVERSE"),
+                this.runOnce(() -> {
+                    m_feederMotor.set(0.1);
+                    m_leftShooterMotor.set(0.001);
+                    m_rightShooterMotor.set(-0.001);
+                }),
+                Commands.print("    WAIT SEC"),
+                Commands.waitSeconds(0.15),
+                Commands.print("    STOP FEED"),
+                getStopFeederCommand(),
+                Commands.print("   STOP SHOOTER"),
+                getStopShooterCommand(),
+                Commands.print("NOTE ENTER")
+            )
+        );
+    }
+
+    public Command getWaitForNoteExitCommand() {
+        return Commands.waitUntil(() -> m_debouncedFeederSensorTrigger.getAsBoolean() == false).andThen(
+            Commands.sequence(
+                Commands.print("WAIT NOTE EXIT"),
+                this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
+                Commands.waitSeconds(0.5),
+                // getStopShooterCommand(),
+                Commands.runOnce(this::stopShooter, this),
+                getStopFeederCommand(),
+                Commands.print("NOTE EXIT")
+            )
+        );
+    }
+
+
+
     public void extendBar() {
         // m_leftBarActuator.set(1.0);
         // m_rightBarActuator.set(1.0);
@@ -406,7 +462,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAngle(double angle) {
-        if (!m_overrideMinMaxAngle && angle > 52) {
+        if (!m_overrideMinMaxAngle && angle > 59) {
             System.out.println("MAX: " + angle);
             return;
         }
@@ -452,8 +508,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void startShootAmp() {
-        m_leftShooterMotor.set(-0.24);
-        m_rightShooterMotor.set(0.24);
+        m_leftShooterMotor.setVoltage(-1.3);
+        m_rightShooterMotor.setVoltage(1.3);
+        // m_leftShooterMotor.set(-0.24);
+        // m_rightShooterMotor.set(0.24);
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -570,11 +628,12 @@ public class ShooterSubsystem extends SubsystemBase {
         double angle = Math.atan(height / dist);
 
         // double result = Units.radiansToDegrees(angle) + (2.3 * dist);
-        double result = Units.radiansToDegrees(angle) + (0.6 * dist * dist);
-        System.out.print("Auto Aim Request: " + result + "Gravity Compensation: " + (0.6 * dist * dist));
+        // double result = Units.radiansToDegrees(angle) + (0.6 * dist * dist);
+        double result = Units.radiansToDegrees(angle) + (0.5 * dist * dist);
+        // System.out.println("Auto Aim Request: " + result + "Gravity Compensation: " + (0.5 * dist * dist));
 
-        if (result > 52) {
-            return 52;
+        if (result > 59) {
+            return 59;
         }
         else if (result < 32) {
             return 32;

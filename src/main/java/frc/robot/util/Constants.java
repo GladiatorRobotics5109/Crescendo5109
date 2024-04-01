@@ -11,7 +11,12 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.SPI;
@@ -28,10 +33,11 @@ import frc.robot.Robot;
  *
  * <p>It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
+ * R
  */
 public final class Constants {
   
-  public static final double kJoystickDeadzone = 0.2;
+  public static final double kJoystickDeadzone = 0.15;
   
   public static class SwerveConstants {
     // public static final double kMaxSpeed = 10;
@@ -41,10 +47,16 @@ public final class Constants {
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
-    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921+0.00635, 0.2921+0.00635);
-    public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921+0.00635, -0.2921-0.00635);
-    public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921-0.00635, 0.2921+0.00635);
-    public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921-0.00635, -0.2921-0.00635);
+    // public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921+0.00635, 0.2921+0.00635);
+    // public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921+0.00635, -0.2921-0.00635);
+    // public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921-0.00635, 0.2921+0.00635);
+    // public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921-0.00635, -0.2921-0.00635);
+
+    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.290449, 0.290449);
+    public static final Translation2d kModulePosFrontRight = new Translation2d(0.290449, -0.290449);
+    public static final Translation2d kModulePosBackLeft = new Translation2d(-0.290449, 0.290449);
+    public static final Translation2d kModulePosBackRight = new Translation2d(-0.290449, -0.290449);
+
 
     public static final double kModuleEncoderOffsetFrontLeft = 2.736; // 0.445 rotations
     public static final double kModuleEncoderOffsetFrontRight = 0.319; // 0.061 rotations
@@ -54,17 +66,18 @@ public final class Constants {
 
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
-    public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;
+    // public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;
+    public static final double kDriveBaseRadius = 0.411;
 
     public static class AutonConstants {
-      public static final double kMaxSpeed = 0.25;
-      public static final double kMaxAcceleration = .5;
+      public static final double kMaxSpeed = 15;
+      public static final double kMaxAcceleration = 5;
 
-      public static final double kMaxAngularSpeed = 1 * Math.PI;
+      public static final double kMaxAngularSpeed = 3 * Math.PI;
       public static final double kMaxAngularAcceleration = 1 * Math.PI;
 
-      public static final PIDConstants kTranslationPID = new PIDConstants(1, 0, 0);
-      public static final PIDConstants kRotationPID = new PIDConstants(1, 0, 0);
+      public static final PIDConstants kTranslationPID = new PIDConstants(3, 0, 0);
+      public static final PIDConstants kRotationPID = new PIDConstants(5, 0, 0);
 
       public static final ReplanningConfig kReplanningConfig = new ReplanningConfig(false, false);
 
@@ -73,7 +86,7 @@ public final class Constants {
       public static final HolonomicPathFollowerConfig kHolonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
         kTranslationPID, 
         kRotationPID, 
-        kMaxSpeed, 
+        AutonConstants.kMaxSpeed, 
         kDriveBaseRadius, 
         kReplanningConfig, 
         Robot.kDefaultPeriod
@@ -83,7 +96,8 @@ public final class Constants {
 
   public static class ModuleConstants {
 
-      public static final double kWheelRadius = 0.0508;
+      // public static final double kWheelRadius = 0.0508;
+      public static final double kWheelRadius = 0.0472659347214289;
   
       // L1 MK4 gear ratios
       public static final double kSwerveDriveGearRatio = 8.14; // 8.14 motor rotations = 1 revolution
@@ -188,18 +202,33 @@ public final class Constants {
 
   public static class VisionConstants {
 
+    // public static final Map<String, Transform3d> kVisionSources = new HashMap<>(){{
+    //    put("Camera1", new Transform3d(
+    //      Units.inchesToMeters(6.75),
+    //      Units.inchesToMeters(3.5),
+    //      Units.inchesToMeters(14),
+    //     new Rotation3d(0, Units.degreesToRadians(60), 0))
+    //    );
+    //   put("Camera2", new Transform3d(
+    //     Units.inchesToMeters(-6.85),
+    //     Units.inchesToMeters(3.5),
+    //     Units.inchesToMeters(14),
+    //     new Rotation3d(0, Units.degreesToRadians(60), 0))
+    //     );
+    // }};
+
     public static final Map<String, Transform3d> kVisionSources = new HashMap<>(){{
-       put("Camera1", new Transform3d(
-         Units.inchesToMeters(6.75),
-         Units.inchesToMeters(3.5),
-         Units.inchesToMeters(14),
-        new Rotation3d(0, Units.degreesToRadians(60), 0))
+       put("BeigeR", new Transform3d(
+         Units.inchesToMeters(-(29.5/2 - 8)),
+         Units.inchesToMeters(29.5/2 - 2.75),
+         Units.inchesToMeters(2.85),
+        new Rotation3d(0, Units.degreesToRadians(45), 0))
        );
-      put("Camera2", new Transform3d(
-        Units.inchesToMeters(-6.85),
-        Units.inchesToMeters(3.5),
-        Units.inchesToMeters(14),
-        new Rotation3d(0, Units.degreesToRadians(60), 0))
+      put("BlackL", new Transform3d(
+        Units.inchesToMeters(29.5/2-8),
+        Units.inchesToMeters(29.5/2 - 8.5),
+        Units.inchesToMeters(2.85),
+        new Rotation3d(0, Units.degreesToRadians(45), 0))
         );
     }};
 
@@ -209,6 +238,8 @@ public final class Constants {
         0.3048, 
         new Rotation3d()
       );
+
+    public static final Matrix<N3, N1> kStdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(), 0.85, 0.85, 0.85);
 
     public static final AprilTagFields kApriltagLayout = AprilTagFields.k2024Crescendo;
   }

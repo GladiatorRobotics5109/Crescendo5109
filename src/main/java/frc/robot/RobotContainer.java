@@ -76,22 +76,46 @@ public class RobotContainer {
     m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
     // Register all commands for auto
-    NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
-    NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+    NamedCommands.registerCommand("startIntake", m_centralCommandFactory.getStartIntakeAndFeederCommand());
+    NamedCommands.registerCommand("stopIntake", m_centralCommandFactory.getStopIntakeAndFeederCommand());
 
     NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
     NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
 
+    NamedCommands.registerCommand("startShooter", m_shooter.getStartShooterCommand());
+    NamedCommands.registerCommand("stopShooter", m_shooter.getStopShooterCommand());
+
     NamedCommands.registerCommand("startFeed", m_shooter.getStartFeederCommand());
     NamedCommands.registerCommand("stopFeed", m_shooter.getStopFeederCommand());
+
+    NamedCommands.registerCommand("waitForNoteEnter", m_shooter.getWaitForNoteEnterCommand());
+    NamedCommands.registerCommand("waitForNoteExit", m_shooter.getWaitForNoteExitCommand());
 
     // Get auto chooser
     // m_autoChooser = AutoBuilder.buildAutoChooser();
     m_autoChooser = new SendableChooser<Command>();
     m_autoChooser.setDefaultOption("None", Commands.none());
     m_autoChooser.addOption("None", Commands.none());
-    m_autoChooser.addOption("Taxi", AutonFactory.getTaxiCommand(m_swerve));
-    m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
+    // -- BASIC AUTOS --
+    m_autoChooser.addOption("OldTaxi", AutonFactory.getTaxiCommand(m_swerve));
+    m_autoChooser.addOption("OldShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
+   
+    // -- PATH PLANNER AUTOS -- 
+    m_autoChooser.addOption("R22S", AutoBuilder.buildAuto("R22S"));
+    m_autoChooser.addOption("B12S", AutoBuilder.buildAuto("B12S"));
+    m_autoChooser.addOption("B22S", AutoBuilder.buildAuto("B22S"));
+   
+    // -- TEST AUTOS --
+    m_autoChooser.addOption("Test", AutoBuilder.buildAuto("Test"));
+    m_autoChooser.addOption("WaitForNoteEnter", Commands.sequence(
+      Commands.print("START INTAKE + FEED"),
+      m_centralCommandFactory.getStartIntakeAndFeederCommand(),
+      Commands.print("WAIT"),
+      m_shooter.getWaitForNoteEnterCommand(),
+      Commands.print("STOP INTAKE + FEED"),
+      m_centralCommandFactory.getStopIntakeAndFeederCommand()
+    ));
+
     SmartDashboard.putData("autoChooser", m_autoChooser);
 
     // Configure the controller bindings
@@ -121,6 +145,8 @@ public class RobotContainer {
     m_operatorJoystick.button(7).onTrue(m_shooter.getResetEncoderMinCommand());
     m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
     m_operatorJoystick.button(9).onTrue(m_shooter.getToggleBarCommand());
+    // m_operatorJoystick.button(10).onTrue(m_shooter.getWaitForNoteEnterCommand());
+    // m_operatorJoystick.button(11).onTrue(m_shooter.getWaitForNoteExitCommand());
   }
 
   /**
