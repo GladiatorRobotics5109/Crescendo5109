@@ -25,7 +25,15 @@ public final class CentralCommandFactory {
     public Command getStartIntakeAndFeederCommand() {
         return Commands.sequence(
             m_intakeSubsystem.getStartIntakeCommand(),
-            m_shooterSubsystem.getStartFeederCommand()
+            m_shooterSubsystem.getStartFeederCommand(),
+            m_shooterSubsystem.getSetAngleCommand(30)
+        );
+    }
+
+    public Command getStopIntakeAndFeederCommand() {
+        return Commands.sequence(
+            m_intakeSubsystem.getStopIntakeCommand(),
+            m_shooterSubsystem.getStopFeederCommand()
         );
     }
 

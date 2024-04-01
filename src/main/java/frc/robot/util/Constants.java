@@ -37,7 +37,7 @@ import frc.robot.Robot;
  */
 public final class Constants {
   
-  public static final double kJoystickDeadzone = 0.2;
+  public static final double kJoystickDeadzone = 0.15;
   
   public static class SwerveConstants {
     // public static final double kMaxSpeed = 10;

@@ -76,8 +76,8 @@ public class RobotContainer {
     m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
     // Register all commands for auto
-    NamedCommands.registerCommand("startIntake", m_intake.getStartIntakeCommand());
-    NamedCommands.registerCommand("stopIntake", m_intake.getStopIntakeCommand());
+    NamedCommands.registerCommand("startIntake", m_centralCommandFactory.getStartIntakeAndFeederCommand());
+    NamedCommands.registerCommand("stopIntake", m_centralCommandFactory.getStopIntakeAndFeederCommand());
 
     NamedCommands.registerCommand("startAutoAim", m_centralCommandFactory.getStartAutoAimCommand());
     NamedCommands.registerCommand("stopAutoAim", m_centralCommandFactory.getStopAutoAimCommand());
@@ -88,6 +88,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("startFeed", m_shooter.getStartFeederCommand());
     NamedCommands.registerCommand("stopFeed", m_shooter.getStopFeederCommand());
 
+    NamedCommands.registerCommand("waitForNoteEnter", m_shooter.getWaitForNoteEnterCommand());
+    NamedCommands.registerCommand("waitForNoteExit", m_shooter.getWaitForNoteExitCommand());
+
     // Get auto chooser
     // m_autoChooser = AutoBuilder.buildAutoChooser();
     m_autoChooser = new SendableChooser<Command>();
@@ -97,6 +100,14 @@ public class RobotContainer {
     m_autoChooser.addOption("ShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
     m_autoChooser.addOption("R32S", AutoBuilder.buildAuto("R32S"));
     m_autoChooser.addOption("Test", AutoBuilder.buildAuto("Test"));
+    m_autoChooser.addOption("WaitForNoteEnter", Commands.sequence(
+      Commands.print("START INTAKE + FEED"),
+      m_centralCommandFactory.getStartIntakeAndFeederCommand(),
+      Commands.print("WAIT"),
+      m_shooter.getWaitForNoteEnterCommand(),
+      Commands.print("STOP INTAKE + FEED"),
+      m_centralCommandFactory.getStopIntakeAndFeederCommand()
+    ));
 
     SmartDashboard.putData("autoChooser", m_autoChooser);
 
@@ -127,6 +138,8 @@ public class RobotContainer {
     m_operatorJoystick.button(7).onTrue(m_shooter.getResetEncoderMinCommand());
     m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
     m_operatorJoystick.button(9).onTrue(m_shooter.getToggleBarCommand());
+    // m_operatorJoystick.button(10).onTrue(m_shooter.getWaitForNoteEnterCommand());
+    // m_operatorJoystick.button(11).onTrue(m_shooter.getWaitForNoteExitCommand());
   }
 
   /**
