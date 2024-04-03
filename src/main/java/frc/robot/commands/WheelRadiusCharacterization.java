@@ -7,28 +7,33 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.util.Constants;
+import frc.robot.util.logging.LoggableDouble;
+import frc.robot.util.logging.Logger;
 
 public class WheelRadiusCharacterization extends Command {
     private final SwerveSubsystem m_swerve;
+    private final LoggableDouble m_currentEffectiveWheelRadiusLog;
     private final DoubleSupplier m_gyroYawRadSupplier;
     private double m_lastGyroYawRad;
     private double m_accumGyroYawRad;
 
     private final SlewRateLimiter m_thetaLimiter;
     private double[] m_startingWheelPositionsRad;
-    private double currentEffectiveWheelRadius;
+    private double m_currentEffectiveWheelRadius;
 
     public WheelRadiusCharacterization(SwerveSubsystem swerve, DoubleSupplier gyroYawRadSupplier) {
         m_swerve = swerve;
         m_gyroYawRadSupplier = gyroYawRadSupplier;
-        m_thetaLimiter = new SlewRateLimiter(1.0);
+        m_thetaLimiter = new SlewRateLimiter(2);
+        m_currentEffectiveWheelRadiusLog = new LoggableDouble("Current Effective Wheel Radius", true);
         addRequirements(swerve);
     }
 
     @Override
     public void initialize() {
         m_startingWheelPositionsRad = m_swerve.getWheelPoses();
-        currentEffectiveWheelRadius = 0.0;
+        m_currentEffectiveWheelRadius = 0.0;
+        Logger.addLoggable(m_currentEffectiveWheelRadiusLog);
         m_accumGyroYawRad = 0.0;
         m_lastGyroYawRad = m_gyroYawRadSupplier.getAsDouble();
         m_thetaLimiter.reset(0);
@@ -36,7 +41,7 @@ public class WheelRadiusCharacterization extends Command {
 
     @Override
     public void execute() {
-        m_swerve.drive(0,0, m_thetaLimiter.calculate(0.1), true);
+        m_swerve.drive(0,0, m_thetaLimiter.calculate(2*Math.PI), true);
 
         m_accumGyroYawRad += MathUtil.angleModulus(m_lastGyroYawRad - m_gyroYawRadSupplier.getAsDouble());
         m_lastGyroYawRad = m_gyroYawRadSupplier.getAsDouble();
@@ -48,8 +53,15 @@ public class WheelRadiusCharacterization extends Command {
           }
         averageWheelPositionDelta /= 4;
 
-        currentEffectiveWheelRadius = (m_accumGyroYawRad * Constants.SwerveConstants.kDriveBaseRadius) / averageWheelPositionDelta;
+        m_currentEffectiveWheelRadius = (m_accumGyroYawRad * Constants.SwerveConstants.kDriveBaseRadius) / averageWheelPositionDelta;
         
+        m_currentEffectiveWheelRadiusLog.log(m_currentEffectiveWheelRadius);
+
+        System.out.println(
+            "Effective Wheel Radius: "
+                + m_currentEffectiveWheelRadius
+                + " meters");
+
     }
 
     @Override
@@ -59,7 +71,7 @@ public class WheelRadiusCharacterization extends Command {
           } else {
             System.out.println(
                 "Effective Wheel Radius: "
-                    + currentEffectiveWheelRadius
+                    + m_currentEffectiveWheelRadius
                     + " meters");
           }
     }

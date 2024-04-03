@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.util.logging.Loggable;
+import frc.robot.util.logging.LoggableBoolean;
 import frc.robot.util.logging.LoggableDouble;
 import frc.robot.util.logging.Logger;
 
@@ -50,6 +52,40 @@ public class RobotContainer {
 
   private final SendableChooser<Command> m_autoChooser;
 
+  private final PowerDistribution m_pdp;
+
+  //Shooter motors
+  private final LoggableDouble m_leftShooterCurrentLog;
+  private final LoggableDouble m_rightShooterCurrentLog;
+
+  //Feeder motor
+  private final LoggableDouble m_feederCurrentLog;
+
+  //Winch motor
+  private final LoggableDouble m_winchCurrentLog;
+
+  //Intake Motor
+  private final LoggableDouble m_intakeCurrentLog;
+
+  //Climb motors
+  private final LoggableDouble m_leftClimbCurrentLog;
+  private final LoggableDouble m_rightClimbCurrentLog;
+
+  // Swerve motors
+  private final LoggableDouble m_frontLeftDriveCurrentLog;
+  private final LoggableDouble m_frontLeftTurnCurrentLog;
+  private final LoggableDouble m_frontRightDriveCurrentLog;
+  private final LoggableDouble m_frontRightTurnCurrentLog;
+  private final LoggableDouble m_backLeftDriveCurrentLog;
+  private final LoggableDouble m_backLeftTurnCurrentLog;
+  private final LoggableDouble m_backRightDriveCurrentLog;
+  private final LoggableDouble m_backRightTurnCurrentLog;
+
+  //Buckboost + Servo Power module
+  private final LoggableDouble m_buckBoostAndServosCurrentLog;
+
+
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     StateMachine.init();
@@ -61,9 +97,7 @@ public class RobotContainer {
         () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
         () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
-        () -> m_driverController.getLeftTriggerAxis(), // super speed
-        () -> m_driverController.getRightTriggerAxis(), // super slow
-        () -> true // Field relative
+        () -> m_driverController.getRightTriggerAxis() < 0.5 // Field relative
       )
     );
 
@@ -100,11 +134,51 @@ public class RobotContainer {
             new WheelRadiusCharacterization(m_swerve, () -> m_swerve.getHeading().getRadians())
           )
         );
+
+    m_autoChooser.addOption("ShooterFeedforwardCharacterization", AutonFactory.getShooterFeedforwardCharacterizationCommand(m_shooter));
     SmartDashboard.putData("autoChooser", m_autoChooser);
+
+
 
     // Configure the controller bindings
     configureButtonBindings();
 
+    m_pdp = new PowerDistribution();
+
+    //Shooter Motors
+    m_leftShooterCurrentLog = new LoggableDouble("Left Shooter Current", true, true, () -> m_pdp.getCurrent(11));
+    m_rightShooterCurrentLog = new LoggableDouble("Right Shooter Current", true, true, () -> m_pdp.getCurrent(10));
+
+    //Feeder motor
+    m_feederCurrentLog = new LoggableDouble("Feeder Current", true, true, () -> m_pdp.getCurrent(4));
+
+    //Intake motor
+    m_intakeCurrentLog = new LoggableDouble("Feeder Current", true, true, () -> m_pdp.getCurrent(7));
+
+    //Winch motor
+    m_winchCurrentLog =  new LoggableDouble("Winch Current", true, true, () -> m_pdp.getCurrent(5));
+
+    //Climb motors
+    m_leftClimbCurrentLog = new LoggableDouble("Left Climb Current", true, true, () -> m_pdp.getCurrent(8));
+    m_rightClimbCurrentLog = new LoggableDouble("Right Climb Current", true, true, () -> m_pdp.getCurrent(9));
+
+    // Swerve motors
+    m_frontLeftDriveCurrentLog = new LoggableDouble("Front Left Drive Current", true, true, () -> m_pdp.getCurrent(15));
+    m_frontLeftTurnCurrentLog = new LoggableDouble("Front Left Turn Current", true, true, () -> m_pdp.getCurrent(0));
+    m_frontRightDriveCurrentLog = new LoggableDouble("Front Right Drive Current", true, true, () -> m_pdp.getCurrent(13));
+    m_frontRightTurnCurrentLog = new LoggableDouble("Front Right Turn Current", true, true, () -> m_pdp.getCurrent(12));
+    m_backLeftDriveCurrentLog = new LoggableDouble("Back Left Drive Current", true, true, () -> m_pdp.getCurrent(14));
+    m_backLeftTurnCurrentLog = new LoggableDouble("Back Left Turn Current", true, true, () -> m_pdp.getCurrent(1));
+    m_backRightDriveCurrentLog = new LoggableDouble("Back Right Drive Current", true, true, () -> m_pdp.getCurrent(2)); 
+    m_backRightTurnCurrentLog = new LoggableDouble("Back Right Turn Current", true, true, () -> m_pdp.getCurrent(3));
+
+    //Buckboost + Servo Power module
+    m_buckBoostAndServosCurrentLog = new LoggableDouble("BuckBoost+Servos Current", true, true, () -> m_pdp.getCurrent(6));
+
+    Logger.addLoggable(m_leftShooterCurrentLog);
+    Logger.addLoggable(m_rightShooterCurrentLog);
+
+    
     //CameraServer.startAutomaticCapture();
   }
 

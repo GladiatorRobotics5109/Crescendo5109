@@ -1,5 +1,10 @@
 package frc.robot.subsystems.shooter;
 
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -10,19 +15,31 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Distance;
+
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.RobotController;
 
 import frc.robot.util.Constants.ShooterConstants;
 import frc.robot.util.logging.LoggableBoolean;
@@ -50,6 +67,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkPIDController m_rightShooterPIDController;
     private final SparkPIDController m_feederPIDController;
     private final SparkPIDController m_winchPIDController;
+
+    private final BangBangController m_leftShooterBangController;
+    private final BangBangController m_rightShooterBangController;
+
+    private final SimpleMotorFeedforward m_leftShooterFeedForward;
+    private final SimpleMotorFeedforward m_rightShooterFeedForward;
 
     private final RelativeEncoder m_leftShooterEncoder;
     private final RelativeEncoder m_rightShooterEncoder;
@@ -89,13 +112,16 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableDouble m_rpmLLog;
     private final LoggableDouble m_rpmRLog;
 
-    private final LoggableDouble m_rBusCurrent;
-    private final LoggableDouble m_lBusCurrent;
+    private final LoggableDouble m_desiredVoltageLeftLog;
+    private final LoggableDouble m_desiredVoltageRightLog;
 
-    private final LoggableDouble m_rOutputCurrent;
-    private final LoggableDouble m_lOutputCurrent;
+    private final MutableMeasure<Voltage> m_appliedVoltage = MutableMeasure.mutable(Volts.of(0));
+    private final MutableMeasure<Angle> m_angle = MutableMeasure.mutable(Rotations.of(0));
+    private final MutableMeasure<Velocity<Angle>> m_velocity = MutableMeasure.mutable(RotationsPerSecond.of(0));
+    private final SysIdRoutine m_routine;
 
-    private final LoggableDouble m_winchOutputCurrentLog;
+    private double m_leftShooterDesiredRPM = 0;
+    private double m_rightShooterDesiredRPM = 0;
 
     public ShooterSubsystem(Supplier<Pose2d> poseSupplier) {
         m_state = StateMachine.getShooterState();
@@ -107,19 +133,22 @@ public class ShooterSubsystem extends SubsystemBase {
         m_leftBarServo = new Servo(ShooterConstants.kLeftBarServoChannel);
         m_rightBarServo = new Servo(ShooterConstants.kRightBarServoChannel);
 
-
-        //taken from example: yourActuator.setBounds(2.0, 1.8, 1.5, 1.2, 1.0) (assuming values are in ms in examlpe)
-        // m_leftBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
-        // m_rightBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
-
+        m_leftShooterMotor.setInverted(true);
         //working frequence: 50 - 333 Hz
         //dead band: 3 us/ 2us ?????
         //PWM Range: 500 us to 2500 us (270 degrees)
-        m_leftBarServo.setBoundsMicroseconds(2500, 1501, 1500, 1499, 500);
-        m_rightBarServo.setBoundsMicroseconds(2500, 1501, 1500, 1499, 500);
-        m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
+        m_leftBarServo.setBoundsMicroseconds(2500, 1504, 1500, 1496, 500);
+        m_rightBarServo.setBoundsMicroseconds(500, 1501, 1500, 1499, 2500);
 
+        m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
+
+        //Controller in RPM
+        m_leftShooterBangController = new BangBangController(50.0); 
+        m_rightShooterBangController = new BangBangController(50.0);
+
+        m_leftShooterFeedForward = new SimpleMotorFeedforward(0.12845, 0.0020526); //ks: 0.12845
+        m_rightShooterFeedForward = new SimpleMotorFeedforward(0.24763, 0.0020564); //ks: 0.
 
         m_feederPIDController = m_feederMotor.getPIDController();
         m_winchPIDController = m_winchMotor.getPIDController();
@@ -129,8 +158,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederEncoder = m_feederMotor.getEncoder();
         m_winchEncoder = m_winchMotor.getEncoder();
 
-        m_leftShooterMotor.setIdleMode(IdleMode.kBrake);
-        m_rightShooterMotor.setIdleMode(IdleMode.kBrake);
+        m_leftShooterMotor.setIdleMode(IdleMode.kCoast);
+        m_rightShooterMotor.setIdleMode(IdleMode.kCoast);
         m_feederMotor.setIdleMode(IdleMode.kBrake);
         m_winchMotor.setIdleMode(IdleMode.kBrake);
 
@@ -142,6 +171,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightShooterPIDController.setI(ShooterConstants.kShooterI);
         m_rightShooterPIDController.setD(ShooterConstants.kShooterD);
 
+        m_feederEncoder.setPositionConversionFactor(ShooterConstants.kFeederPositionConversionFactor);
+
         m_feederPIDController.setP(ShooterConstants.kFeederP);
         m_feederPIDController.setI(ShooterConstants.kFeederI);
         m_feederPIDController.setIZone(5);
@@ -151,6 +182,9 @@ public class ShooterSubsystem extends SubsystemBase {
         m_winchPIDController.setI(ShooterConstants.kWinchI);
         m_winchPIDController.setD(ShooterConstants.kWinchD);
         m_winchPIDController.setFF(0.001);
+
+        // m_winchEncoder.setPositionConversionFactor(ShooterConstants.kWinchPositionConversionFactor);
+        // m_winchEncoder.setPosition();
 
         m_poseSupplier = poseSupplier;
 
@@ -162,19 +196,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederSensorLog = new LoggableBoolean("HasNote", true);
         m_feederSensor2Log = new LoggableBoolean("Has Note2", true);
 
-        m_rBusCurrent = new LoggableDouble("Bus Current R", true, true, () -> m_rightShooterMotor.getBusVoltage());
-        m_lBusCurrent = new LoggableDouble("Bus Current L", true, true, () -> m_leftShooterMotor.getBusVoltage());
-
-        m_rOutputCurrent = new LoggableDouble("Output Current R", true, true, () -> m_rightShooterMotor.getOutputCurrent());
-        m_lOutputCurrent = new LoggableDouble("Output Currenty L", true, true, () -> m_leftShooterMotor.getOutputCurrent());
-
-        m_winchOutputCurrentLog = new LoggableDouble("Winch Output Current", true, true, () -> m_winchMotor.getOutputCurrent());
-
-        Logger.addLoggable(m_rBusCurrent);
-        Logger.addLoggable(m_lBusCurrent);
-        Logger.addLoggable(m_rOutputCurrent);
-        Logger.addLoggable(m_lOutputCurrent);
-        Logger.addLoggable(m_winchOutputCurrentLog);
+        m_desiredVoltageLeftLog = new LoggableDouble("Left Shooter Desired Voltage", true);
+        m_desiredVoltageRightLog = new LoggableDouble("Right Shooter Desired Voltage", true);
 
         m_overrideMinMaxAngle = false;
 
@@ -198,9 +221,44 @@ public class ShooterSubsystem extends SubsystemBase {
         m_desiredAngle = 52;
         m_reachedAngleSetpointTrigger = new Trigger(() -> atAngleSetpoint());
 
+        m_routine = new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(this::voltageDrive, this::logMotors, this)
+        );
 
         configureBindings();
     }
+
+
+    private void voltageDrive(Measure<Voltage> volts) {
+        m_leftShooterMotor.set(volts.in(Volts) / RobotController.getBatteryVoltage());
+        m_rightShooterMotor.set(volts.in(Volts) / RobotController.getBatteryVoltage());
+    }
+
+    private void logMotors(SysIdRoutineLog log) {
+        log.motor("shooter-left")
+        .voltage(
+            m_appliedVoltage.mut_replace(
+                m_leftShooterMotor.get() * RobotController.getBatteryVoltage(), Volts))
+        .angularPosition(m_angle.mut_replace(m_leftShooterEncoder.getPosition(), Rotations))
+        .angularVelocity(m_velocity.mut_replace(m_leftShooterEncoder.getVelocity(), RotationsPerSecond));
+        
+        log.motor("shooter-right")
+        .voltage(
+            m_appliedVoltage.mut_replace(
+                m_rightShooterMotor.get() * RobotController.getBatteryVoltage(), Volts))
+        .angularPosition(m_angle.mut_replace(m_rightShooterEncoder.getPosition(), Rotations))
+        .angularVelocity(m_velocity.mut_replace(m_rightShooterEncoder.getVelocity(), RotationsPerSecond));
+    }
+
+    public Command getSysIdQuasistaticCommand(SysIdRoutine.Direction direction) {
+        return m_routine.quasistatic(direction);
+    }
+
+    public Command getSysIdDynamicCommand(SysIdRoutine.Direction direction) {
+        return m_routine.dynamic(direction);
+    }
+
     /**
      * These bindings make it so that when a note is in the shooter, the shooter wheels are spinning and ready to shoot
      * 
@@ -209,44 +267,53 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederSensorTrigger.onTrue(
             Commands.sequence(
                 getAddHasNoteStateCommand(),
-                getStopShooterCommand(),
+                //getStopShooterCommand(),
                 Commands.runOnce(() -> {
-                    m_feederMotor.set(0.1);
-                    m_leftShooterMotor.set(0.001);
-                    m_rightShooterMotor.set(-0.001);
-                }),
-                Commands.waitSeconds(0.15),
-                getStopFeederCommand(),
-                getStopShooterCommand()
+                    m_feederPIDController.setReference(m_feederEncoder.getPosition() + 1, ControlType.kPosition);
+                    //m_feederMotor.set(0.1);
+                    // m_leftShooterMotor.set(0.001);
+                    // m_rightShooterMotor.set(-0.001);
+                })//,
+                // Commands.waitSeconds(0.15),
+                //getStopFeederCommand(),
+                //getStopShooterCommand()
             )
          );
 
-        m_feederSensorTrigger.whileFalse(Commands.runOnce(() -> {
-            m_state.removeState(ShooterStateEnum.HAS_NOTE);
-         }));
+        // m_feederSensorTrigger.whileFalse(Commands.runOnce(() -> {
+        //     m_state.removeState(ShooterStateEnum.HAS_NOTE);
+        //  }));
 
-        m_feederSensorTrigger.onFalse(Commands.sequence(
-            Commands.waitSeconds(0.5),
-            getStopShooterCommand(),
-            getStopFeederCommand()
-        ));
+        m_feederSensorTrigger.onFalse(
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                getStopShooterCommand(),
+                getStopFeederCommand()
+            ));
 
-        m_intakeSensorTrigger.onTrue(Commands.run(() -> m_state.addState(ShooterStateEnum.NOTE_ENTERED)));
+        m_intakeSensorTrigger.onTrue(
+            Commands.run(() -> {
+                    m_feederMotor.set(0.4);
+                }
+            ));
 
         m_combinedSensorTrigger.onTrue(Commands.run(() -> {
             m_state.addState(ShooterStateEnum.HAS_NOTE);
          }));
 
+        //If the trigger is turned false while the intake sensor is activated, the note is slipping out.
         m_combinedSensorTrigger.onFalse(Commands.run(() -> {
             if (m_intakeSensor.get()) {
-                // move up feeder slightly
-            } 
+                m_feederPIDController.setReference(m_feederEncoder.getPosition() - 0.5, ControlType.kPosition);
+            } else {
+                m_state.removeState(ShooterStateEnum.HAS_NOTE);
+            }
         }));
 
-        // m_limitSwitchTrigger.onTrue(Commands.run(() -> {
-        // m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
-        // setAngle(50);
-        // }));
+        m_limitSwitchTrigger.onTrue(Commands.run(() -> {
+        m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
+        setAngle(50);
+        }));
     }
 
     public Command getAimAmpCommand() {
@@ -404,15 +471,18 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
+
+
     public void swingBar() {
-        m_leftBarServo.setAngle(270);
-        m_rightBarServo.set(270);
+        //m_leftBarServo.setPulseTimeMicroseconds(2000);
+        m_leftBarServo.setSpeed(1.0);
+        //m_rightBarServo.setPosition(1);
         m_state.addState(ShooterStateEnum.BAR_SWUNG);
     }
 
     public void resetBar() {
-        m_leftBarServo.setAngle(180);
-        m_rightBarServo.setAngle(180);
+        m_leftBarServo.setPosition(0);
+        //m_rightBarServo.setPosition(0);
         m_state.removeState(ShooterStateEnum.BAR_SWUNG);
     }
 
@@ -440,6 +510,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_winchPIDController.setReference(desiredRot, ControlType.kPosition);
     }
 
+    
+
     /**
      * Sets the angle of the shooter based on the law of cosines and two static angles.
      * 
@@ -466,19 +538,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
     //TODO: Figure out optimal RPM for shooter
     public void startShooter() {
-        // m_desiredRps.log(2000.0);
-        //m_leftShooterPIDController.setReference(5000, ControlType.kVelocity);
-        //m_rightShooterPIDController.setReference(5000, ControlType.kVelocity);
-        m_leftShooterMotor.set(-1);
-        m_rightShooterMotor.set(1);
+
+        m_leftShooterDesiredRPM = 5500;
+        m_rightShooterDesiredRPM = 5500;
         m_state.addState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
     public void stopShooter() {
         //m_leftShooterPIDController.setReference(0, ControlType.kVelocity);
         //m_rightShooterPIDController.setReference(0, ControlType.kVelocity);
-        m_leftShooterMotor.set(0);
-        m_rightShooterMotor.set(0);
+        // m_leftShooterMotor.set(0);
+        // m_rightShooterMotor.set(0);
+        m_leftShooterDesiredRPM = 0;
+        m_rightShooterDesiredRPM = 0;
         m_state.removeState(ShooterStateEnum.SHOOTER_WHEEL_SPINNING);
     }
 
@@ -638,6 +710,29 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        // Setting shooter voltage
+        if (m_leftShooterDesiredRPM == 0) {
+            m_leftShooterMotor.set(0);
+        } else {
+
+            double leftVoltage = m_leftShooterBangController.calculate(m_leftShooterEncoder.getVelocity(), 5500) 
+            + m_leftShooterFeedForward.calculate(5500);
+
+            m_leftShooterMotor.setVoltage(leftVoltage);
+            m_desiredVoltageLeftLog.log(leftVoltage);
+        }
+
+        if (m_rightShooterDesiredRPM == 0) {
+            m_rightShooterMotor.set(0);
+        } else {
+            double rightVoltage = m_rightShooterBangController.calculate(m_rightShooterEncoder.getVelocity(), 5500) 
+            +  m_rightShooterFeedForward.calculate(5500);
+
+            m_rightShooterMotor.setVoltage(rightVoltage);
+            m_desiredVoltageRightLog.log(rightVoltage);
+        }
+        
         SmartDashboard.putNumber("pos", m_winchEncoder.getPosition());
 
 
