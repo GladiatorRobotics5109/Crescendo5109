@@ -204,23 +204,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
-        // m_debouncedFeederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onTrue(
-        //     Commands.sequence(
-        //         getAddHasNoteStateCommand(),
-        //         getStopShooterCommand(),
-        //         this.runOnce(() -> {
-        //             m_feederMotor.set(0.1);
-        //             m_leftShooterMotor.set(0.001);
-        //             m_rightShooterMotor.set(-0.001);
-        //         }),
-        //         Commands.waitSeconds(0.15),
-        //         getStopFeederCommand(),
-        //         getStopShooterCommand(),
-        //         Commands.print("NOTE ENTER")
-        //     )
-        // );
-
-        m_debouncedFeederSensorTrigger.onTrue(
+        m_debouncedFeederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onTrue(
             Commands.sequence(
                 getAddHasNoteStateCommand(),
                 getStopShooterCommand(),
@@ -236,7 +220,23 @@ public class ShooterSubsystem extends SubsystemBase {
             )
         );
 
-        m_debouncedFeederSensorTrigger.onFalse(
+        // m_debouncedFeederSensorTrigger.onTrue(
+        //     Commands.sequence(
+        //         getAddHasNoteStateCommand(),
+        //         getStopShooterCommand(),
+        //         this.runOnce(() -> {
+        //             m_feederMotor.set(0.1);
+        //             m_leftShooterMotor.set(0.001);
+        //             m_rightShooterMotor.set(-0.001);
+        //         }),
+        //         Commands.waitSeconds(0.15),
+        //         getStopFeederCommand(),
+        //         getStopShooterCommand(),
+        //         Commands.print("NOTE ENTER")
+        //     )
+        // );
+
+        m_debouncedFeederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onFalse(
             Commands.sequence(
                 this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
                 Commands.waitSeconds(0.5),

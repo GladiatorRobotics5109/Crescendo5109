@@ -56,7 +56,7 @@ public class RobotContainer {
 
     m_swerve.setDefaultCommand(
       m_swerve.getDriveWithJoystickCommand(
-        () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
+        () -> m_driverXLimiter.calculate(-m_driverController.getLeftX()), // l/r
         () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
         () -> m_driverController.getLeftTriggerAxis(), // super speed

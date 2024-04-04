@@ -31,6 +31,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.ADXL345_I2C.AllAxes;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -165,8 +166,10 @@ public class SwerveSubsystem extends SubsystemBase {
             m_autoAimStateLog.log(false);
       
         // Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
-        Rotation2d rot = Rotation2d.fromDegrees(getPose().getRotation().getDegrees() + 90);
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, rot) : new ChassisSpeeds(vx, vy, vrot));
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        double offset = (alliance.isEmpty() || alliance.get() == Alliance.Red) ? -180 : 0; 
+        Rotation2d rot = Rotation2d.fromDegrees(getPose().getRotation().getDegrees() + offset);
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vy, vx, vrot, rot) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
