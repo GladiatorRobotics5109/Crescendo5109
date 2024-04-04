@@ -43,8 +43,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANSparkMax m_rightShooterMotor; // Right Side Shooter Wheels
     private final CANSparkMax m_feederMotor; // Feeder Wheels
     private final CANSparkMax m_winchMotor; // Shooter Tilt Winch
-    // private final Servo m_leftBarActuator;
-    // private final Servo m_rightBarActuator;
+    private final Servo m_leftBarServo;
+    private final Servo m_rightBarServo;
 
     private boolean m_overrideMinMaxAngle;
 
@@ -77,9 +77,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final ShooterState m_state;
 
-    private final Command m_onNoteEnterCommand;
-    private final Command m_onNoteExitCommand;
-
     // private final LoggableDouble m_desiredRps;
     // private final LoggableDouble m_currentRps;
 
@@ -88,7 +85,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableBoolean m_autoAimingLog;
 
     private final LoggableBoolean m_feederSensorLog;
-    private final LoggableBoolean m_feederSensor2Log;
 
     private final LoggableDouble m_rpmLLog;
     private final LoggableDouble m_rpmRLog;
@@ -108,13 +104,14 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightShooterMotor = new CANSparkMax(ShooterConstants.kRightShooterMotorPort, MotorType.kBrushless);
         m_feederMotor = new CANSparkMax(ShooterConstants.kFeederMotorPort, MotorType.kBrushless);
         m_winchMotor = new CANSparkMax(ShooterConstants.kWinchMotorPort, MotorType.kBrushless);
-        // m_leftBarActuator = new Servo(ShooterConstants.kLeftBarActuatorChannel);
-        // m_rightBarActuator = new Servo(ShooterConstants.kRightBarActuatorChannel);
+        m_leftBarServo = new Servo(ShooterConstants.kLeftBarActuatorChannel);
+        m_rightBarServo = new Servo(ShooterConstants.kRightBarActuatorChannel);
 
 
         //taken from example: yourActuator.setBounds(2.0, 1.8, 1.5, 1.2, 1.0) (assuming values are in ms in examlpe)
-        // m_leftBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
-        // m_rightBarActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+        m_leftBarServo.setBoundsMicroseconds(2500, 1504, 1500, 1496, 500);
+        m_rightBarServo.setBoundsMicroseconds(500, 1504, 1500, 1496, 2500);
+        // m_rightBarServo.setBoundsMicroseconds(2500, 1504, 1500, 1496, 500);
 
         m_leftShooterPIDController = m_leftShooterMotor.getPIDController();
         m_rightShooterPIDController = m_rightShooterMotor.getPIDController();
@@ -152,38 +149,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_poseSupplier = poseSupplier;
 
-        m_onNoteExitCommand = Commands.sequence(
-            this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
-            Commands.waitSeconds(0.5),
-            // getStopShooterCommand(),
-            Commands.runOnce(this::stopShooter, this),
-            getStopFeederCommand(),
-            Commands.print("NOTE EXIT")
-        );
-
-        // m_onNoteExitCommand = Commands.none();
-
-        m_onNoteEnterCommand = Commands.sequence(
-            getAddHasNoteStateCommand(),
-            getStopShooterCommand(),
-            this.runOnce(() -> {
-                m_feederMotor.set(0.1);
-                m_leftShooterMotor.set(0.001);
-                m_rightShooterMotor.set(-0.001);
-            }),
-            Commands.waitSeconds(0.15),
-            getStopFeederCommand(),
-            getStopShooterCommand(),
-            Commands.print("NOTE ENTER")
-        );
-
         m_desiredAngleLog = new LoggableDouble("Shooter Desired Angle", true);
         m_currentAngleLog = new LoggableDouble("Shooter Current Angle", true);
         m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
         m_rpmLLog = new LoggableDouble("Shooter L RPM", true);
         m_rpmRLog = new LoggableDouble("Shooter R RPM", true);
         m_feederSensorLog = new LoggableBoolean("HasNote", true);
-        m_feederSensor2Log = new LoggableBoolean("Has Note2", true);
 
         m_rBusCurrent = new LoggableDouble("Bus Current R", true, true, () -> m_rightShooterMotor.getBusVoltage());
         m_lBusCurrent = new LoggableDouble("Bus Current L", true, true, () -> m_leftShooterMotor.getBusVoltage());
@@ -233,12 +204,47 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
-        m_debouncedFeederSensorTrigger.and(() -> !DriverStation.isAutonomous()).onTrue(
-            m_onNoteEnterCommand
+        // m_debouncedFeederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onTrue(
+        //     Commands.sequence(
+        //         getAddHasNoteStateCommand(),
+        //         getStopShooterCommand(),
+        //         this.runOnce(() -> {
+        //             m_feederMotor.set(0.1);
+        //             m_leftShooterMotor.set(0.001);
+        //             m_rightShooterMotor.set(-0.001);
+        //         }),
+        //         Commands.waitSeconds(0.15),
+        //         getStopFeederCommand(),
+        //         getStopShooterCommand(),
+        //         Commands.print("NOTE ENTER")
+        //     )
+        // );
+
+        m_debouncedFeederSensorTrigger.onTrue(
+            Commands.sequence(
+                getAddHasNoteStateCommand(),
+                getStopShooterCommand(),
+                this.runOnce(() -> {
+                    m_feederMotor.set(0.1);
+                    m_leftShooterMotor.set(0.001);
+                    m_rightShooterMotor.set(-0.001);
+                }),
+                Commands.waitSeconds(0.15),
+                getStopFeederCommand(),
+                getStopShooterCommand(),
+                Commands.print("NOTE ENTER")
+            )
         );
 
-        m_debouncedFeederSensorTrigger.and(() -> !DriverStation.isAutonomous()).onFalse(
-            m_onNoteExitCommand
+        m_debouncedFeederSensorTrigger.onFalse(
+            Commands.sequence(
+                this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
+                Commands.waitSeconds(0.5),
+                // getStopShooterCommand(),
+                Commands.runOnce(this::stopShooter, this),
+                getStopFeederCommand(),
+                Commands.print("NOTE EXIT")
+            )
         );
 
         // m_limitSwitchTrigger.onTrue(Commands.run(() -> {
@@ -388,7 +394,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command getExtendBarCommand() {
-        return this.runOnce(() -> extendBar());
+        return this.runOnce(() -> swingBar());
     }
 
     public Command getResetBarCommand() {
@@ -400,7 +406,7 @@ public class ShooterSubsystem extends SubsystemBase {
             if (m_state.is(ShooterStateEnum.BAR_EXTENDED)) {
                 resetBar();
             } else {
-                extendBar();
+                swingBar();
             }
         });
     }
@@ -409,7 +415,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.waitUntil(m_debouncedFeederSensorTrigger::getAsBoolean).andThen(
             Commands.sequence(
                 Commands.print("    STATE"),
-                // this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
+                this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
                 Commands.print("    STOP SHOOTER"),
                 getStopShooterCommand(),
                 Commands.print("    REVERSE REVERSE"),
@@ -445,9 +451,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-    public void extendBar() {
-        // m_leftBarActuator.set(1.0);
-        // m_rightBarActuator.set(1.0);
+    public void swingBar() {
+        m_leftBarServo.set(m_leftBarServo.getAngle() + 50);
+        m_rightBarServo.set(m_rightBarServo.getAngle() + 50);
         m_state.addState(ShooterStateEnum.BAR_EXTENDED);
     }
 
@@ -456,8 +462,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void resetBar() {
-        // m_leftBarActuator.set(0);
-        // m_rightBarActuator.set(0);
+        m_leftBarServo.set(m_leftBarServo.getAngle() - 50);
+        m_rightBarServo.set(m_rightBarServo.getAngle() - 50);
         m_state.removeState(ShooterStateEnum.BAR_EXTENDED);
     }
 
@@ -674,7 +680,6 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
 
         m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
-        m_feederSensor2Log.log(m_feederSensorTrigger.getAsBoolean());
     }
 }
 

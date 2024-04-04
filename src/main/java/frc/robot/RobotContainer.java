@@ -43,7 +43,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  //private final ClimbSubsystem m_climb;
+  // private final ClimbSubsystem m_climb;
   private final CentralCommandFactory m_centralCommandFactory;
 
   private final SendableChooser<Command> m_autoChooser;
@@ -69,7 +69,7 @@ public class RobotContainer {
     m_intake = new IntakeSubsystem();
 
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
-    //m_climb = new ClimbSubsystem();
+    // m_climb = new ClimbSubsystem();
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
     m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
@@ -101,9 +101,14 @@ public class RobotContainer {
     m_autoChooser.addOption("OldShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
    
     // -- PATH PLANNER AUTOS -- 
+    m_autoChooser.addOption("R12S", AutoBuilder.buildAuto("R12S"));
     m_autoChooser.addOption("R22S", AutoBuilder.buildAuto("R22S"));
+    m_autoChooser.addOption("R34S", AutoBuilder.buildAuto("R34S"));
+    m_autoChooser.addOption("B1PushNote1", AutoBuilder.buildAuto("B1PushNote1"));
+    m_autoChooser.addOption("B1PushNote2", AutoBuilder.buildAuto("B1PushNote2"));
     m_autoChooser.addOption("B12S", AutoBuilder.buildAuto("B12S"));
     m_autoChooser.addOption("B22S", AutoBuilder.buildAuto("B22S"));
+    m_autoChooser.addOption("B34S", AutoBuilder.buildAuto("B34S"));
    
     // -- TEST AUTOS --
     m_autoChooser.addOption("Test", AutoBuilder.buildAuto("Test"));
@@ -135,18 +140,20 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
-    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShooterCommand());
+    // m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShooterCommand());
+    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleBarCommand());
     m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShootAmp());
     // m_operatorJoystick.button(2).onTrue(m_shooter.getStartFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
-    m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
+    // m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
-    m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
-    m_operatorJoystick.button(7).onTrue(m_shooter.getResetEncoderMinCommand());
+    // m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
+    // m_operatorJoystick.button(6).whileTrue(m_climb.getIncreaseLeftExtensionCommand());
+    // m_operatorJoystick.button(7).whileTrue(m_climb.getDecreaseLeftExtensionCommand());
     m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
-    m_operatorJoystick.button(9).onTrue(m_shooter.getToggleBarCommand());
-    // m_operatorJoystick.button(10).onTrue(m_shooter.getWaitForNoteEnterCommand());
-    // m_operatorJoystick.button(11).onTrue(m_shooter.getWaitForNoteExitCommand());
+    m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand());
+    // m_operatorJoystick.button(10).whileTrue(m_climb.getDecreaseRightExtensionCommand());
+    // m_operatorJoystick.button(11).whileTrue(m_climb.getIncreaseRightExtensionCommand());
   }
 
   /**
@@ -156,7 +163,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // Get value of auto chooser
-    return m_autoChooser.getSelected();
+    return Commands.sequence(
+      //m_climb.getRetractCommand(),
+      m_swerve.getAlignWheelCommand(),
+      m_autoChooser.getSelected()
+    );
     // return null;
   }
 

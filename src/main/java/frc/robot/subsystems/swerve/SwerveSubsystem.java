@@ -164,8 +164,9 @@ public class SwerveSubsystem extends SubsystemBase {
         else
             m_autoAimStateLog.log(false);
       
-        Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, navXVal) : new ChassisSpeeds(vx, vy, vrot));
+        // Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
+        Rotation2d rot = Rotation2d.fromDegrees(getPose().getRotation().getDegrees() + 90);
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, vrot, rot) : new ChassisSpeeds(vx, vy, vrot));
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
@@ -258,7 +259,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command getAlignWheelCommand() {
-        return this.run(() -> {
+        return this.runOnce(() -> {
             SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0));
             SwerveDriveKinematics.desaturateWheelSpeeds(states, m_currentSpeed);
             

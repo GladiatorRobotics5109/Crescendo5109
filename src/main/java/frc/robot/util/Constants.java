@@ -140,7 +140,7 @@ public final class Constants {
     public static final int kFeederMotorPort = 6;
     public static final int kWinchMotorPort = 62;
     public static final int kLeftBarActuatorChannel = 2;
-    public static final int kRightBarActuatorChannel = 0;
+    public static final int kRightBarActuatorChannel = 3;
 
     public static final double kShooterP = 1;
     public static final double kShooterI = 0;
@@ -188,16 +188,16 @@ public final class Constants {
     public static final int kLeftClimbMotorPort = 38;
     public static final int kRightClimbMotorPort = 37;
 
-    public static final double kSpoolAverageRadius = 0.75 / 2;
+    public static final double kSpoolRadius = 0.75 / 2;
 
     public static final double kP = 1;
     public static final double kI = 0;
     public static final double kD = 0;
     
-    public static final double kClimbPositionConversionFactor = kSpoolAverageRadius / (10 * 10);
+    public static final double kClimbPositionConversionFactor = kSpoolRadius * 2 * Math.PI / (10 * 10);
 
-    public static final double kMaxExtension = Units.inchesToMeters(34);
-    public static final double kMinExtension = Units.inchesToMeters(20.75);
+    public static final double kMaxExtension = 34;
+    public static final double kMinExtension = 20.75;
   }
 
   public static class VisionConstants {
@@ -239,7 +239,8 @@ public final class Constants {
         new Rotation3d()
       );
 
-    public static final Matrix<N3, N1> kStdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(), 0.85, 0.85, 0.85);
+    // public static final Matrix<N3, N1> kStdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(), 0.85, 0.85, 0.85)
+    public static final Matrix<N3, N1> kStdDevs = MatBuilder.fill(Nat.N3(), Nat.N1(), 0.85, 0.85, 0.9);
 
     public static final AprilTagFields kApriltagLayout = AprilTagFields.k2024Crescendo;
   }

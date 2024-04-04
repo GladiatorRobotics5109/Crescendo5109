@@ -3,13 +3,21 @@
   "robotLength": 0.7493,
   "holonomicMode": true,
   "pathFolders": [
-    "B22S",
     "B12S",
-    "R22S"
+    "B1PushNote",
+    "B22S",
+    "B34S",
+    "B31S",
+    "R12S",
+    "R22S",
+    "R34S"
   ],
   "autoFolders": [
-    "B2",
     "B1",
+    "B2",
+    "B3",
+    "R3",
+    "R1",
     "R2"
   ],
   "defaultMaxVel": 4.0,

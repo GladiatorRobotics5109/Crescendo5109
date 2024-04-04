@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.8221644973960404,
+      "x": 15.9,
       "y": 4.4
     },
-    "rotation": 120.0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -44,25 +44,25 @@
         {
           "type": "named",
           "data": {
-            "name": "stopAutoAim"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "startIntake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "B12S1"
+            "pathName": "R12S1"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "waitForNoteEnter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
           }
         },
         {
@@ -80,7 +80,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B12S2"
+            "pathName": "R12S2"
           }
         },
         {
@@ -100,16 +100,10 @@
           "data": {
             "name": "stopAutoAim"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopIntake"
-          }
         }
       ]
     }
   },
-  "folder": "B1",
+  "folder": "R1",
   "choreoAuto": false
 }
