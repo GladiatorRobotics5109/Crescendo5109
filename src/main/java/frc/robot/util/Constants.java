@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
@@ -133,8 +132,8 @@ public final class Constants {
     public static final int kRightShooterMotorPort = 9;
     public static final int kFeederMotorPort = 6;
     public static final int kWinchMotorPort = 62;
-    public static final int kLeftBarActuatorChannel = 2;
-    public static final int kRightBarActuatorChannel = 3;
+    public static final int kLeftBarServoChannel = 2;
+    public static final int kRightBarServoChannel = 3;
 
     public static final double kShooterP = 1;
     public static final double kShooterI = 0;

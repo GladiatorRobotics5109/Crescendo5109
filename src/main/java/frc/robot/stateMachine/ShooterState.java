@@ -12,7 +12,7 @@ public class ShooterState extends SubsystemState<ShooterState.ShooterStateEnum> 
         NOTE_ENTERED,
         HAS_NOTE,
         AUTO_AIMING,
-        BAR_SWUNG;
+        BAR_SWUNG
     }
     
     public ShooterState() {

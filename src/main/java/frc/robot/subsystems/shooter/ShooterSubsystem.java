@@ -59,7 +59,6 @@ import frc.robot.util.logging.Logger;
  * Represents the Shooter
  */
 public class ShooterSubsystem extends SubsystemBase {
-    
     private final CANSparkMax m_leftShooterMotor;  // Left Side Shooter Wheels
     private final CANSparkMax m_rightShooterMotor; // Right Side Shooter Wheels
     private final CANSparkMax m_feederMotor; // Feeder Wheels
@@ -221,13 +220,6 @@ public class ShooterSubsystem extends SubsystemBase {
         m_combinedSensorTrigger = m_feederSensorTrigger.and(() -> m_intakeSensor.get());
         m_limitSwitchTrigger = new Trigger(() -> m_angleLimitSwitch.get()).negate();
 
-
-
-        // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.01, DebounceType.kBoth).negate();
-        m_debouncedFeederSensorTrigger = m_feederSensorTrigger.debounce(0.05, DebounceType.kBoth).negate();
-
-        // m_debouncedFeederSensorTrigger = m_feederSensorTrigger.negate();
-
         m_desiredAngle = 52;
         m_reachedAngleSetpointTrigger = new Trigger(() -> atAngleSetpoint());
 
@@ -274,7 +266,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * 
      */
     private void configureBindings() {
-        m_debouncedFeederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onTrue(
+        m_feederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onTrue(
             Commands.sequence(
                 getAddHasNoteStateCommand(),
                 getStopShooterCommand(),
@@ -306,7 +298,7 @@ public class ShooterSubsystem extends SubsystemBase {
         //     )
         // );
 
-        m_debouncedFeederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onFalse(
+        m_feederSensorTrigger.and(() -> DriverStation.isAutonomous() == false).onFalse(
             Commands.sequence(
                 this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
                 Commands.waitSeconds(0.5),
@@ -499,7 +491,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command getWaitForNoteEnterCommand() {
-        return Commands.waitUntil(m_debouncedFeederSensorTrigger::getAsBoolean).andThen(
+        return Commands.waitUntil(m_feederSensorTrigger::getAsBoolean).andThen(
             Commands.sequence(
                 Commands.print("    STATE"),
                 this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
@@ -523,7 +515,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command getWaitForNoteExitCommand() {
-        return Commands.waitUntil(() -> m_debouncedFeederSensorTrigger.getAsBoolean() == false).andThen(
+        return Commands.waitUntil(() -> m_feederSensorTrigger.getAsBoolean() == false).andThen(
             Commands.sequence(
                 Commands.print("WAIT NOTE EXIT"),
                 this.runOnce(() -> {m_state.removeState(ShooterStateEnum.HAS_NOTE);}),
@@ -539,7 +531,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void swingBar() {
         m_leftBarServo.set(m_leftBarServo.getAngle() + 50);
         m_rightBarServo.set(m_rightBarServo.getAngle() + 50);
-        m_state.addState(ShooterStateEnum.BAR_EXTENDED);
+        m_state.addState(ShooterStateEnum.BAR_SWUNG);
     }
 
     public void setLimitSwitchAngle() {
@@ -549,7 +541,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void resetBar() {
         m_leftBarServo.set(m_leftBarServo.getAngle() - 50);
         m_rightBarServo.set(m_rightBarServo.getAngle() - 50);
-        m_state.removeState(ShooterStateEnum.BAR_EXTENDED);
+        m_state.removeState(ShooterStateEnum.BAR_SWUNG);
     }
 
     public void setAngle(double angle) {
@@ -816,7 +808,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
 
         m_hasNoteLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
-        m_feederSensorLog.log(m_debouncedFeederSensorTrigger.getAsBoolean());
+        m_feederSensorLog.log(m_feederSensorTrigger.getAsBoolean());
         
     }
 }
