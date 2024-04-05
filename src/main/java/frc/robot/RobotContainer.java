@@ -43,7 +43,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  // private final ClimbSubsystem m_climb;
+  private final ClimbSubsystem m_climb;
   private final CentralCommandFactory m_centralCommandFactory;
 
   private final SendableChooser<Command> m_autoChooser;
@@ -69,7 +69,7 @@ public class RobotContainer {
     m_intake = new IntakeSubsystem();
 
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
-    // m_climb = new ClimbSubsystem();
+    m_climb = new ClimbSubsystem();
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
     m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
@@ -147,11 +147,19 @@ public class RobotContainer {
     // m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
-    // m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
+    m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
+
+    m_operatorJoystick.button(6).onTrue(m_climb.getRetractLeftCommand()).onFalse(m_climb.getStopLeftCommand());
+    m_operatorJoystick.button(7).whileTrue(m_climb.getExtendLeftCommand()).onFalse(m_climb.getStopLeftCommand());
+
     // m_operatorJoystick.button(6).whileTrue(m_climb.getIncreaseLeftExtensionCommand());
     // m_operatorJoystick.button(7).whileTrue(m_climb.getDecreaseLeftExtensionCommand());
+
     m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
     m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand());
+
+    m_operatorJoystick.button(10).onTrue(m_climb.getRetractRightCommand()).onFalse(m_climb.getStopRightCommand());
+    m_operatorJoystick.button(11).onTrue(m_climb.getExtendRightCommand()).onFalse(m_climb.getStopRightCommand());
     // m_operatorJoystick.button(10).whileTrue(m_climb.getDecreaseRightExtensionCommand());
     // m_operatorJoystick.button(11).whileTrue(m_climb.getIncreaseRightExtensionCommand());
   }

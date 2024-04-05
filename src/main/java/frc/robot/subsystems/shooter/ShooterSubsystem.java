@@ -84,6 +84,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggableDouble m_currentAngleLog;
     private final LoggableBoolean m_autoAimingLog;
 
+    private final LoggableBoolean m_hasNoteLog;
     private final LoggableBoolean m_feederSensorLog;
 
     private final LoggableDouble m_rpmLLog;
@@ -154,7 +155,8 @@ public class ShooterSubsystem extends SubsystemBase {
         m_autoAimingLog = new LoggableBoolean("Shooter Auto Aiming", true);
         m_rpmLLog = new LoggableDouble("Shooter L RPM", true);
         m_rpmRLog = new LoggableDouble("Shooter R RPM", true);
-        m_feederSensorLog = new LoggableBoolean("HasNote", true);
+        m_hasNoteLog = new LoggableBoolean("HasNote", true);
+        m_feederSensorLog = new LoggableBoolean("Feeder Sensor", true);
 
         m_rBusCurrent = new LoggableDouble("Bus Current R", true, true, () -> m_rightShooterMotor.getBusVoltage());
         m_lBusCurrent = new LoggableDouble("Bus Current L", true, true, () -> m_leftShooterMotor.getBusVoltage());
@@ -679,7 +681,9 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rpmLLog.log(-m_leftShooterEncoder.getVelocity());
         m_rpmRLog.log(m_rightShooterEncoder.getVelocity());
 
-        m_feederSensorLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
+        m_hasNoteLog.log(m_state.is(ShooterStateEnum.HAS_NOTE));
+        m_feederSensorLog.log(m_debouncedFeederSensorTrigger.getAsBoolean());
+        
     }
 }
 
