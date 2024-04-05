@@ -148,19 +148,26 @@ public class RobotContainer {
     //Shooter Motors
     m_leftShooterCurrentLog = new LoggableDouble("Left Shooter Current", true, true, () -> m_pdp.getCurrent(11));
     m_rightShooterCurrentLog = new LoggableDouble("Right Shooter Current", true, true, () -> m_pdp.getCurrent(10));
+    Logger.addLoggable(m_leftShooterCurrentLog);
+    Logger.addLoggable(m_rightShooterCurrentLog);
 
     //Feeder motor
     m_feederCurrentLog = new LoggableDouble("Feeder Current", true, true, () -> m_pdp.getCurrent(4));
+    Logger.addLoggable(m_feederCurrentLog);
 
     //Intake motor
     m_intakeCurrentLog = new LoggableDouble("Feeder Current", true, true, () -> m_pdp.getCurrent(7));
+    Logger.addLoggable(m_intakeCurrentLog);
 
     //Winch motor
     m_winchCurrentLog =  new LoggableDouble("Winch Current", true, true, () -> m_pdp.getCurrent(5));
+    Logger.addLoggable(m_winchCurrentLog);
 
     //Climb motors
     m_leftClimbCurrentLog = new LoggableDouble("Left Climb Current", true, true, () -> m_pdp.getCurrent(8));
     m_rightClimbCurrentLog = new LoggableDouble("Right Climb Current", true, true, () -> m_pdp.getCurrent(9));
+    Logger.addLoggable(m_leftClimbCurrentLog);
+    Logger.addLoggable(m_rightClimbCurrentLog);
 
     // Swerve motors
     m_frontLeftDriveCurrentLog = new LoggableDouble("Front Left Drive Current", true, true, () -> m_pdp.getCurrent(15));
@@ -171,12 +178,20 @@ public class RobotContainer {
     m_backLeftTurnCurrentLog = new LoggableDouble("Back Left Turn Current", true, true, () -> m_pdp.getCurrent(1));
     m_backRightDriveCurrentLog = new LoggableDouble("Back Right Drive Current", true, true, () -> m_pdp.getCurrent(2)); 
     m_backRightTurnCurrentLog = new LoggableDouble("Back Right Turn Current", true, true, () -> m_pdp.getCurrent(3));
+    Logger.addLoggable(m_frontLeftDriveCurrentLog);
+    Logger.addLoggable(m_frontLeftTurnCurrentLog);
+    Logger.addLoggable(m_frontRightDriveCurrentLog);
+    Logger.addLoggable(m_backLeftDriveCurrentLog);
+    Logger.addLoggable(m_backLeftTurnCurrentLog);
+    Logger.addLoggable(m_backRightDriveCurrentLog);
+    Logger.addLoggable(m_backRightTurnCurrentLog);
 
     //Buckboost + Servo Power module
     m_buckBoostAndServosCurrentLog = new LoggableDouble("BuckBoost+Servos Current", true, true, () -> m_pdp.getCurrent(6));
+    Logger.addLoggable(m_buckBoostAndServosCurrentLog);
 
-    Logger.addLoggable(m_leftShooterCurrentLog);
-    Logger.addLoggable(m_rightShooterCurrentLog);
+
+
 
     
     //CameraServer.startAutomaticCapture();
