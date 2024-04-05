@@ -414,7 +414,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command getWaitForNoteEnterCommand() {
-        return Commands.waitUntil(m_debouncedFeederSensorTrigger::getAsBoolean).andThen(
+        return Commands.waitUntil(() -> m_debouncedFeederSensorTrigger.getAsBoolean() == true).andThen(
             Commands.sequence(
                 Commands.print("    STATE"),
                 this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),

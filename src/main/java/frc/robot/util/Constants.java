@@ -70,14 +70,14 @@ public final class Constants {
     public static final double kDriveBaseRadius = 0.411;
 
     public static class AutonConstants {
-      public static final double kMaxSpeed = 15;
-      public static final double kMaxAcceleration = 5;
+      public static final double kMaxSpeed = 8;
+      public static final double kMaxAcceleration = 2;
 
       public static final double kMaxAngularSpeed = 3 * Math.PI;
       public static final double kMaxAngularAcceleration = 1 * Math.PI;
 
-      public static final PIDConstants kTranslationPID = new PIDConstants(3, 0, 0);
-      public static final PIDConstants kRotationPID = new PIDConstants(5, 0, 0);
+      public static final PIDConstants kTranslationPID = new PIDConstants(5, 0, 0);
+      public static final PIDConstants kRotationPID = new PIDConstants(8, 0, 0);
 
       public static final ReplanningConfig kReplanningConfig = new ReplanningConfig(false, false);
 

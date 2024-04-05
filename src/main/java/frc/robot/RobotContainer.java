@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,6 +21,8 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -108,6 +112,7 @@ public class RobotContainer {
     m_autoChooser.addOption("B1PushNote2", AutoBuilder.buildAuto("B1PushNote2"));
     m_autoChooser.addOption("B12S", AutoBuilder.buildAuto("B12S"));
     m_autoChooser.addOption("B22S", AutoBuilder.buildAuto("B22S"));
+    m_autoChooser.addOption("B31S", AutoBuilder.buildAuto("B31S"));
     m_autoChooser.addOption("B34S", AutoBuilder.buildAuto("B34S"));
    
     // -- TEST AUTOS --
@@ -172,8 +177,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // Get value of auto chooser
     return Commands.sequence(
+      m_swerve.getResetPoseAllianceCommand(),
       //m_climb.getRetractCommand(),
-      m_swerve.getAlignWheelCommand(),
+      // m_swerve.getAlignWheelCommand(),
       m_autoChooser.getSelected()
     );
     // return null;

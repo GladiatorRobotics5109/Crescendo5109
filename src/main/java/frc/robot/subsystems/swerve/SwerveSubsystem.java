@@ -383,6 +383,24 @@ public class SwerveSubsystem extends SubsystemBase {
         return this.runOnce(() -> {m_autoAiming = false; System.out.println("Stop Auto Aim");}).withName("disableAutoAimCommand");
     }
 
+    public Command getResetPoseAllianceCommand() {
+        return this.runOnce(() -> {
+            Optional<Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isEmpty()) return;
+            
+            double offset = (alliance.get() == Alliance.Red) ? 0 : 180; 
+
+            resetPose(
+                new Pose2d(
+                    0,
+                    0,
+                    Rotation2d.fromDegrees(offset)
+                )
+            );
+            System.out.println("offset: " + offset);
+        });
+    }
+
     /**
      * Calculates a desired rotation velocity that will automatically align the bot with the respective alliance's speaker
      */
