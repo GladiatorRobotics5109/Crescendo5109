@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.SwerveState;
 import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
@@ -18,7 +17,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -47,15 +45,18 @@ import frc.robot.vision.EstimatedRobotPoses;
 import frc.robot.vision.VisionManager;
 
 public class SwerveSubsystem extends SubsystemBase {
+
+    public enum ModuleOrientation {
+        CIRCLE,
+        BRAKE_X,
+        ALIGNED
+    }
     // swerve modules
     private final SwerveModuleNeoTurnKrakenDrive m_moduleFL;
     private final SwerveModuleNeoTurnKrakenDrive m_moduleFR;
     private final SwerveModuleNeoTurnKrakenDrive m_moduleBL;
     private final SwerveModuleNeoTurnKrakenDrive m_moduleBR;
     
-    private final double m_defaultSpeed;
-    private double m_currentSpeed;
-    private double m_maxAngularSpeed;
 
     private final SwerveDriveKinematics m_kinematics;
 
@@ -65,14 +66,13 @@ public class SwerveSubsystem extends SubsystemBase {
     
     private final AHRS m_navX;
     
-    private final PIDController m_autoAimPID;
+    private final PIDController m_yawPIDController;
     private boolean m_autoAiming;
 
     private final LoggableDouble m_autoAimAngleLog;
     private final LoggableDouble m_autoAimPIDSetpointLog;
     private final LoggableBoolean m_autoAimStateLog;
     private final LoggablePose2d m_poseLog;
-    private final LoggableDouble m_currentMaxSpeedLog;
 
     private final LoggableSwerveModuleStates m_moduleStatesLog;
     private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
@@ -92,7 +92,7 @@ public class SwerveSubsystem extends SubsystemBase {
     
         m_navX = SwerveConstants.kNavX;
         m_navX.reset();
-        m_navX.setAngleAdjustment(180);
+        m_navX.setAngleAdjustment(90);
         
         m_kinematics = new SwerveDriveKinematics(
             m_moduleFL.getPos(), 
@@ -111,25 +111,23 @@ public class SwerveSubsystem extends SubsystemBase {
             getPositions(),
             startingPose.isEmpty() ? new Pose2d() : startingPose.get().getPose2d()
         );
-
-        m_defaultSpeed = SwerveConstants.kMaxSpeed;
-        m_currentSpeed = m_defaultSpeed;
-        m_maxAngularSpeed = SwerveConstants.kMaxAngularSpeed;
         
         // m_autoAimPID = new PIDController(0.25, 0, 0.27); // works pretty well
-        m_autoAimPID = new PIDController(0.25, 0, 0.3); // works pretty well
+        m_yawPIDController = new PIDController(0.25, 0, 0.3); // works pretty well
+        
         // m_autoAimPID = new PIDController(0.18, 0, 0.27);
-        m_autoAimPID.setIZone(.5);
-        m_autoAimPID.setIntegratorRange(-1, 1);
-        m_autoAimPID.setI(0.2);
-        m_autoAimPID.enableContinuousInput(-180, 180);
+        m_yawPIDController.setIZone(.5);
+        m_yawPIDController.setIntegratorRange(-1, 1);
+        m_yawPIDController.setI(0.2);
+        
+        m_yawPIDController.enableContinuousInput(-180, 180);
 
         // TODO: Tolerance
-        m_autoAimPID.setTolerance(1);
+        m_yawPIDController.setTolerance(1);
         
         m_autoAiming = false;
 
-        m_reachedAutoAimSetpointTrigger = new Trigger(() -> m_autoAiming && m_autoAimPID.atSetpoint());
+        m_reachedAutoAimSetpointTrigger = new Trigger(() -> m_autoAiming && m_yawPIDController.atSetpoint());
         
         m_autoAimAngleLog = new LoggableDouble("AutoAimPIDAngle", true, false, null);
         m_autoAimPIDSetpointLog = new LoggableDouble("AutoAimPIDSetpoint", true, false, null);
@@ -137,12 +135,10 @@ public class SwerveSubsystem extends SubsystemBase {
         m_poseLog = new LoggablePose2d("RobotPose", true, true, this::getPose);
         m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
-        m_currentMaxSpeedLog = new LoggableDouble("Current Max Speed", true, true, () -> m_currentSpeed);
 
         Logger.addLoggable(m_poseLog);
         Logger.addLoggable(m_moduleStatesLog);
         Logger.addLoggable(m_moduleDesiredStatesLog);
-        Logger.addLoggable(m_currentMaxSpeedLog);
 
         AutoBuilder.configureHolonomic(
             () -> getPose(),
@@ -160,17 +156,16 @@ public class SwerveSubsystem extends SubsystemBase {
     /** drive with desired x/y/rot velocities */
     public void drive(double vx, double vy, double vrot, boolean fieldRelative) {
         m_state.addState(SwerveStateEnum.DRIVING);
-        if (m_autoAiming)
+        if (m_autoAiming && fieldRelative)
             vrot = calcAutoAim();
         else
             m_autoAimStateLog.log(false);
-      
-        // Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
+        // Rotation2d navXVal = getHeading();
         Optional<Alliance> alliance = DriverStation.getAlliance();
         double offset = (alliance.isEmpty() || alliance.get() == Alliance.Red) ? -180 : 0; 
         Rotation2d rot = Rotation2d.fromDegrees(getPose().getRotation().getDegrees() + offset);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vy, vx, vrot, rot) : new ChassisSpeeds(vx, vy, vrot));
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, SwerveConstants.kMaxSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
         m_moduleFR.setDesiredState(swerveModuleStates[1]);
@@ -187,30 +182,7 @@ public class SwerveSubsystem extends SubsystemBase {
         drive(desiredSpeeds.vxMetersPerSecond, desiredSpeeds.vyMetersPerSecond, desiredSpeeds.omegaRadiansPerSecond, fieldRelative);
     }
 
-    public void setMaxSpeed(double speed) {
-        m_currentSpeed = speed;
-    }
 
-    /** Brake and X the wheels to stay still */
-    public void brakeAndX() {
-        SwerveModuleState flBr = new SwerveModuleState();
-        flBr.speedMetersPerSecond = 0.0;
-        flBr.angle = Rotation2d.fromRadians(-Math.PI / 4);
-
-        m_moduleFL.setDesiredState(flBr);
-        m_moduleBR.setDesiredState(flBr);
-
-        SwerveModuleState frBl = new SwerveModuleState();
-        frBl.speedMetersPerSecond = 0.0;
-        frBl.angle = Rotation2d.fromRadians(Math.PI / 4);
-
-        m_moduleFR.setDesiredState(frBl);
-        m_moduleBL.setDesiredState(frBl);
-
-        m_moduleDesiredStatesLog.log(new SwerveModuleState[] {flBr, frBl, frBl, flBr});
-
-        brakeAll();
-    }
 
     /** Brake on all motors on all swerve modules */
     private void brakeAll() {
@@ -229,7 +201,63 @@ public class SwerveSubsystem extends SubsystemBase {
         m_moduleBL.coastAll();
         m_moduleBR.coastAll();
     }
-    
+
+    public Command getOrientModulesCommand(ModuleOrientation orientation) {
+        return this.run(() -> orientModules(orientation));
+    }
+
+    public void orientModules(ModuleOrientation orientation) {
+        switch (orientation) {
+            case CIRCLE:
+                SwerveModuleState flBrCircle = new SwerveModuleState();
+                flBrCircle.speedMetersPerSecond = 0.0;
+                flBrCircle.angle = Rotation2d.fromRadians(-Math.PI / 4);
+        
+                SwerveModuleState frBlCircle = new SwerveModuleState();
+                frBlCircle.speedMetersPerSecond = 0.0;
+                frBlCircle.angle = Rotation2d.fromRadians(Math.PI / 4);
+        
+                m_moduleFL.setDesiredState(flBrCircle);
+                m_moduleFR.setDesiredState(frBlCircle);
+                m_moduleBR.setDesiredState(flBrCircle);
+                m_moduleBL.setDesiredState(frBlCircle);
+        
+                m_moduleDesiredStatesLog.log(new SwerveModuleState[] {flBrCircle, frBlCircle, frBlCircle, flBrCircle});
+        
+
+                break;
+            case BRAKE_X:
+                SwerveModuleState flBrBrake = new SwerveModuleState();
+                flBrBrake.speedMetersPerSecond = 0.0;
+                flBrBrake.angle = Rotation2d.fromRadians(Math.PI / 4);
+                
+                SwerveModuleState frBlBrake = new SwerveModuleState();
+                frBlBrake.speedMetersPerSecond = 0.0;
+                frBlBrake.angle = Rotation2d.fromRadians(-Math.PI / 4);
+                
+                m_moduleFL.setDesiredState(flBrBrake);
+                m_moduleFR.setDesiredState(frBlBrake);
+                m_moduleBL.setDesiredState(frBlBrake);
+                m_moduleBR.setDesiredState(flBrBrake);
+        
+                m_moduleDesiredStatesLog.log(new SwerveModuleState[] {flBrBrake, frBlBrake, frBlBrake, flBrBrake});
+        
+                brakeAll();
+                break;
+            case ALIGNED:
+                SwerveModuleState alignedState = new SwerveModuleState();
+                alignedState.speedMetersPerSecond = 0.0;
+                alignedState.angle = Rotation2d.fromRadians(0);
+
+                m_moduleFL.setDesiredState(alignedState);
+                m_moduleFR.setDesiredState(alignedState);
+                m_moduleBL.setDesiredState(alignedState);
+                m_moduleBR.setDesiredState(alignedState);
+
+                m_moduleDesiredStatesLog.log(new SwerveModuleState[] {alignedState,alignedState,alignedState,alignedState});
+        }
+    }
+     
     /**
      * @return a command object that drives with given joystick inputs
      */
@@ -237,34 +265,32 @@ public class SwerveSubsystem extends SubsystemBase {
         DoubleSupplier joyLeftX, 
         DoubleSupplier joyLeftY, 
         DoubleSupplier joyRightX,
-        DoubleSupplier joyLeftTrigger,
-        DoubleSupplier joyRightTrigger,
         BooleanSupplier fieldRelative) {
         return run(() -> {
             // get joystick axises
+            boolean isFieldRelative = fieldRelative.getAsBoolean();
             double vx = MathUtil.applyDeadband(joyLeftX.getAsDouble(), Constants.kJoystickDeadzone);
             double vy = MathUtil.applyDeadband(joyLeftY.getAsDouble(), Constants.kJoystickDeadzone);
             double vrot = MathUtil.applyDeadband(joyRightX.getAsDouble(), Constants.kJoystickDeadzone);
 
-            double right = joyRightTrigger.getAsDouble();
-            double left = joyLeftTrigger.getAsDouble();
+            
+            vx *= SwerveConstants.kMaxSpeed;
+            vy *= SwerveConstants.kMaxSpeed;
+            vrot *= SwerveConstants.kMaxAngularSpeed;
+            if (!isFieldRelative) {
+                vx *= 0.15;
+                vy *= 0.15;
+                vrot *= 0.15;
+            }
 
-            double newSpeed = m_defaultSpeed + ((SwerveConstants.kMaxSpeed * 0.5) * (joyLeftTrigger.getAsDouble() - joyRightTrigger.getAsDouble()));
-            setMaxSpeed(newSpeed);
-
-            // apply max speeds
-            vx *= newSpeed;
-            vy *= newSpeed;
-            vrot *= m_maxAngularSpeed;
-
-            drive(vx, vy, vrot, fieldRelative.getAsBoolean());
+            drive(vx, vy, vrot, isFieldRelative);
         }).withName("DriveWithJoystickCommand");
     }
 
     public Command getAlignWheelCommand() {
         return this.runOnce(() -> {
             SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(new ChassisSpeeds(0, 0, 0));
-            SwerveDriveKinematics.desaturateWheelSpeeds(states, m_currentSpeed);
+            SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.SwerveConstants.kMaxSpeed);
             
             m_moduleBL.getState().angle.getRotations();
             
@@ -299,21 +325,11 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
-    public Command getBrakeAndXCommand() {
-        return this.runOnce(() -> brakeAndX()).withName("brakeAndXCommand");
-    }
 
-    public Command getSuperSpeedCommand(DoubleSupplier scalar) {
-        return this.runOnce(() -> setMaxSpeed((5 * scalar.getAsDouble()) + m_defaultSpeed));
-    }
-
-    public Command getSuperSlowCommand(DoubleSupplier scalar) {
-        return this.runOnce(() -> setMaxSpeed(-5 * scalar.getAsDouble() + m_defaultSpeed));
-    }
-
-    private Rotation2d getHeading() {
+    public Rotation2d getHeading() {
         return m_navX.getRotation2d();
     }
+
 
     private SwerveModulePosition[] getPositions() {
         return new SwerveModulePosition[] {
@@ -322,6 +338,10 @@ public class SwerveSubsystem extends SubsystemBase {
             m_moduleBL.getModulePosition(),
             m_moduleBR.getModulePosition()
         };
+    }
+
+    public double[] getWheelPoses() {
+        return (new double[] {m_moduleFL.getWheelPos(),m_moduleFR.getWheelPos(),m_moduleBL.getWheelPos(),m_moduleBR.getWheelPos()});
     }
 
     public SwerveModuleState[] getStates() {
@@ -412,10 +432,10 @@ public class SwerveSubsystem extends SubsystemBase {
             
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
-            m_autoAimPID.setSetpoint(setpoint);
+            m_yawPIDController.setSetpoint(setpoint);
             m_autoAimPIDSetpointLog.log(setpoint);
             
-            double pidOutput = m_autoAimPID.calculate(angle - angleOffset);
+            double pidOutput = m_yawPIDController.calculate(angle - angleOffset);
 
             return pidOutput;
         }
@@ -460,10 +480,10 @@ public class SwerveSubsystem extends SubsystemBase {
             
             double setpoint = Units.radiansToDegrees(Math.atan(delta.getY() / delta.getX()));
 
-            m_autoAimPID.setSetpoint(setpoint);
+            m_yawPIDController.setSetpoint(setpoint);
             m_autoAimPIDSetpointLog.log(setpoint);
             
-            double pidOutput = m_autoAimPID.calculate(angle + angleOffset);
+            double pidOutput = m_yawPIDController.calculate(angle + angleOffset);
 
             return pidOutput;
         }

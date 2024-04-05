@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
@@ -24,6 +25,15 @@ public final class AutonFactory {
             Commands.waitSeconds(2),
             shooter.getStopFeederCommand(),
             shooter.getStopShooterCommand()
+        );
+    }
+    
+    public static Command getShooterFeedforwardCharacterizationCommand(ShooterSubsystem shooter) {
+        return Commands.sequence(
+            shooter.getSysIdQuasistaticCommand(SysIdRoutine.Direction.kForward),
+            shooter.getSysIdQuasistaticCommand(SysIdRoutine.Direction.kReverse),
+            shooter.getSysIdDynamicCommand(SysIdRoutine.Direction.kForward),
+            shooter.getSysIdDynamicCommand(SysIdRoutine.Direction.kReverse)
         );
     }
 

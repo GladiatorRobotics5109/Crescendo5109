@@ -46,17 +46,12 @@ public final class Constants {
     public static final double kMaxSpeed = 15;
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
+    
 
-    // public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921+0.00635, 0.2921+0.00635);
-    // public static final Translation2d kModulePosFrontRight = new Translation2d(0.2921+0.00635, -0.2921-0.00635);
-    // public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921-0.00635, 0.2921+0.00635);
-    // public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921-0.00635, -0.2921-0.00635);
-
-    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.290449, 0.290449);
+    public static final Translation2d kModulePosFrontLeft = new Translation2d(0.290449, 0.290449); //0.411 meters
     public static final Translation2d kModulePosFrontRight = new Translation2d(0.290449, -0.290449);
     public static final Translation2d kModulePosBackLeft = new Translation2d(-0.290449, 0.290449);
     public static final Translation2d kModulePosBackRight = new Translation2d(-0.290449, -0.290449);
-
 
     public static final double kModuleEncoderOffsetFrontLeft = 2.736; // 0.445 rotations
     public static final double kModuleEncoderOffsetFrontRight = 0.319; // 0.061 rotations
@@ -66,8 +61,7 @@ public final class Constants {
 
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
-    // public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;
-    public static final double kDriveBaseRadius = 0.411;
+    public static final double kDriveBaseRadius = 0.411; //meters
 
     public static class AutonConstants {
       public static final double kMaxSpeed = 15;
@@ -146,13 +140,9 @@ public final class Constants {
     public static final double kShooterI = 0;
     public static final double kShooterD = 0.05;
     
-    public static final double kFeederP = 2;
+    public static final double kFeederP = 1;
     public static final double kFeederI = 0;
     public static final double kFeederD = 0;
-    
-    public static final double kBarP = 0;
-    public static final double kBarI = 0;
-    public static final double kBarD = 0;
     
     // public static final double kWinchP = 0.12;
     public static final double kWinchP = 0.1;
@@ -160,16 +150,18 @@ public final class Constants {
     public static final double kWinchD = 0;
     
     public static final int kFeederSensorChannel = 0;
+    public static final int kIntakeSensorChannel = 2;
     public static final int kLimitSwitchChannel = 1;
     
-    public static final double kPivotWinchInitialRadius = 0;
+    public static final double kPivotWinchInitialRadius = 0.75 / 2;
     public static final double kPivotWinchFinalRadius = 0;
-    // public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
-    public static final double kPivotWinchAverageRadius = 0.75 / 2;
+    public static final double kPivotWinchAverageRadius = (kPivotWinchInitialRadius + kPivotWinchFinalRadius) / 2;
+
+    public static final double kFeederPositionConversionFactor = 1 / 5;
+
+    public static final double kWinchGearRatio = 5 * 5;
     
-    public static final double kWinchGearRatio = 25;
-    
-    public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) / kWinchGearRatio;
+    public static final double kWinchPositionConversionFactor = kPivotWinchInitialRadius * (2 * Math.PI) / kWinchGearRatio;
     
   }
   

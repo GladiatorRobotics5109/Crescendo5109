@@ -18,7 +18,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import frc.robot.util.Constants;
 import frc.robot.util.Conversions;
 import frc.robot.util.RevOptimizer;
@@ -113,6 +112,7 @@ public class SwerveModuleNeoTurnKrakenDrive {
         Logger.addLoggable(m_rpsLog);
         Logger.addLoggable(m_desiredSpeedLog);
         Logger.addLoggable(m_currentSpeedLog);
+
     }
 
     public Translation2d getPos() {
@@ -122,12 +122,10 @@ public class SwerveModuleNeoTurnKrakenDrive {
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition())) : state;
         
-        double rps = optimizedState.speedMetersPerSecond * (1 / (2 * Math.PI * Constants.ModuleConstants.kWheelRadius));
-        // m_desiredSpeedLog.log(optimizedState.speedMetersPerSecond);
-        m_rpsLog.log(rps);
-        m_velocityVoltage.Velocity = rps;
+        double wheelRPS = Conversions.metersToWheelRot(optimizedState.speedMetersPerSecond);
+        m_rpsLog.log(wheelRPS);
+        m_velocityVoltage.Velocity = wheelRPS;
         m_driveMotor.setControl(m_velocityVoltage);
-        // m_turnPIDController.setReference(Units.degreesToRadians(90), ControlType.kPosition);
         m_turnPIDController.setReference(optimizedState.angle.getRadians(), ControlType.kPosition);
     }
 
@@ -156,11 +154,15 @@ public class SwerveModuleNeoTurnKrakenDrive {
 
     public SwerveModuleState getState() {
         // return new SwerveModuleState(Conversions.wheelToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModuleState(m_driveMotor.getVelocity().getValueAsDouble() * 2 * Math.PI * Constants.ModuleConstants.kWheelRadius, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModuleState(Conversions.wheelRotToMeters(m_driveMotor.getVelocity().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
         // return new SwerveModulePosition(Conversions.wheelToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
-        return new SwerveModulePosition(m_driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI * Constants.ModuleConstants.kWheelRadius, Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+        return new SwerveModulePosition(Conversions.wheelRotToMeters(m_driveMotor.getPosition().getValueAsDouble()), Rotation2d.fromRadians(m_turnAbsEncoder.getPosition()));
+    }
+
+    public double getWheelPos() {
+        return m_driveMotor.getPosition().getValueAsDouble() * 2 * Math.PI;
     }
 }
