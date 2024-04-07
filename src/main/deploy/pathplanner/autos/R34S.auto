@@ -1,0 +1,229 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 15.870589458725279,
+      "y": 6.616622648366552
+    },
+    "rotation": -60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startAutoAim"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startFeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteExit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteEnter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startAutoAim"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startFeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteExit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopAutoAim"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteEnter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startAutoAim"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startFeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteExit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopAutoAim"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteEnter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startAutoAim"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startFeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "waitForNoteExit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopAutoAim"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R34S7"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "R3",
+  "choreoAuto": false
+}

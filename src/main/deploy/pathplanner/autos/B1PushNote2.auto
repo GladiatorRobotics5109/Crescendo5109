@@ -1,0 +1,25 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.61,
+      "y": 2.34
+    },
+    "rotation": 180.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B1PushNote2"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "B1",
+  "choreoAuto": false
+}

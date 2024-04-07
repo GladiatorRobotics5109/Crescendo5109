@@ -56,13 +56,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B12S1"
+            "pathName": "B12ST1"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "waitForNoteEnter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopIntake"
           }
         },
         {
@@ -80,7 +86,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B12S2"
+            "pathName": "B12ST2"
           }
         },
         {
@@ -93,12 +99,6 @@
           "type": "named",
           "data": {
             "name": "waitForNoteExit"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopIntake"
           }
         },
         {

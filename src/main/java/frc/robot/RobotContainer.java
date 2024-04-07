@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,6 +21,8 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -43,7 +47,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  //private final ClimbSubsystem m_climb;
+  private final ClimbSubsystem m_climb;
   private final CentralCommandFactory m_centralCommandFactory;
 
   private final SendableChooser<Command> m_autoChooser;
@@ -56,7 +60,7 @@ public class RobotContainer {
 
     m_swerve.setDefaultCommand(
       m_swerve.getDriveWithJoystickCommand(
-        () -> m_driverXLimiter.calculate(m_driverController.getLeftX()), // l/r
+        () -> m_driverXLimiter.calculate(-m_driverController.getLeftX()), // l/r
         () -> m_driverYLimiter.calculate(-m_driverController.getLeftY()), // f/b
         () -> m_driverRotLimiter.calculate(-m_driverController.getRightX()), // rot
         () -> m_driverController.getLeftTriggerAxis(), // super speed
@@ -69,7 +73,7 @@ public class RobotContainer {
     m_intake = new IntakeSubsystem();
 
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
-    //m_climb = new ClimbSubsystem();
+    m_climb = new ClimbSubsystem();
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
     m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
@@ -101,9 +105,22 @@ public class RobotContainer {
     m_autoChooser.addOption("OldShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
    
     // -- PATH PLANNER AUTOS -- 
-    m_autoChooser.addOption("R22S", AutoBuilder.buildAuto("R22S"));
-    m_autoChooser.addOption("B12S", AutoBuilder.buildAuto("B12S"));
-    m_autoChooser.addOption("B22S", AutoBuilder.buildAuto("B22S"));
+    m_autoChooser.addOption("R11S", AutoBuilder.buildAuto("R11S"));
+    m_autoChooser.addOption("R11ST", AutoBuilder.buildAuto("R11ST"));
+    m_autoChooser.addOption("R21S", AutoBuilder.buildAuto("R21S"));
+    m_autoChooser.addOption("R21ST", AutoBuilder.buildAuto("R21ST"));
+    m_autoChooser.addOption("R31S", AutoBuilder.buildAuto("R31S"));
+    m_autoChooser.addOption("R31ST", AutoBuilder.buildAuto("R31ST"));
+    m_autoChooser.addOption("R34S", AutoBuilder.buildAuto("R34S"));
+    m_autoChooser.addOption("B1PushNote1", AutoBuilder.buildAuto("B1PushNote1"));
+    m_autoChooser.addOption("B1PushNote2", AutoBuilder.buildAuto("B1PushNote2"));
+    m_autoChooser.addOption("B11S", AutoBuilder.buildAuto("B11S"));
+    m_autoChooser.addOption("B11ST", AutoBuilder.buildAuto("B11ST"));
+    m_autoChooser.addOption("B12ST", AutoBuilder.buildAuto("B12ST"));
+    m_autoChooser.addOption("B21S", AutoBuilder.buildAuto("B21S"));
+    m_autoChooser.addOption("B31S", AutoBuilder.buildAuto("B31S"));
+    m_autoChooser.addOption("B31ST", AutoBuilder.buildAuto("B31ST"));
+    m_autoChooser.addOption("B34S", AutoBuilder.buildAuto("B34S"));
    
     // -- TEST AUTOS --
     m_autoChooser.addOption("Test", AutoBuilder.buildAuto("Test"));
@@ -135,18 +152,28 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
-    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShooterCommand());
+    // m_operatorJoystick.button(1).onTrue(m_shooter.getToggleShooterCommand());
+    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleBarCommand());
     m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShootAmp());
     // m_operatorJoystick.button(2).onTrue(m_shooter.getStartFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
-    m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
+    // m_operatorJoystick.button(3).onTrue(m_shooter.getReverseFeederSlowCommand()).onFalse(m_shooter.getStopFeederCommand());
     m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
     m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
     m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
-    m_operatorJoystick.button(7).onTrue(m_shooter.getResetEncoderMinCommand());
+
+    m_operatorJoystick.button(6).onTrue(m_climb.getRetractLeftCommand()).onFalse(m_climb.getStopLeftCommand());
+    m_operatorJoystick.button(7).whileTrue(m_climb.getExtendLeftCommand()).onFalse(m_climb.getStopLeftCommand());
+
+    // m_operatorJoystick.button(6).whileTrue(m_climb.getIncreaseLeftExtensionCommand());
+    // m_operatorJoystick.button(7).whileTrue(m_climb.getDecreaseLeftExtensionCommand());
+
     m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
-    m_operatorJoystick.button(9).onTrue(m_shooter.getToggleBarCommand());
-    // m_operatorJoystick.button(10).onTrue(m_shooter.getWaitForNoteEnterCommand());
-    // m_operatorJoystick.button(11).onTrue(m_shooter.getWaitForNoteExitCommand());
+    m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand());
+
+    m_operatorJoystick.button(10).onTrue(m_climb.getRetractRightCommand()).onFalse(m_climb.getStopRightCommand());
+    m_operatorJoystick.button(11).onTrue(m_climb.getExtendRightCommand()).onFalse(m_climb.getStopRightCommand());
+    // m_operatorJoystick.button(10).whileTrue(m_climb.getDecreaseRightExtensionCommand());
+    // m_operatorJoystick.button(11).whileTrue(m_climb.getIncreaseRightExtensionCommand());
   }
 
   /**
@@ -156,7 +183,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // Get value of auto chooser
-    return m_autoChooser.getSelected();
+    return Commands.sequence(
+      m_swerve.getResetPoseAllianceCommand(),
+      //m_climb.getRetractCommand(),
+      // m_swerve.getAlignWheelCommand(),
+      m_autoChooser.getSelected()
+    );
     // return null;
   }
 

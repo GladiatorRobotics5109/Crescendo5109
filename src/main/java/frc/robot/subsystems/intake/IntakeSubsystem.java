@@ -38,11 +38,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
         m_pidController.setSmartMotionAccelStrategy(AccelStrategy.kTrapezoidal, 0);
         
+        m_intakeMotor.burnFlash();
     }
     
     public void startIntake() {
         //m_pidController.setReference(1000, ControlType.kSmartVelocity);
-        m_intakeMotor.set(1);
+        m_intakeMotor.set(0.7);
         m_state.addState(IntakeStateEnum.INTAKING);
     }
 
