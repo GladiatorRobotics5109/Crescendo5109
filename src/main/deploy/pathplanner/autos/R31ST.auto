@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.6582127857550991,
-      "y": 6.628333484912334
+      "x": 15.870589458725279,
+      "y": 6.616622648366552
     },
-    "rotation": -120.0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -46,10 +46,22 @@
           "data": {
             "name": "stopAutoAim"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 10.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R3ST1"
+          }
         }
       ]
     }
   },
-  "folder": "B3",
+  "folder": "R3",
   "choreoAuto": false
 }

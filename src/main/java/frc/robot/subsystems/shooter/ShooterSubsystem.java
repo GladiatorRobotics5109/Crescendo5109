@@ -417,7 +417,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return Commands.waitUntil(() -> m_debouncedFeederSensorTrigger.getAsBoolean() == true).andThen(
             Commands.sequence(
                 Commands.print("    STATE"),
-                this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
+                // this.runOnce(() -> {m_state.addState(ShooterStateEnum.HAS_NOTE);}),
                 Commands.print("    STOP SHOOTER"),
                 getStopShooterCommand(),
                 Commands.print("    REVERSE REVERSE"),

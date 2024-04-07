@@ -3,25 +3,27 @@
   "robotLength": 0.7493,
   "holonomicMode": true,
   "pathFolders": [
-    "B12S",
+    "B11ST",
+    "B12ST",
     "B1PushNote",
     "B22S",
-    "B34S",
     "B31S",
+    "B34S",
     "R12S",
     "R22S",
+    "R31ST",
     "R34S"
   ],
   "autoFolders": [
     "B1",
     "B2",
     "B3",
-    "R3",
     "R1",
-    "R2"
+    "R2",
+    "R3"
   ],
-  "defaultMaxVel": 3.5,
-  "defaultMaxAccel": 3.0,
+  "defaultMaxVel": 2.5,
+  "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "maxModuleSpeed": 4.0

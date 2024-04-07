@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 15.9,
+      "x": 0.8221644973960404,
       "y": 4.4
     },
-    "rotation": 60.0
+    "rotation": 120.0
   },
   "command": {
     "type": "sequential",
@@ -44,13 +44,19 @@
         {
           "type": "named",
           "data": {
+            "name": "stopAutoAim"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "startIntake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "R12S1"
+            "pathName": "B12ST1"
           }
         },
         {
@@ -80,7 +86,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R12S2"
+            "pathName": "B12ST2"
           }
         },
         {
@@ -104,6 +110,6 @@
       ]
     }
   },
-  "folder": "R1",
+  "folder": "B1",
   "choreoAuto": false
 }

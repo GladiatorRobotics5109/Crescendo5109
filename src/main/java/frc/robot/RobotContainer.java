@@ -105,14 +105,21 @@ public class RobotContainer {
     m_autoChooser.addOption("OldShootAndTaxi", AutonFactory.getShootAndTaxiCommand(m_swerve, m_shooter));
    
     // -- PATH PLANNER AUTOS -- 
-    m_autoChooser.addOption("R12S", AutoBuilder.buildAuto("R12S"));
-    m_autoChooser.addOption("R22S", AutoBuilder.buildAuto("R22S"));
+    m_autoChooser.addOption("R11S", AutoBuilder.buildAuto("R11S"));
+    m_autoChooser.addOption("R11ST", AutoBuilder.buildAuto("R11ST"));
+    m_autoChooser.addOption("R21S", AutoBuilder.buildAuto("R21S"));
+    m_autoChooser.addOption("R21ST", AutoBuilder.buildAuto("R21ST"));
+    m_autoChooser.addOption("R31S", AutoBuilder.buildAuto("R31S"));
+    m_autoChooser.addOption("R31ST", AutoBuilder.buildAuto("R31ST"));
     m_autoChooser.addOption("R34S", AutoBuilder.buildAuto("R34S"));
     m_autoChooser.addOption("B1PushNote1", AutoBuilder.buildAuto("B1PushNote1"));
     m_autoChooser.addOption("B1PushNote2", AutoBuilder.buildAuto("B1PushNote2"));
-    m_autoChooser.addOption("B12S", AutoBuilder.buildAuto("B12S"));
-    m_autoChooser.addOption("B22S", AutoBuilder.buildAuto("B22S"));
+    m_autoChooser.addOption("B11S", AutoBuilder.buildAuto("B11S"));
+    m_autoChooser.addOption("B11ST", AutoBuilder.buildAuto("B11ST"));
+    m_autoChooser.addOption("B12ST", AutoBuilder.buildAuto("B12ST"));
+    m_autoChooser.addOption("B21S", AutoBuilder.buildAuto("B21S"));
     m_autoChooser.addOption("B31S", AutoBuilder.buildAuto("B31S"));
+    m_autoChooser.addOption("B31ST", AutoBuilder.buildAuto("B31ST"));
     m_autoChooser.addOption("B34S", AutoBuilder.buildAuto("B34S"));
    
     // -- TEST AUTOS --
