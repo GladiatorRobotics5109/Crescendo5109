@@ -6,13 +6,19 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class RobotContainer {
+	private SwerveSubsystem m_swerve;
+
 	public RobotContainer() {
+		m_swerve = new SwerveSubsystem();
+
 		configureBindings();
 	}
 
 	private void configureBindings() {
+
 	}
 
 	public Command getAutonomousCommand() {
