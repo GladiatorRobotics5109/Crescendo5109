@@ -51,14 +51,17 @@ public final class Constants {
     }
 
     public static final class TeleopConstants {
-        public static final boolean kDriveFieldRelative = false;
+        public static final boolean kDriveFieldRelative = true;
     }
 
     public static final class SwerveConstants {
+        public static final double kOdometryFrequency = 250.0;
+
+        public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.5);
+        public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(Math.PI);
+
         public static final class SwerveModuleConstants {
             // TODO: tune all constants
-            public static final Measure<Velocity<Distance>> kMaxAttainableSpeed = Units.FeetPerSecond.of(12.9);
-
             public static final double kWheelRadiusMeters = 0.0472659347214289;
 
             // Positions of every swerve module
@@ -70,6 +73,7 @@ public final class Constants {
             // SDS MK4 L1 gear ratios
             public static final double kDriveGearRatio = 8.14; // 8.14:1
             public static final double kTurnGearRatio = 12.8; // 12.8:1
+            public static final Measure<Velocity<Distance>> kMaxAttainableSpeed = Units.FeetPerSecond.of(12.9);
 
             public static final SimpleMotorFeedforwardConstants kRealFeedForwardConstants = new SimpleMotorFeedforwardConstants(
                 0.1,
@@ -78,7 +82,9 @@ public final class Constants {
             );
 
             public static final SimpleMotorFeedforwardConstants kSimFeedForwardConstants = new SimpleMotorFeedforwardConstants(
-                0, 0.13, 0
+                0,
+                0.13,
+                0
             );
 
             public static final PIDConstants kRealDrivePID = new PIDConstants(0.5, 0.0, 0.0);
@@ -93,12 +99,12 @@ public final class Constants {
                 kRealDrivePID,
                 kRealTurnPID,
                 kModulePosFL,
-                Rotation2d.fromRadians(0),
+                Rotation2d.fromRadians(0), // turn relative offset
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
                 0,
                 0,
-                Rotation2d.fromRotations(0)
+                Rotation2d.fromRotations(0) // absolute encoder offset
             );
 
             public static final SwerveModuleConstants kFrontRightRealModuleConstants = new SwerveModuleConstants(
@@ -199,6 +205,8 @@ public final class Constants {
                 Rotation2d.fromRotations(0)
             );
 
+            // Creates empty SwerveModuleConstants because we don't want an io
+            // implementation in replay
             public static final SwerveModuleConstants kReplayModuleConstants = new SwerveModuleConstants(Mode.REPLAY);
 
             public int index;
@@ -251,10 +259,5 @@ public final class Constants {
                 this.turnAbsoluteEncoderOffset = turnAbsoluteEncoderOffset;
             }
         }
-
-        public static final double kOdometryFrequency = 250.0;
-
-        public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.5);
-        public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(Math.PI);
     }
 }

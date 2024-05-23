@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.hardware.swerveModule;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;

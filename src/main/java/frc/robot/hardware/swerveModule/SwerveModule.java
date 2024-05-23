@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.hardware.swerveModule;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;

@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.subsystems.swerve;
+package frc.robot.hardware.swerveModule;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
@@ -25,6 +25,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import frc.robot.Constants.SwerveConstants;
+import frc.robot.subsystems.swerve.SwerveSubsystem;
+
 import org.littletonrobotics.junction.Logger;
 
 /**

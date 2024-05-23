@@ -17,6 +17,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
+import frc.robot.hardware.gyro.Gyro;
+import frc.robot.hardware.gyro.GyroIO;
+import frc.robot.hardware.gyro.GyroIONavX;
+import frc.robot.hardware.gyro.GyroIOSim;
+import frc.robot.hardware.swerveModule.SwerveModule;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 
 import java.util.Optional;
@@ -25,6 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -41,10 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SlewRateLimiter m_driverControllerLeftYLimiter;
     private final SlewRateLimiter m_driverControllerRightXLimiter;
 
-    // used to calculate heading in sim
-    private final SwerveModulePosition[] m_previousModulePositions;
-
-    public SwerveSubsystem() {
+    public SwerveSubsystem(Pose2d startingPose) {
         try {
             switch (Constants.kCurrentMode) {
                 case REAL:
@@ -95,7 +98,7 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
-            m_kinematics, Rotation2d.fromRotations(0), getModulePositions(), new Pose2d()
+            m_kinematics, Rotation2d.fromRotations(0), getModulePositions(), startingPose
         );
 
         m_driverControllerLeftXLimiter = new SlewRateLimiter(
@@ -107,8 +110,6 @@ public class SwerveSubsystem extends SubsystemBase {
         m_driverControllerRightXLimiter = new SlewRateLimiter(
             Constants.DriveTeamConstants.kDriveJoystickAngularRateLimit
         );
-
-        m_previousModulePositions = getModulePositions();
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -120,6 +121,7 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
+    @AutoLogOutput(key = "Swerve/EstimatedPose")
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
@@ -154,6 +156,7 @@ public class SwerveSubsystem extends SubsystemBase {
         drive(0, 0, 0, true);
     }
 
+    @AutoLogOutput(key = "Swerve/CurrentModuleStates")
     public SwerveModuleState[] getModuleStates() {
         return new SwerveModuleState[] {
             m_swerveModules[0].getState(),
@@ -163,6 +166,7 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
+    @AutoLogOutput(key = "Swerve/CurrentChassisSpeeds")
     public ChassisSpeeds getChassisSpeeds() {
         return m_kinematics.toChassisSpeeds(getModuleStates());
     }
@@ -209,7 +213,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }).withName("DriveWithJoystickCommand");
     }
 
-    private void updatePose() {
+    private void updatePoseEstimator() {
         m_poseEstimator.update(m_gyro.getYaw(), getModulePositions());
     }
 
@@ -235,31 +239,21 @@ public class SwerveSubsystem extends SubsystemBase {
         m_gyro.periodic();
 
         // If simulated gyro, update its yaw based off of angular chassis speed and
-        // delta time (is this physically accurate?)
+        // delta time (is this physically accurate? m_kinematics.toTwist2d() wouldn't
+        // work)
         if (m_gyro.isSim()) {
             m_gyro.setYaw(
-                Rotation2d
-                    .fromRadians(
-                        MathUtil.applyDeadband(getChassisSpeeds().omegaRadiansPerSecond, 0.45)
-                            * Constants.kRobotLoopPeriodSecs
-                    )
-                    .plus(m_gyro.getYaw())
+                Rotation2d.fromRadians(
+                    MathUtil.applyDeadband(getChassisSpeeds().omegaRadiansPerSecond, 0.45)
+                        * Constants.kRobotLoopPeriodSecs
+                ).plus(m_gyro.getYaw())
             );
         }
 
-        updatePose();
+        updatePoseEstimator();
 
         if (DriverStation.isDisabled()) {
             stop();
         }
-
-        SwerveModulePosition[] currentModulePositions = getModulePositions();
-        for (int i = 0; i < m_previousModulePositions.length; i++) {
-            m_previousModulePositions[i] = currentModulePositions[i];
-        }
-
-        Logger.recordOutput("Swerve/CurrentModuleStates", getModuleStates());
-        Logger.recordOutput("Swerve/EstimatedPose", getPose());
-        Logger.recordOutput("Swerve/CurrentChassisSpeeds", getChassisSpeeds());
     }
 }

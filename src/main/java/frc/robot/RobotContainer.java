@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -17,7 +18,7 @@ public class RobotContainer {
     // private GenericHID m_driverController;
 
     public RobotContainer() {
-        m_swerve = new SwerveSubsystem();
+        m_swerve = new SwerveSubsystem(new Pose2d());
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
 

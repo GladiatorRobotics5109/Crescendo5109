@@ -1,6 +1,7 @@
-package frc.robot.subsystems.swerve;
+package frc.robot.hardware.gyro;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Gyro {
@@ -28,6 +29,10 @@ public class Gyro {
         return m_inputs.isConnected;
     }
 
+    /**
+     *
+     * @return true if this gyro object is simulated
+     */
     public boolean isSim() {
         return m_inputs.isSim;
     }
