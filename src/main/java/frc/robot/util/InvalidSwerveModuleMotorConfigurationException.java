@@ -1,11 +1,11 @@
 package frc.robot.util;
 
 public class InvalidSwerveModuleMotorConfigurationException extends Exception {
-	public InvalidSwerveModuleMotorConfigurationException() {
+    public InvalidSwerveModuleMotorConfigurationException() {
 
-	}
+    }
 
-	public InvalidSwerveModuleMotorConfigurationException(String msg) {
-		super(msg);
-	}
+    public InvalidSwerveModuleMotorConfigurationException(String msg) {
+        super(msg);
+    }
 }
