@@ -7,6 +7,7 @@ public interface GyroIO {
     @AutoLog
     public static class GyroIOInputs {
         public boolean isConnected = false;
+        public boolean isSim = false;
         public Rotation2d yaw;
         public Rotation2d pitch;
         public Rotation2d roll;

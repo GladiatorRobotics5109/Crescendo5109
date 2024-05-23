@@ -129,9 +129,9 @@ public class SwerveModule {
             m_io.setDriveVoltage(
                 m_drivePID.calculate(
                     m_inputs.driveVelocityRadPerSec,
-                    m_turnAngleSetpoint != null
+                    m_driveFeedforward.calculate(m_driveWheelSpeedSetpointRadPerSec) + (m_turnAngleSetpoint != null
                         ? m_driveWheelSpeedSetpointRadPerSec * Math.cos(m_turnPID.getPositionError())
-                        : m_driveWheelSpeedSetpointRadPerSec
+                        : m_driveWheelSpeedSetpointRadPerSec)
                 )
             );
         }

@@ -30,7 +30,7 @@ public class RobotContainer {
                 m_driverController::getLeftX,
                 m_driverController::getLeftY,
                 m_driverController::getRightX,
-                () -> Constants.TeleopConstants.kFieldRelative
+                () -> Constants.TeleopConstants.kDriveFieldRelative
             )
         );
 

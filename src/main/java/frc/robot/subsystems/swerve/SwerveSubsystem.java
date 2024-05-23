@@ -41,6 +41,9 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SlewRateLimiter m_driverControllerLeftYLimiter;
     private final SlewRateLimiter m_driverControllerRightXLimiter;
 
+    // used to calculate heading in sim
+    private final SwerveModulePosition[] m_previousModulePositions;
+
     public SwerveSubsystem() {
         try {
             switch (Constants.kCurrentMode) {
@@ -85,8 +88,10 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         m_kinematics = new SwerveDriveKinematics(
-            m_swerveModules[0].getTranslation2d(), m_swerveModules[1].getTranslation2d(),
-            m_swerveModules[2].getTranslation2d(), m_swerveModules[3].getTranslation2d()
+            m_swerveModules[0].getTranslation2d(), // fl
+            m_swerveModules[1].getTranslation2d(), // fr
+            m_swerveModules[2].getTranslation2d(), // bl
+            m_swerveModules[3].getTranslation2d() // br
         );
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
@@ -102,14 +107,16 @@ public class SwerveSubsystem extends SubsystemBase {
         m_driverControllerRightXLimiter = new SlewRateLimiter(
             Constants.DriveTeamConstants.kDriveJoystickAngularRateLimit
         );
+
+        m_previousModulePositions = getModulePositions();
     }
 
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
-            m_swerveModules[0].getPosition(),
-            m_swerveModules[1].getPosition(),
-            m_swerveModules[2].getPosition(),
-            m_swerveModules[3].getPosition()
+            m_swerveModules[0].getPosition(), // fl
+            m_swerveModules[1].getPosition(), // fr
+            m_swerveModules[2].getPosition(), // bl
+            m_swerveModules[3].getPosition() // br
         };
     }
 
@@ -126,10 +133,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
-        ChassisSpeeds discrete = ChassisSpeeds.discretize(desiredSpeeds, Constants.kRobotLoopPeriod.in(Units.Seconds));
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds
+            .discretize(desiredSpeeds, Constants.kRobotLoopPeriod.in(Units.Seconds));
         ChassisSpeeds speeds = fieldRelative
-            ? ChassisSpeeds.fromRobotRelativeSpeeds(discrete, getHeading().plus(getDriveRotationOffset()))
-            : discrete;
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(discreteSpeeds, getHeading().plus(getDriveRotationOffset()))
+            : discreteSpeeds;
         SwerveModuleState[] desiredStates = m_kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveModuleConstants.kMaxAttainableSpeed);
 
@@ -153,6 +161,10 @@ public class SwerveSubsystem extends SubsystemBase {
             m_swerveModules[2].getState(),
             m_swerveModules[3].getState(),
         };
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return m_kinematics.toChassisSpeeds(getModuleStates());
     }
 
     public Command driveWithJoystickCommand(
@@ -185,23 +197,19 @@ public class SwerveSubsystem extends SubsystemBase {
             double maxAngularSpeedRadPerSec = SwerveConstants.kDefaultAngularSpeed.in(Units.RadiansPerSecond);
 
             double vx, vy, vrot;
-            // swap vx and vy depending if robot or field relative
-            if (fieldRelative) {
-                vx = joyLeftY * maxSpeedMetersPerSec;
-                vy = joyLeftX * maxSpeedMetersPerSec;
+            vx = joyLeftY * maxSpeedMetersPerSec;
+            vy = joyLeftX * maxSpeedMetersPerSec;
+            if (!fieldRelative) {
+                vx = -vx;
+                vy = -vy;
             }
-            else {
-                vx = joyLeftX * maxSpeedMetersPerSec;
-                vy = joyLeftY * maxSpeedMetersPerSec;
-            }
-
-            vrot = joyRightX * maxAngularSpeedRadPerSec;
+            vrot = -joyRightX * maxAngularSpeedRadPerSec;
 
             drive(vx, vy, vrot, fieldRelative);
         }).withName("DriveWithJoystickCommand");
     }
 
-    private void updateOdometry() {
+    private void updatePose() {
         m_poseEstimator.update(m_gyro.getYaw(), getModulePositions());
     }
 
@@ -226,13 +234,32 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_gyro.periodic();
 
-        updateOdometry();
+        // If simulated gyro, update its yaw based off of angular chassis speed and
+        // delta time (is this physically accurate?)
+        if (m_gyro.isSim()) {
+            m_gyro.setYaw(
+                Rotation2d
+                    .fromRadians(
+                        MathUtil.applyDeadband(getChassisSpeeds().omegaRadiansPerSecond, 0.45)
+                            * Constants.kRobotLoopPeriodSecs
+                    )
+                    .plus(m_gyro.getYaw())
+            );
+        }
 
-        // if (DriverStation.isDisabled()) {
-        // stop();
-        // }
+        updatePose();
+
+        if (DriverStation.isDisabled()) {
+            stop();
+        }
+
+        SwerveModulePosition[] currentModulePositions = getModulePositions();
+        for (int i = 0; i < m_previousModulePositions.length; i++) {
+            m_previousModulePositions[i] = currentModulePositions[i];
+        }
 
         Logger.recordOutput("Swerve/CurrentModuleStates", getModuleStates());
         Logger.recordOutput("Swerve/EstimatedPose", getPose());
+        Logger.recordOutput("Swerve/CurrentChassisSpeeds", getChassisSpeeds());
     }
 }

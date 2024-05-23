@@ -16,6 +16,7 @@ import frc.robot.util.PIDConstants;
 
 public final class Constants {
     public static final Measure<Time> kRobotLoopPeriod = Units.Seconds.of(Robot.defaultPeriodSecs);
+    public static final double kRobotLoopPeriodSecs = kRobotLoopPeriod.in(Units.Seconds);
 
     /**
      * Alliance to be assumed if DriverStation.getAllliance() is empty
@@ -50,7 +51,7 @@ public final class Constants {
     }
 
     public static final class TeleopConstants {
-        public static final boolean kFieldRelative = true;
+        public static final boolean kDriveFieldRelative = false;
     }
 
     public static final class SwerveConstants {
@@ -59,6 +60,12 @@ public final class Constants {
             public static final Measure<Velocity<Distance>> kMaxAttainableSpeed = Units.FeetPerSecond.of(12.9);
 
             public static final double kWheelRadiusMeters = 0.0472659347214289;
+
+            // Positions of every swerve module
+            public static final Translation2d kModulePosFL = new Translation2d(0.290449, 0.290449);
+            public static final Translation2d kModulePosFR = new Translation2d(0.290449, -0.290449);
+            public static final Translation2d kModulePosBL = new Translation2d(-0.290449, 0.290449);
+            public static final Translation2d kModulePosBR = new Translation2d(-0.290449, -0.290449);
 
             // SDS MK4 L1 gear ratios
             public static final double kDriveGearRatio = 8.14; // 8.14:1
@@ -85,7 +92,7 @@ public final class Constants {
                 kRealFeedForwardConstants,
                 kRealDrivePID,
                 kRealTurnPID,
-                new Translation2d(-0.290449, 0.290449),
+                kModulePosFL,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
@@ -99,7 +106,7 @@ public final class Constants {
                 kRealFeedForwardConstants,
                 kRealDrivePID,
                 kRealTurnPID,
-                new Translation2d(0.290449, 0.290449),
+                kModulePosFR,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
@@ -113,7 +120,7 @@ public final class Constants {
                 kRealFeedForwardConstants,
                 kRealDrivePID,
                 kRealTurnPID,
-                new Translation2d(-0.290449, -0.290449),
+                kModulePosBL,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
@@ -127,7 +134,7 @@ public final class Constants {
                 kRealFeedForwardConstants,
                 kRealDrivePID,
                 kRealTurnPID,
-                new Translation2d(0.290449, -0.290449),
+                kModulePosBR,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
@@ -141,7 +148,7 @@ public final class Constants {
                 kSimFeedForwardConstants,
                 kSimDrivePID,
                 kSimTurnPID,
-                new Translation2d(-0.290449, 0.290449),
+                kModulePosFL,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.Sim,
                 MotorControllerType.Sim,
@@ -155,7 +162,7 @@ public final class Constants {
                 kSimFeedForwardConstants,
                 kSimDrivePID,
                 kSimTurnPID,
-                new Translation2d(0.290449, 0.290449),
+                kModulePosFR,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.Sim,
                 MotorControllerType.Sim,
@@ -169,7 +176,7 @@ public final class Constants {
                 kSimFeedForwardConstants,
                 kSimDrivePID,
                 kSimTurnPID,
-                new Translation2d(-0.290449, -0.290449),
+                kModulePosBL,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.Sim,
                 MotorControllerType.Sim,
@@ -183,7 +190,7 @@ public final class Constants {
                 kSimFeedForwardConstants,
                 kSimDrivePID,
                 kSimTurnPID,
-                new Translation2d(0.290449, -0.290449),
+                kModulePosBR,
                 Rotation2d.fromRadians(0),
                 MotorControllerType.Sim,
                 MotorControllerType.Sim,
@@ -248,6 +255,6 @@ public final class Constants {
         public static final double kOdometryFrequency = 250.0;
 
         public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.5);
-        public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(3 * Math.PI);
+        public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(Math.PI);
     }
 }

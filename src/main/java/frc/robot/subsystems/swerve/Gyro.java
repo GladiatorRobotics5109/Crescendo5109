@@ -28,6 +28,22 @@ public class Gyro {
         return m_inputs.isConnected;
     }
 
+    public boolean isSim() {
+        return m_inputs.isSim;
+    }
+
+    public void setYaw(Rotation2d yaw) {
+        m_inputs.yaw = yaw;
+    }
+
+    public void setRoll(Rotation2d roll) {
+        m_inputs.roll = roll;
+    }
+
+    public void setPitch(Rotation2d pitch) {
+        m_inputs.pitch = pitch;
+    }
+
     public void periodic() {
         m_io.updateInputs(m_inputs);
         Logger.processInputs("Swerve/Gyro", m_inputs);
