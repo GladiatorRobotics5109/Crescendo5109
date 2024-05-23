@@ -22,6 +22,7 @@ import frc.robot.hardware.gyro.GyroIO;
 import frc.robot.hardware.gyro.GyroIONavX;
 import frc.robot.hardware.gyro.GyroIOSim;
 import frc.robot.hardware.swerveModule.SwerveModule;
+import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingState;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 
 import java.util.Optional;
@@ -30,7 +31,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -46,6 +46,8 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SlewRateLimiter m_driverControllerLeftXLimiter;
     private final SlewRateLimiter m_driverControllerLeftYLimiter;
     private final SlewRateLimiter m_driverControllerRightXLimiter;
+
+    private SwerveDrivingState m_drivingState;
 
     public SwerveSubsystem(Pose2d startingPose) {
         try {
@@ -110,6 +112,8 @@ public class SwerveSubsystem extends SubsystemBase {
         m_driverControllerRightXLimiter = new SlewRateLimiter(
             Constants.DriveTeamConstants.kDriveJoystickAngularRateLimit
         );
+
+        m_drivingState = SwerveDrivingState.STOPPED_COASTING;
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -121,7 +125,6 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
-    @AutoLogOutput(key = "Swerve/EstimatedPose")
     public Pose2d getPose() {
         return m_poseEstimator.getEstimatedPosition();
     }
@@ -148,15 +151,20 @@ public class SwerveSubsystem extends SubsystemBase {
             optimizedStates[i] = m_swerveModules[i].setDesiredState(desiredStates[i]);
         }
 
-        Logger.recordOutput("Swerve/DesiredStates", desiredStates);
-        Logger.recordOutput("Swerve/OptimizedDesiredStates", optimizedStates);
+        // Change state if the current state isn't already set to driving
+        if (isStopped()) {
+            m_drivingState = SwerveDrivingState.DRIVING_UNKNOWN;
+        }
+
+        Logger.recordOutput("SwerveState/DesiredModuleStates", desiredStates);
+        Logger.recordOutput("SwerveState/OptimizedDesiredModuleStatesStates", optimizedStates);
     }
 
     public void stop() {
         drive(0, 0, 0, true);
+        m_drivingState = SwerveDrivingState.STOPPED_COASTING;
     }
 
-    @AutoLogOutput(key = "Swerve/CurrentModuleStates")
     public SwerveModuleState[] getModuleStates() {
         return new SwerveModuleState[] {
             m_swerveModules[0].getState(),
@@ -166,9 +174,33 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
-    @AutoLogOutput(key = "Swerve/CurrentChassisSpeeds")
     public ChassisSpeeds getChassisSpeeds() {
         return m_kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    /**
+     *
+     * @return what the swerve subsystem is currently doing
+     */
+    public SwerveDrivingState getDrivingState() {
+        return m_drivingState;
+    }
+
+    public boolean isDriving() {
+        SwerveDrivingState drivingState = getDrivingState();
+
+        switch (drivingState) {
+            case DRIVING_JOYSTICK:
+            case DRIVING_FOLLOWING_PATH:
+            case DRIVING_UNKNOWN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public boolean isStopped() {
+        return !isDriving();
     }
 
     public Command driveWithJoystickCommand(
@@ -194,6 +226,14 @@ public class SwerveSubsystem extends SubsystemBase {
                     Constants.DriveTeamConstants.kDriveJoystickDeadzone
                 )
             );
+
+            // Early out if there is no driving to be done
+            if (joyLeftX == 0.0 && joyLeftY == 0.0 && joyRightX == 0.0) {
+                stop();
+                return;
+            }
+
+            m_drivingState = SwerveDrivingState.DRIVING_JOYSTICK;
 
             boolean fieldRelative = fieldRelativeSupplier.getAsBoolean();
 

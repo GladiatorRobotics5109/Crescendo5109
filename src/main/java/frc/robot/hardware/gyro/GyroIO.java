@@ -13,6 +13,5 @@ public interface GyroIO {
         public Rotation2d roll;
     }
 
-    public default void updateInputs(GyroIOInputs inputs) {
-    };
+    public default void updateInputs(GyroIOInputs inputs) {};
 }

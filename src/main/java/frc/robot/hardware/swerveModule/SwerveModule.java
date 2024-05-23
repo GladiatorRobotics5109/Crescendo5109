@@ -117,15 +117,6 @@ public class SwerveModule {
         }
 
         if (m_driveWheelSpeedSetpointRadPerSec != null) {
-            Logger.recordOutput(
-                "Swerve/Module" + m_index + "/DriveWheelSpeedSetpointRadPerSec", m_driveWheelSpeedSetpointRadPerSec
-            );
-
-            Logger.recordOutput(
-                "Swerve/Module" + m_index + "/DriveWheelSpeedErrorRadPerSec",
-                m_inputs.driveVelocityRadPerSec - m_driveWheelSpeedSetpointRadPerSec
-            );
-
             m_io.setDriveVoltage(
                 m_drivePID.calculate(
                     m_inputs.driveVelocityRadPerSec,

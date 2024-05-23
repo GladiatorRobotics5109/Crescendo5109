@@ -6,8 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class RobotContainer {
@@ -19,6 +19,8 @@ public class RobotContainer {
 
     public RobotContainer() {
         m_swerve = new SwerveSubsystem(new Pose2d());
+
+        StateMachine.init(m_swerve);
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
 
@@ -46,6 +48,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return AutoBuilder.doNothing(m_swerve);
     }
 }
