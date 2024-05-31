@@ -64,7 +64,7 @@ public final class Constants {
         public static final double kOdometryFrequency = 250.0;
 
         public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.5);
-        public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(Math.PI);
+        public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(1.5 * Math.PI);
 
         public static final class SwerveModuleConstants {
             // TODO: tune all constants
@@ -279,13 +279,13 @@ public final class Constants {
                     Conversions.inToM(-(29.5 / 2 - 8)),
                     Conversions.inToM(29.5 / 2 - 2.75),
                     Conversions.inToM(2.85),
-                    new Rotation3d(0, 0.0, 0)
+                    new Rotation3d(0, Conversions.degToRad(-15), 0)
                 ),
                 new Transform3d(
                     Conversions.inToM(-(29.5 / 2 - 8)),
                     Conversions.inToM(-29.5 / 2 - 2.75),
                     Conversions.inToM(2.85),
-                    new Rotation3d(0, 0.0, 0)
+                    new Rotation3d(0, Conversions.degToRad(-15), 0)
                 )
             };
 
