@@ -9,6 +9,22 @@ public final class Conversions {
         throw new UnsupportedOperationException("This is a utility class!");
     }
 
+    public static double inToM(double in) {
+        return Units.inchesToMeters(in);
+    }
+
+    public static double mToIn(double m) {
+        return Units.metersToInches(m);
+    }
+
+    public static double degToRad(double deg) {
+        return Units.degreesToRadians(deg);
+    }
+
+    public static double radToDeg(double rad) {
+        return Units.radiansToDegrees(rad);
+    }
+
     public static double RadToRot(double rad) {
         return RadToRot(rad, 1);
     }

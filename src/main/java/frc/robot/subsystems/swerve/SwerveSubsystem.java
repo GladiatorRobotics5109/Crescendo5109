@@ -17,12 +17,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
-import frc.robot.hardware.gyro.Gyro;
-import frc.robot.hardware.gyro.GyroIO;
-import frc.robot.hardware.gyro.GyroIONavX;
-import frc.robot.hardware.gyro.GyroIOSim;
-import frc.robot.hardware.swerveModule.SwerveModule;
+import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingState;
+import frc.robot.subsystems.swerve.gyro.Gyro;
+import frc.robot.subsystems.swerve.gyro.GyroIO;
+import frc.robot.subsystems.swerve.gyro.GyroIONavX;
+import frc.robot.subsystems.swerve.gyro.GyroIOSim;
+import frc.robot.subsystems.swerve.swerveModule.SwerveModule;
+import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 
 import java.util.Optional;
@@ -151,8 +153,11 @@ public class SwerveSubsystem extends SubsystemBase {
             optimizedStates[i] = m_swerveModules[i].setDesiredState(desiredStates[i]);
         }
 
-        // Change state if the current state isn't already set to driving
-        if (isStopped()) {
+        // Change state if the desired state isn't already set to stopping
+        if (
+            desiredSpeeds.vxMetersPerSecond != 0.0 && desiredSpeeds.vyMetersPerSecond != 0.0
+                && desiredSpeeds.omegaRadiansPerSecond != 0.0
+        ) {
             m_drivingState = SwerveDrivingState.DRIVING_UNKNOWN;
         }
 
@@ -162,7 +167,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void stop() {
         drive(0, 0, 0, true);
-        m_drivingState = SwerveDrivingState.STOPPED_COASTING;
     }
 
     public SwerveModuleState[] getModuleStates() {
@@ -189,18 +193,24 @@ public class SwerveSubsystem extends SubsystemBase {
     public boolean isDriving() {
         SwerveDrivingState drivingState = getDrivingState();
 
-        switch (drivingState) {
-            case DRIVING_JOYSTICK:
-            case DRIVING_FOLLOWING_PATH:
-            case DRIVING_UNKNOWN:
-                return true;
-            default:
-                return false;
-        }
+        return drivingState == SwerveDrivingState.DRIVING_FOLLOWING_PATH
+            || drivingState == SwerveDrivingState.DRIVING_JOYSTICK
+            || drivingState == SwerveDrivingState.DRIVING_UNKNOWN;
+    }
+
+    public boolean isMoving() {
+        SwerveDrivingState drivingState = getDrivingState();
+
+        return drivingState == SwerveDrivingState.MOVING_BRAKING
+            || drivingState == SwerveDrivingState.MOVING_COASTING
+            || isDriving();
     }
 
     public boolean isStopped() {
-        return !isDriving();
+        SwerveDrivingState drivingState = getDrivingState();
+
+        return drivingState == SwerveDrivingState.STOPPED_BRAKING
+            || drivingState == SwerveDrivingState.STOPPED_COASTING;
     }
 
     public Command driveWithJoystickCommand(
@@ -255,6 +265,17 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private void updatePoseEstimator() {
         m_poseEstimator.update(m_gyro.getYaw(), getModulePositions());
+
+        VisionMeasurement[] measurements = StateMachine.VisionState.getMeasurements();
+
+        if (measurements.length != 0) {
+            for (VisionMeasurement measurement : measurements) {
+                m_poseEstimator.addVisionMeasurement(
+                    measurement.getEstimatedPose(),
+                    measurement.getTimestamp()
+                );
+            }
+        }
     }
 
     private Rotation2d getDriveRotationOffset() {
@@ -294,6 +315,19 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (DriverStation.isDisabled()) {
             stop();
+        }
+
+        ChassisSpeeds currentSpeeds = getChassisSpeeds();
+
+        if (
+            currentSpeeds.vxMetersPerSecond >= 0.01
+                && currentSpeeds.vyMetersPerSecond >= 0.01
+                && currentSpeeds.omegaRadiansPerSecond >= 0.01
+        ) {
+            m_drivingState = SwerveDrivingState.MOVING_COASTING;
+        }
+        else {
+            m_drivingState = SwerveDrivingState.STOPPED_COASTING;
         }
     }
 }

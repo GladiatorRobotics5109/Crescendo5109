@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.hardware.swerveModule;
+package frc.robot.subsystems.swerve.swerveModule;
 
 import edu.wpi.first.wpilibj.Notifier;
 import java.util.ArrayList;

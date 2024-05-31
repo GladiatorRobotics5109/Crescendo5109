@@ -7,6 +7,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionMeasurement;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 /**
  * Static class that represents the state of the robot.
@@ -22,12 +24,14 @@ public final class StateMachine {
         throw new UnsupportedOperationException("This class should not be instantiated!");
     }
 
-    public static void init(SwerveSubsystem swerve) {
+    public static void init(VisionSubsystem vision, SwerveSubsystem swerve) {
+        VisionState.init(vision);
         SwerveState.init(swerve);
     }
 
     public static void periodic() {
         SwerveState.periodic();
+        VisionState.periodic();
     }
 
     /**
@@ -36,10 +40,22 @@ public final class StateMachine {
      */
     public static final class SwerveState {
         /**
-         * Represents the wether or not the bot is driving
+         * Represents if and how the drivetrain is moving
          */
         public static enum SwerveDrivingState {
-            STOPPED_COASTING, STOPPED_BRAKING, DRIVING_JOYSTICK, DRIVING_FOLLOWING_PATH, DRIVING_UNKNOWN
+            STOPPED_COASTING,
+            /** The drivetrain is stopped and the modules are coasting */
+            STOPPED_BRAKING,
+            /** The drivetrain is stopped and the modules are braking */
+            MOVING_COASTING,
+            /** The drivetrain is moving and the modules are coasting */
+            MOVING_BRAKING,
+            /** The drivetrain is moving and the modules are braking */
+            DRIVING_JOYSTICK,
+            /** The drivetrain is moving and it is being driven with a joystick */
+            DRIVING_FOLLOWING_PATH,
+            /** The drivetrain is moving and it is being driven by a path follower */
+            DRIVING_UNKNOWN /** The drivetrain is moving and it is being driven by an unknown source */
         }
 
         public static Pose2d getPose() {
@@ -66,6 +82,10 @@ public final class StateMachine {
             return s_instance.m_swerve.isDriving();
         }
 
+        public static boolean isMoving() {
+            return s_instance.m_swerve.isMoving();
+        }
+
         public static boolean isStopped() {
             return s_instance.m_swerve.isStopped();
         }
@@ -76,6 +96,7 @@ public final class StateMachine {
             Logger.recordOutput("SwerveState/ChassisSpeeds", getChassisSpeeds());
             Logger.recordOutput("SwerveState/DrivingState", getDrivingState());
             Logger.recordOutput("SwerveState/IsDriving", isDriving());
+            Logger.recordOutput("SwerveState/IsMoving", isMoving());
             Logger.recordOutput("SwerveState/IsStopped", isStopped());
         }
 
@@ -89,6 +110,32 @@ public final class StateMachine {
 
         private SwerveState(SwerveSubsystem swerve) {
             m_swerve = swerve;
+        }
+    }
+
+    public static final class VisionState {
+        public static VisionMeasurement[] getMeasurements() {
+            return s_instance.m_vision.getMeasurements();
+        }
+
+        private static void periodic() {
+            // VisionMeasurement[] measurements = getMeasurements();
+            // for (VisionMeasurement measurement : measurements) {
+            // Logger.recordOutput("VisionState/" + measurement.getCameraName() +
+            // "Measurement", measurement);
+            // }
+        }
+
+        private static VisionState s_instance;
+
+        private static void init(VisionSubsystem vision) {
+            s_instance = new VisionState(vision);
+        }
+
+        private VisionSubsystem m_vision;
+
+        private VisionState(VisionSubsystem vision) {
+            m_vision = vision;
         }
     }
 }

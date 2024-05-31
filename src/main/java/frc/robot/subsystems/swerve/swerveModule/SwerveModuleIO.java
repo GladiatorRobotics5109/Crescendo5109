@@ -1,4 +1,4 @@
-package frc.robot.hardware.swerveModule;
+package frc.robot.subsystems.swerve.swerveModule;
 
 import org.littletonrobotics.junction.AutoLog;
 

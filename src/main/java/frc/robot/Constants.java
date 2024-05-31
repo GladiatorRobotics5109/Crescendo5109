@@ -1,6 +1,11 @@
 package frc.robot;
 
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Distance;
@@ -11,6 +16,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.util.SimpleMotorFeedforwardConstants;
+import frc.robot.util.Conversions;
 import frc.robot.util.MotorControllerType;
 import frc.robot.util.PIDConstants;
 
@@ -257,6 +263,49 @@ public final class Constants {
                 this.driveMotorPort = driveMotorPort;
                 this.turnMotorPort = turnMotorPort;
                 this.turnAbsoluteEncoderOffset = turnAbsoluteEncoderOffset;
+            }
+        }
+
+        public static final class VisionConstants {
+            public static final AprilTagFields kAprilTagFieldLayout = AprilTagFields.k2024Crescendo;
+            public static final PoseStrategy kPoseEstimationStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+
+            public static final String[] kRealCameraNames = new String[] {
+                "LeftCamera",
+                "RightCamera"
+            };
+            public static final Transform3d[] kRealRobotToCameras = new Transform3d[] {
+                new Transform3d(
+                    Conversions.inToM(-(29.5 / 2 - 8)),
+                    Conversions.inToM(29.5 / 2 - 2.75),
+                    Conversions.inToM(2.85),
+                    new Rotation3d(0, 0.0, 0)
+                ),
+                new Transform3d(
+                    Conversions.inToM(-(29.5 / 2 - 8)),
+                    Conversions.inToM(-29.5 / 2 - 2.75),
+                    Conversions.inToM(2.85),
+                    new Rotation3d(0, 0.0, 0)
+                )
+            };
+
+            // Simulate real cameras using PhotonVision's simulator
+            public static final String[] kSimCameraNames = kRealCameraNames;
+            public static final Transform3d[] kSimRobotToCameras = kRealRobotToCameras;
+            // public static final String[] kSimCameraNames = new String[] {};
+            // public static final Transform3d[] kSimRobotToCameras = new Transform3d[] {};
+
+            // TODO: verify these values with real bot sometime
+            public static final class SimCameraConstants {
+                public static final double kAverageLatencyMs = 33.3333333333; // ~30 fps
+                // TODO: Measure this
+                public static final double kLatencyStdDevMs = 5;
+                public static final double kFPS = 120.0;
+
+                public static final int kImageWidth = 1280;
+                public static final int kImageHeight = 800;
+                // TODO: Make sure diag fov is correct
+                public static final Rotation2d kFov = Rotation2d.fromDegrees(86.0510613313);
             }
         }
     }

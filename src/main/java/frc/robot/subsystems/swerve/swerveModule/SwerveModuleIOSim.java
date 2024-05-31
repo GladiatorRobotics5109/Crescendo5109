@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot.hardware.swerveModule;
+package frc.robot.subsystems.swerve.swerveModule;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -48,17 +48,27 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         inputs.drivePositionRad = driveSim.getAngularPositionRad();
         inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
         inputs.driveAppliedVolts = driveAppliedVolts;
-        inputs.driveCurrentAmps = new double[] { Math.abs(driveSim.getCurrentDrawAmps()) };
+        inputs.driveCurrentAmps = new double[] {
+            Math.abs(driveSim.getCurrentDrawAmps())
+        };
 
         inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad()).plus(turnAbsoluteInitPosition);
         inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
         inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
         inputs.turnAppliedVolts = turnAppliedVolts;
-        inputs.turnCurrentAmps = new double[] { Math.abs(turnSim.getCurrentDrawAmps()) };
+        inputs.turnCurrentAmps = new double[] {
+            Math.abs(turnSim.getCurrentDrawAmps())
+        };
 
-        inputs.odometryTimestamps = new double[] { Timer.getFPGATimestamp() };
-        inputs.odometryDrivePositionsRad = new double[] { inputs.drivePositionRad };
-        inputs.odometryTurnPositions = new Rotation2d[] { inputs.turnPosition };
+        inputs.odometryTimestamps = new double[] {
+            Timer.getFPGATimestamp()
+        };
+        inputs.odometryDrivePositionsRad = new double[] {
+            inputs.drivePositionRad
+        };
+        inputs.odometryTurnPositions = new Rotation2d[] {
+            inputs.turnPosition
+        };
     }
 
     @Override

@@ -9,20 +9,23 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 
 public class RobotContainer {
+    private VisionSubsystem m_vision;
     private SwerveSubsystem m_swerve;
 
     private CommandPS5Controller m_driverController;
-
     // private GenericHID m_driverController;
 
     public RobotContainer() {
+        m_vision = new VisionSubsystem();
         m_swerve = new SwerveSubsystem(new Pose2d());
 
-        StateMachine.init(m_swerve);
+        StateMachine.init(m_vision, m_swerve);
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
+        // m_driverController = new GenericHID(0);
 
         configureBindings();
     }
@@ -42,7 +45,7 @@ public class RobotContainer {
         // () -> m_driverController.getRawAxis(0),
         // () -> m_driverController.getRawAxis(1),
         // () -> m_driverController.getRawAxis(2),
-        // () -> Constants.TeleopConstants.kFieldRelative
+        // () -> Constants.TeleopConstants.kDriveFieldRelative
         // )
         // );
     }
