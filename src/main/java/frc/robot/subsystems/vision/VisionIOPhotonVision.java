@@ -18,7 +18,8 @@ public class VisionIOPhotonVision implements VisionIO {
     private AprilTagFieldLayout m_fieldLayout;
 
     public VisionIOPhotonVision(
-        String cameraName, Transform3d robotToCamera
+        String cameraName,
+        Transform3d robotToCamera
     ) {
         try {
             m_fieldLayout = AprilTagFieldLayout

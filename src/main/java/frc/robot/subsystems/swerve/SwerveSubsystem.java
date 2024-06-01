@@ -214,7 +214,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command driveWithJoystickCommand(
-        DoubleSupplier joyLeftXSupplier, DoubleSupplier joyLeftYSupplier, DoubleSupplier joyRightXSupplier,
+        DoubleSupplier joyLeftXSupplier,
+        DoubleSupplier joyLeftYSupplier,
+        DoubleSupplier joyRightXSupplier,
         BooleanSupplier fieldRelativeSupplier
     ) {
         return this.run(() -> {

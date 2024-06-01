@@ -75,10 +75,10 @@
       value="0" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_parameters_in_constructor_declaration"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_parameters_in_method_declaration"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_resources_in_try"
       value="80" />

@@ -247,10 +247,17 @@ public final class Constants {
             }
 
             public SwerveModuleConstants(
-                int index, SimpleMotorFeedforwardConstants driveFeedforward, PIDConstants drivePID,
-                PIDConstants turnPID, Translation2d modulePosition, Rotation2d turnRelativeOffset,
-                MotorControllerType driveMotorController, MotorControllerType turnMotorController, int driveMotorPort,
-                int turnMotorPort, Rotation2d turnAbsoluteEncoderOffset
+                int index,
+                SimpleMotorFeedforwardConstants driveFeedforward,
+                PIDConstants drivePID,
+                PIDConstants turnPID,
+                Translation2d modulePosition,
+                Rotation2d turnRelativeOffset,
+                MotorControllerType driveMotorController,
+                MotorControllerType turnMotorController,
+                int driveMotorPort,
+                int turnMotorPort,
+                Rotation2d turnAbsoluteEncoderOffset
             ) {
                 this.index = index;
                 this.driveFeedforward = driveFeedforward;

@@ -26,7 +26,10 @@ public class SwerveModuleIOTalonFXDriveSparkMaxTurn implements SwerveModuleIO {
     private final VoltageOut m_voltageOut;
 
     public SwerveModuleIOTalonFXDriveSparkMaxTurn(
-        int driveMotorPort, int turnMotorPort, boolean invertTurnMotor, Rotation2d turnAbsoluteEncoderOffset
+        int driveMotorPort,
+        int turnMotorPort,
+        boolean invertTurnMotor,
+        Rotation2d turnAbsoluteEncoderOffset
     ) {
         m_driveMotor = new TalonFX(driveMotorPort);
 
