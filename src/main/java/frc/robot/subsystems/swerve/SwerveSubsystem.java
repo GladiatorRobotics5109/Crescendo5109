@@ -27,8 +27,8 @@ import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import frc.robot.subsystems.swerve.swerveModule.SwerveModule;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
+import frc.robot.util.Util;
 
-import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
@@ -36,8 +36,8 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 public class SwerveSubsystem extends SubsystemBase {
     public static final Lock odometryLock = new ReentrantLock();
@@ -85,11 +85,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
                     break;
                 default:
+                    // m_swerveModules = new SwerveModule[] {
+                    // new SwerveModule(SwerveModuleConstants.kReplayModuleConstants),
+                    // new SwerveModule(SwerveModuleConstants.kReplayModuleConstants),
+                    // new SwerveModule(SwerveModuleConstants.kReplayModuleConstants),
+                    // new SwerveModule(SwerveModuleConstants.kReplayModuleConstants)
+                    // };
+
                     m_swerveModules = new SwerveModule[] {
-                        new SwerveModule(SwerveModuleConstants.kReplayModuleConstants),
-                        new SwerveModule(SwerveModuleConstants.kReplayModuleConstants),
-                        new SwerveModule(SwerveModuleConstants.kReplayModuleConstants),
-                        new SwerveModule(SwerveModuleConstants.kReplayModuleConstants)
+                        new SwerveModule(SwerveModuleConstants.kFrontLeftRealModuleConstants),
+                        new SwerveModule(SwerveModuleConstants.kFrontRightRealModuleConstants),
+                        new SwerveModule(SwerveModuleConstants.kBackLeftRealModuleConstants),
+                        new SwerveModule(SwerveModuleConstants.kBackRightRealModuleConstants)
                     };
 
                     m_gyro = new Gyro(new GyroIO() {});
@@ -131,6 +138,16 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autonXPID = SwerveConstants.kAutonXPID.get();
         m_autonYPID = SwerveConstants.kAutonYPID.get();
         m_autonRotPID = SwerveConstants.kAutonRotPID.get();
+
+        AutoBuilder.configureHolonomic(
+            this::getPose,
+            this::setPose,
+            this::getRobotRelativeChassisSpeeds,
+            (ChassisSpeeds speeds) -> drive(speeds, false),
+            SwerveConstants.kHolonomicPathFollowerConfig,
+            () -> false,
+            this
+        );
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -197,8 +214,12 @@ public class SwerveSubsystem extends SubsystemBase {
         m_poseEstimator.resetPosition(m_gyro.getYaw(), getModulePositions(), pose);
     }
 
-    public ChassisSpeeds getChassisSpeeds() {
+    public ChassisSpeeds getRobotRelativeChassisSpeeds() {
         return m_kinematics.toChassisSpeeds(getModuleStates());
+    }
+
+    public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeChassisSpeeds(), getHeading());
     }
 
     /**
@@ -284,17 +305,20 @@ public class SwerveSubsystem extends SubsystemBase {
         }).withName("DriveWithJoystickCommand");
     }
 
-    public Command followTrajectoryCommand(ChoreoTrajectory traj) {
-        return Choreo.choreoSwerveCommand(
-            traj,
-            this::getPose,
-            m_autonXPID,
-            m_autonYPID,
-            m_autonRotPID,
-            (ChassisSpeeds speeds) -> drive(speeds, false),
-            () -> false,
-            this
-        );
+    // public Command followTrajectoryCommand(ChoreoTrajectory traj) {
+    // return Choreo.choreoSwerveCommand(
+    // traj,
+    // this::getPose,
+    // m_autonXPID,
+    // m_autonYPID,
+    // m_autonRotPID,
+    // (ChassisSpeeds speeds) -> drive(speeds, false),
+    // () -> false,
+    // this);
+    // }
+
+    public Command followPathPlannerPathCommand(PathPlannerPath path) {
+        return AutoBuilder.followPath(path);
     }
 
     public Command setPoseCommand(Pose2d pose) {
@@ -322,16 +346,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     private Rotation2d getDriveRotationOffset() {
-        Optional<Alliance> optionalAlliance = DriverStation.getAlliance();
-        Alliance alliance;
-        if (optionalAlliance.isPresent()) {
-            alliance = optionalAlliance.get();
-        }
-        else {
-            alliance = Constants.kDefaultAlliance;
-        }
-
-        return alliance == Alliance.Red ? Rotation2d.fromRadians(0) : Rotation2d.fromRadians(Math.PI);
+        return Util.getAllianceGuaranteed() == Alliance.Red ? Rotation2d.fromRadians(0)
+            : Rotation2d.fromRadians(Math.PI);
     }
 
     @Override
@@ -348,9 +364,10 @@ public class SwerveSubsystem extends SubsystemBase {
         if (m_gyro.isSim()) {
             m_gyro.setYaw(
                 Rotation2d.fromRadians(
-                    MathUtil.applyDeadband(getChassisSpeeds().omegaRadiansPerSecond, 0.45)
+                    MathUtil.applyDeadband(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond, 0.45)
                         * Constants.kRobotLoopPeriodSecs
-                ).plus(m_gyro.getYaw())
+                )
+                    .plus(m_gyro.getYaw())
             );
         }
 
@@ -360,7 +377,7 @@ public class SwerveSubsystem extends SubsystemBase {
             stop();
         }
 
-        ChassisSpeeds currentSpeeds = getChassisSpeeds();
+        ChassisSpeeds currentSpeeds = getRobotRelativeChassisSpeeds();
 
         if (
             currentSpeeds.vxMetersPerSecond >= 0.01

@@ -33,7 +33,10 @@ public class SwerveModule {
         MotorControllerType driveController = constants.driveMotorController;
         MotorControllerType turnController = constants.turnMotorController;
 
-        if (driveController == MotorControllerType.TalonFX && turnController == MotorControllerType.SparkMAX) {
+        if (Constants.kCurrentMode == Constants.Mode.REPLAY) {
+            m_io = new SwerveModuleIO() {};
+        }
+        else if (driveController == MotorControllerType.TalonFX && turnController == MotorControllerType.SparkMAX) {
             m_io = new SwerveModuleIOTalonFXDriveSparkMaxTurn(
                 constants.driveMotorPort,
                 constants.turnMotorPort,

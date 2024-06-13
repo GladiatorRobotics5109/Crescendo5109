@@ -2,6 +2,9 @@ package frc.robot;
 
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -63,7 +66,10 @@ public final class Constants {
     public static final class SwerveConstants {
         public static final double kOdometryFrequency = 250.0;
 
-        public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.5);
+        public static final Measure<Distance> kDriveBaseRadius = Units.Meters
+            .of(SwerveModuleConstants.kModulePosFL.getNorm());
+
+        public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.8);
         public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(1.5 * Math.PI);
 
         public static final PIDConstants kAutonXPID = new PIDConstants(1, 0, 0);
@@ -73,6 +79,12 @@ public final class Constants {
         // Wether or not to feed estimated pose from cameras in to the subsystem's pose
         // estimator
         public static final boolean kUseSimCameraForPoseEstimation = false;
+
+        public static final HolonomicPathFollowerConfig kHolonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
+            SwerveModuleConstants.kMaxAttainableSpeed.in(Units.MetersPerSecond),
+            kDriveBaseRadius.in(Units.Meters),
+            new ReplanningConfig(true, true)
+        );
 
         public static final class SwerveModuleConstants {
             // TODO: tune all constants
@@ -116,8 +128,8 @@ public final class Constants {
                 Rotation2d.fromRadians(0), // turn relative offset
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
-                0,
-                0,
+                11,
+                12,
                 Rotation2d.fromRotations(0) // absolute encoder offset
             );
 
@@ -130,8 +142,8 @@ public final class Constants {
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
-                0,
-                0,
+                13,
+                14,
                 Rotation2d.fromRotations(0)
             );
 
@@ -144,8 +156,8 @@ public final class Constants {
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
-                0,
-                0,
+                15,
+                16,
                 Rotation2d.fromRotations(0)
             );
 
@@ -158,8 +170,8 @@ public final class Constants {
                 Rotation2d.fromRadians(0),
                 MotorControllerType.TalonFX,
                 MotorControllerType.SparkMAX,
-                0,
-                0,
+                17,
+                18,
                 Rotation2d.fromRotations(0)
             );
 

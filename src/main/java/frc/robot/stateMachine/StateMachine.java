@@ -70,8 +70,12 @@ public final class StateMachine {
             return s_instance.m_swerve.getModuleStates();
         }
 
-        public static ChassisSpeeds getChassisSpeeds() {
-            return s_instance.m_swerve.getChassisSpeeds();
+        public static ChassisSpeeds getRobotRelativeChassisSpeeds() {
+            return s_instance.m_swerve.getRobotRelativeChassisSpeeds();
+        }
+
+        public static ChassisSpeeds getFieldRelativeChassisSpeeds() {
+            return s_instance.m_swerve.getFieldRelativeChassisSpeeds();
         }
 
         public static SwerveDrivingState getDrivingState() {
@@ -93,7 +97,8 @@ public final class StateMachine {
         private static void periodic() {
             Logger.recordOutput("SwerveState/RobotPose", getPose());
             Logger.recordOutput("SwerveState/ModuleStates", getModuleStates());
-            Logger.recordOutput("SwerveState/ChassisSpeeds", getChassisSpeeds());
+            Logger.recordOutput("SwerveState/RobotRelativeChassisSpeeds", getRobotRelativeChassisSpeeds());
+            Logger.recordOutput("SwerveState/FieldRelativeChassisSpeeds", getFieldRelativeChassisSpeeds());
             Logger.recordOutput("SwerveState/DrivingState", getDrivingState());
             Logger.recordOutput("SwerveState/IsDriving", isDriving());
             Logger.recordOutput("SwerveState/IsMoving", isMoving());

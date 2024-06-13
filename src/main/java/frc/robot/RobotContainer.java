@@ -4,7 +4,12 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -17,6 +22,8 @@ public class RobotContainer {
     private CommandPS5Controller m_driverController;
     // private GenericHID m_driverController;
 
+    private LoggedDashboardChooser<Command> m_autoChooser;
+
     public RobotContainer() {
         m_vision = new VisionSubsystem();
         m_swerve = new SwerveSubsystem();
@@ -27,6 +34,16 @@ public class RobotContainer {
         // m_driverController = new GenericHID(0);
 
         configureBindings();
+        registerNamedCommands();
+
+        m_autoChooser = new LoggedDashboardChooser<Command>("AutoChooser");
+
+        m_autoChooser.addDefaultOption("DoNothing", AutoBuilder.doNothing(m_swerve));
+        m_autoChooser.addOption("Test", AutoBuilder.test(m_swerve));
+    }
+
+    public Command getAutonomousCommand() {
+        return m_autoChooser.get();
     }
 
     private void configureBindings() {
@@ -49,7 +66,7 @@ public class RobotContainer {
         // );
     }
 
-    public Command getAutonomousCommand() {
-        return AutoBuilder.test(m_swerve);
+    private void registerNamedCommands() {
+        NamedCommands.registerCommand("PrintHello", Commands.print("HELLO WORLD"));
     }
 }

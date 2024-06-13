@@ -23,13 +23,13 @@ public interface SwerveModuleIO {
         public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
     }
 
-    public void updateInputs(SwerveModuleIOInputs inputs);
+    public default void updateInputs(SwerveModuleIOInputs inputs) {};
 
-    public void setDriveVoltage(double volts);
+    public default void setDriveVoltage(double volts) {};
 
-    public void setTurnVoltage(double volts);
+    public default void setTurnVoltage(double volts) {};
 
-    public void setDriveBrakeMode(boolean enabled);
+    public default void setDriveBrakeMode(boolean enabled) {};
 
-    public void setTurnBrakeMode(boolean enabled);
+    public default void setTurnBrakeMode(boolean enabled) {};
 }

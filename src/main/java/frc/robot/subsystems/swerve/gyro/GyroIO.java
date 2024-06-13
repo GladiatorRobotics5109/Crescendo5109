@@ -8,9 +8,9 @@ public interface GyroIO {
     public static class GyroIOInputs {
         public boolean isConnected = false;
         public boolean isSim = false;
-        public Rotation2d yaw;
-        public Rotation2d pitch;
-        public Rotation2d roll;
+        public Rotation2d yaw = new Rotation2d();
+        public Rotation2d pitch = new Rotation2d();
+        public Rotation2d roll = new Rotation2d();
     }
 
     public default void updateInputs(GyroIOInputs inputs) {};

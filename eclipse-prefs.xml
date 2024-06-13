@@ -217,7 +217,7 @@
       id="org.eclipse.jdt.core.formatter.comment.insert_new_line_for_parameter"
       value="insert" />
     <setting
-      id="org.eclipse.jdt.core.formatter.comment.line_length" value="80" />
+      id="org.eclipse.jdt.core.formatter.comment.line_length" value="120" />
     <setting
       id="org.eclipse.jdt.core.formatter.comment.new_lines_at_block_boundaries"
       value="true" />
