@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
@@ -20,7 +19,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         m_vision = new VisionSubsystem();
-        m_swerve = new SwerveSubsystem(new Pose2d());
+        m_swerve = new SwerveSubsystem();
 
         StateMachine.init(m_vision, m_swerve);
 
@@ -51,6 +50,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return AutoBuilder.doNothing(m_swerve);
+        return AutoBuilder.test(m_swerve);
     }
 }

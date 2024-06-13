@@ -66,6 +66,14 @@ public final class Constants {
         public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.5);
         public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(1.5 * Math.PI);
 
+        public static final PIDConstants kAutonXPID = new PIDConstants(1, 0, 0);
+        public static final PIDConstants kAutonYPID = new PIDConstants(1, 0, 0);
+        public static final PIDConstants kAutonRotPID = new PIDConstants(1, 0, 0);
+
+        // Wether or not to feed estimated pose from cameras in to the subsystem's pose
+        // estimator
+        public static final boolean kUseSimCameraForPoseEstimation = false;
+
         public static final class SwerveModuleConstants {
             // TODO: tune all constants
             public static final double kWheelRadiusMeters = 0.0472659347214289;
@@ -220,6 +228,9 @@ public final class Constants {
             public SimpleMotorFeedforwardConstants driveFeedforward;
             public PIDConstants drivePID;
             public PIDConstants turnPID;
+            public PIDConstants autonXPID;
+            public PIDConstants autonYPID;
+            public PIDConstants autonRotPID;
 
             public Translation2d moduleTranslation2d;
 
@@ -241,7 +252,8 @@ public final class Constants {
             public SwerveModuleConstants(Mode mode) {
                 if (mode != Mode.REPLAY) {
                     DriverStation.reportWarning(
-                        "Empty SwerveModuleConstants created for a robot that is not in Mode.REPLAY", null
+                        "Empty SwerveModuleConstants created for a robot that is not in Mode.REPLAY",
+                        null
                     );
                 }
             }

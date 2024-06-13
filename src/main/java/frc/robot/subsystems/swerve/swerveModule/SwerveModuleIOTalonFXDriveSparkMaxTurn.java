@@ -65,7 +65,8 @@ public class SwerveModuleIOTalonFXDriveSparkMaxTurn implements SwerveModuleIO {
         m_turnMotor.setCANTimeout(0);
 
         m_turnMotor.setPeriodicFramePeriod(
-            CANSparkLowLevel.PeriodicFrame.kStatus2, (int) (1000.0 / Constants.SwerveConstants.kOdometryFrequency)
+            CANSparkLowLevel.PeriodicFrame.kStatus2,
+            (int)(1000.0 / Constants.SwerveConstants.kOdometryFrequency)
         );
 
         m_voltageOut = new VoltageOut(0);

@@ -24,7 +24,7 @@
       value="false" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation"
       value="0" />
@@ -33,13 +33,13 @@
       value="16" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_explicit_constructor_call"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_method_invocation"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_qualified_allocation_expression"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_assignment"
       value="0" />
@@ -63,13 +63,13 @@
       value="0" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_method_declaration"
-      value="0" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_module_statements"
       value="16" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_multiple_fields"
-      value="16" />
+      value="52" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_parameterized_type_references"
       value="0" />
@@ -371,7 +371,7 @@
       value="insert" />
     <setting
       id="org.eclipse.jdt.core.formatter.insert_space_after_closing_paren_in_cast"
-      value="insert" />
+      value="do not insert" />
     <setting
       id="org.eclipse.jdt.core.formatter.insert_space_after_colon_in_assert"
       value="insert" />

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,6 +36,9 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+
 public class SwerveSubsystem extends SubsystemBase {
     public static final Lock odometryLock = new ReentrantLock();
 
@@ -43,7 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private Gyro m_gyro;
 
     private final SwerveDriveKinematics m_kinematics;
-    private SwerveDrivePoseEstimator m_poseEstimator;
+    private final SwerveDrivePoseEstimator m_poseEstimator;
 
     private final SlewRateLimiter m_driverControllerLeftXLimiter;
     private final SlewRateLimiter m_driverControllerLeftYLimiter;
@@ -51,7 +55,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private SwerveDrivingState m_drivingState;
 
-    public SwerveSubsystem(Pose2d startingPose) {
+    private final PIDController m_autonXPID;
+    private final PIDController m_autonYPID;
+    private final PIDController m_autonRotPID;
+
+    public SwerveSubsystem() {
         try {
             switch (Constants.kCurrentMode) {
                 case REAL:
@@ -102,7 +110,10 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         m_poseEstimator = new SwerveDrivePoseEstimator(
-            m_kinematics, Rotation2d.fromRotations(0), getModulePositions(), startingPose
+            m_kinematics,
+            Rotation2d.fromRotations(0),
+            getModulePositions(),
+            new Pose2d()
         );
 
         m_driverControllerLeftXLimiter = new SlewRateLimiter(
@@ -116,6 +127,10 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         m_drivingState = SwerveDrivingState.STOPPED_COASTING;
+
+        m_autonXPID = SwerveConstants.kAutonXPID.get();
+        m_autonYPID = SwerveConstants.kAutonYPID.get();
+        m_autonRotPID = SwerveConstants.kAutonRotPID.get();
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -176,6 +191,10 @@ public class SwerveSubsystem extends SubsystemBase {
             m_swerveModules[2].getState(),
             m_swerveModules[3].getState(),
         };
+    }
+
+    public void setPose(Pose2d pose) {
+        m_poseEstimator.resetPosition(m_gyro.getYaw(), getModulePositions(), pose);
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -265,6 +284,23 @@ public class SwerveSubsystem extends SubsystemBase {
         }).withName("DriveWithJoystickCommand");
     }
 
+    public Command followTrajectoryCommand(ChoreoTrajectory traj) {
+        return Choreo.choreoSwerveCommand(
+            traj,
+            this::getPose,
+            m_autonXPID,
+            m_autonYPID,
+            m_autonRotPID,
+            (ChassisSpeeds speeds) -> drive(speeds, false),
+            () -> false,
+            this
+        );
+    }
+
+    public Command setPoseCommand(Pose2d pose) {
+        return this.runOnce(() -> setPose(pose));
+    }
+
     private void updatePoseEstimator() {
         m_poseEstimator.update(m_gyro.getYaw(), getModulePositions());
 
@@ -272,6 +308,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
         if (measurements.length != 0) {
             for (VisionMeasurement measurement : measurements) {
+                // Don't use this measurement for pose estimation if it is from a simulated
+                // camera and kUseSimCameraForPoseEstimation is false
+                if (measurement.isFromSimCamera() && !SwerveConstants.kUseSimCameraForPoseEstimation)
+                    continue;
+
                 m_poseEstimator.addVisionMeasurement(
                     measurement.getEstimatedPose(),
                     measurement.getTimestamp()

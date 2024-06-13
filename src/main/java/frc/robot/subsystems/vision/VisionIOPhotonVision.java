@@ -46,6 +46,11 @@ public class VisionIOPhotonVision implements VisionIO {
     }
 
     @Override
+    public boolean isSim() {
+        return false;
+    }
+
+    @Override
     public void updateInputs(VisionIOInputs inputs) {
         Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
         if (estimatedPose.isPresent()) {

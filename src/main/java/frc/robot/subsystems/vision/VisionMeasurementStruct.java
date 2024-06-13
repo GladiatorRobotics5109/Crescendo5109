@@ -18,12 +18,14 @@ public class VisionMeasurementStruct implements Struct<VisionMeasurement> {
 
     @Override
     public int getSize() {
-        return Pose2d.struct.getSize() + Double.BYTES;
+        return Pose2d.struct.getSize() + Double.BYTES + Integer.BYTES;
     }
 
     @Override
     public String getSchema() {
-        return "Pose2d estimatedPose; double timestamp";
+        // Strings aren't supportred by struct serializaiton (I think), so cameraName
+        // cannot be serialized
+        return "Pose2d estimatedPose; double timestamp; bool isFromSimCamera";
     }
 
     @Override
@@ -37,25 +39,49 @@ public class VisionMeasurementStruct implements Struct<VisionMeasurement> {
     public VisionMeasurement unpack(ByteBuffer bb) {
         Pose2d estimatedPose = Pose2d.struct.unpack(bb);
         double timestamp = bb.getDouble(Pose2d.struct.getSize());
+        // String cameraName = getString(bb, Pose2d.struct.getSize() + Double.BYTES);
+        boolean isFromSimCamera = bb.getInt(Pose2d.struct.getSize() + Double.BYTES) == 1;
 
-        return new VisionMeasurement(estimatedPose, timestamp);
+        return new VisionMeasurement(estimatedPose, timestamp, "unknown", isFromSimCamera);
     }
 
     @Override
-    public void pack(ByteBuffer bb, VisionMeasurement value) {
-        Pose2d.struct.pack(bb, value.getEstimatedPose());
-        bb.putDouble(value.getTimestamp());
+    public void pack(ByteBuffer bb, VisionMeasurement visionMeasurement) {
+        Pose2d.struct.pack(bb, visionMeasurement.getEstimatedPose());
+        bb.putDouble(visionMeasurement.getTimestamp());
+        // putString(bb, visionMeasurement.getCameraName());
+        bb.putInt(visionMeasurement.isFromSimCamera() ? 1 : 0);
     }
 
-    // From:
-    // https://stackoverflow.com/questions/13071777/convert-double-to-byte-array
-    // private static byte[] doubleToBytes(double d) {
-    // byte[] bytes = new byte[8];
-    // long bits = Double.doubleToLongBits(d);
-    // for (int i = 0; i < 8; i++) {
-    // bytes[i] = (byte) ((bits >> ((7 - i) * 8)) & 0xff);
+    // /**
+    // * Encodes a string in the format (int)length + (byte[])data
+    // */
+    // private void putString(ByteBuffer bb, String str) {
+    // if (str.getBytes().length >= kMaxStringSize) {
+    // DriverStation.reportWarning(
+    // "The String '" + str
+    // + "' exceeds the max string size for a VisionMeasurementStruct, it cannot be
+    // serialized. Consider increasing VisionMeasurementStruct.kMaxStringSize or
+    // shortening the length of the string",
+    // null
+    // );
+    // str = "String cannot be serialized.";
+    // }
+    // bb.putInt(str.length());
+    // bb.put(str.getBytes());
     // }
 
-    // return bytes;
+    // /**
+    // * Decodes a string in the format (int)length + (byte[])data
+    // */
+    // private String getString(ByteBuffer bb, int index) {
+    // int size = bb.getInt(index);
+    // StringBuilder sb = new StringBuilder();
+    //
+    // for (int i = 1; i <= size; i++) {
+    // sb.append(bb.getChar(index + i));
+    // }
+    //
+    // return sb.toString();
     // }
 }

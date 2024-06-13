@@ -115,7 +115,7 @@ public class PhoenixOdometryThread extends Thread {
                     // signals with a bus that is not CAN FD, regardless
                     // of Pro licensing. No reasoning for this behavior
                     // is provided by the documentation.
-                    Thread.sleep((long) (1000.0 / SwerveConstants.kOdometryFrequency));
+                    Thread.sleep((long)(1000.0 / SwerveConstants.kOdometryFrequency));
                     if (signals.length > 0)
                         BaseStatusSignal.refreshAll(signals);
                 }

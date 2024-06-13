@@ -119,11 +119,14 @@ public final class StateMachine {
         }
 
         private static void periodic() {
-            // VisionMeasurement[] measurements = getMeasurements();
-            // for (VisionMeasurement measurement : measurements) {
-            // Logger.recordOutput("VisionState/" + measurement.getCameraName() +
-            // "Measurement", measurement);
-            // }
+            VisionMeasurement[] measurements = getMeasurements();
+            for (VisionMeasurement measurement : measurements) {
+                Logger.recordOutput(
+                    "VisionState/" + measurement.getCameraName() +
+                        "Measurement",
+                    measurement
+                );
+            }
         }
 
         private static VisionState s_instance;

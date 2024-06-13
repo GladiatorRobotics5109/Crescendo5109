@@ -35,7 +35,10 @@ public class SwerveModule {
 
         if (driveController == MotorControllerType.TalonFX && turnController == MotorControllerType.SparkMAX) {
             m_io = new SwerveModuleIOTalonFXDriveSparkMaxTurn(
-                constants.driveMotorPort, constants.turnMotorPort, false, constants.turnAbsoluteEncoderOffset
+                constants.driveMotorPort,
+                constants.turnMotorPort,
+                false,
+                constants.turnAbsoluteEncoderOffset
             );
         }
         else if (

@@ -29,7 +29,7 @@ public class VisionIOSim implements VisionIO {
         );
         cameraProp.setLatencyStdDevMs(SimCameraConstants.kLatencyStdDevMs);
 
-        m_camera = new PhotonCameraSim(new PhotonCamera(cameraName), cameraProp, 0.01, 7.0);
+        m_camera = new PhotonCameraSim(new PhotonCamera(cameraName), cameraProp, 0.01, 5.0);
         m_camera.enableDrawWireframe(true);
         m_camera.enableProcessedStream(true);
         m_camera.enableRawStream(true);
@@ -48,6 +48,11 @@ public class VisionIOSim implements VisionIO {
     @Override
     public String getName() {
         return m_camera.getCamera().getName();
+    }
+
+    @Override
+    public boolean isSim() {
+        return true;
     }
 
     @Override

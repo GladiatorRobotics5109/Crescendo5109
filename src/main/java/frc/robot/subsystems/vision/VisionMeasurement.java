@@ -10,14 +10,16 @@ public class VisionMeasurement implements StructSerializable {
     private double m_timestamp;
     private String m_cameraName;
 
-    public VisionMeasurement(Pose2d estimatedPose, double timestamp, String cameraName) {
+    /**
+     * Was this measurement from a simulated camera
+     */
+    private boolean m_isFromSimCamera;
+
+    public VisionMeasurement(Pose2d estimatedPose, double timestamp, String cameraName, boolean isFromSimCamera) {
         m_estimatedPose = estimatedPose;
         m_timestamp = timestamp;
         m_cameraName = cameraName;
-    }
-
-    public VisionMeasurement(Pose2d estimatedPose, double timestamp) {
-        this(estimatedPose, timestamp, null);
+        m_isFromSimCamera = isFromSimCamera;
     }
 
     public Pose2d getEstimatedPose() {
@@ -30,5 +32,9 @@ public class VisionMeasurement implements StructSerializable {
 
     public String getCameraName() {
         return m_cameraName;
+    }
+
+    public boolean isFromSimCamera() {
+        return m_isFromSimCamera;
     }
 }

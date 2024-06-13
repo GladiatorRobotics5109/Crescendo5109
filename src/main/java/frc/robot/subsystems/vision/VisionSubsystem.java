@@ -27,7 +27,8 @@ public class VisionSubsystem extends SubsystemBase {
 
                 for (int i = 0; i < m_visionSources.length; i++) {
                     m_visionSources[i] = new VisionIOPhotonVision(
-                        VisionConstants.kRealCameraNames[i], VisionConstants.kRealRobotToCameras[i]
+                        VisionConstants.kRealCameraNames[i],
+                        VisionConstants.kRealRobotToCameras[i]
                     );
                 }
 
@@ -45,7 +46,9 @@ public class VisionSubsystem extends SubsystemBase {
 
                 for (int i = 0; i < m_visionSources.length; i++) {
                     m_visionSources[i] = new VisionIOSim(
-                        VisionConstants.kSimCameraNames[i], VisionConstants.kSimRobotToCameras[i], m_visionSim
+                        VisionConstants.kSimCameraNames[i],
+                        VisionConstants.kSimRobotToCameras[i],
+                        m_visionSim
                     );
                 }
 
@@ -64,10 +67,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // If running vision sim, update simulator with estimated robot pose
         if (m_visionSim != null) {
             m_visionSim.update(StateMachine.SwerveState.getPose());
         }
 
+        // Update all vision sources
         for (int i = 0; i < m_visionSources.length; i++) {
             m_visionSources[i].updateInputs(m_inputs[i]);
             Logger.processInputs("Vision/" + m_visionSources[i].getName(), m_inputs[i]);
@@ -75,9 +80,16 @@ public class VisionSubsystem extends SubsystemBase {
 
         List<VisionMeasurement> measurements = new ArrayList<>();
 
-        for (VisionIOInputsAutoLogged inputs : m_inputs) {
-            if (inputs.estimatedPose != null) {
-                measurements.add(new VisionMeasurement(inputs.estimatedPose, inputs.measurementTimestampSeconds));
+        for (int i = 0; i < m_inputs.length; i++) {
+            if (m_inputs[i].estimatedPose != null) {
+                measurements.add(
+                    new VisionMeasurement(
+                        m_inputs[i].estimatedPose,
+                        m_inputs[i].measurementTimestampSeconds,
+                        m_visionSources[i].getName(),
+                        m_visionSources[i].isSim()
+                    )
+                );
             }
         }
 

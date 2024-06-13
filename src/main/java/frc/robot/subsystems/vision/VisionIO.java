@@ -13,5 +13,7 @@ public interface VisionIO {
 
     public String getName();
 
+    public boolean isSim();
+
     public void updateInputs(VisionIOInputs inputs);
 }
