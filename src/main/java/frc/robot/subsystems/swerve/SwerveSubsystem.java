@@ -19,6 +19,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
 import frc.robot.stateMachine.StateMachine;
+import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingMode;
 import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingState;
 import frc.robot.subsystems.swerve.gyro.Gyro;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
@@ -28,11 +29,13 @@ import frc.robot.subsystems.swerve.swerveModule.SwerveModule;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 import frc.robot.util.Util;
+import frc.robot.util.periodic.LoggedPIDController;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -54,10 +57,14 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SlewRateLimiter m_driverControllerRightXLimiter;
 
     private SwerveDrivingState m_drivingState;
+    private SwerveDrivingMode m_drivingMode;
 
     private final PIDController m_autonXPID;
     private final PIDController m_autonYPID;
     private final PIDController m_autonRotPID;
+
+    private final LoggedPIDController m_headingPID;
+    private Rotation2d m_targetHeading;
 
     public SwerveSubsystem() {
         try {
@@ -134,10 +141,19 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         m_drivingState = SwerveDrivingState.STOPPED_COASTING;
+        m_drivingMode = SwerveDrivingMode.NO_ASSISTS;
 
-        m_autonXPID = SwerveConstants.kAutonXPID.get();
-        m_autonYPID = SwerveConstants.kAutonYPID.get();
-        m_autonRotPID = SwerveConstants.kAutonRotPID.get();
+        m_autonXPID = SwerveConstants.kAutonXPID.getPIDController();
+        m_autonYPID = SwerveConstants.kAutonYPID.getPIDController();
+        m_autonRotPID = SwerveConstants.kAutonRotPID.getPIDController();
+
+        m_headingPID = SwerveConstants.kSimHeadingPID.getLoggedPIDController("SwerveState/HeadingPID");
+        // m_headingPID = new LoggedPIDController("SwerveSubsystem/HeadingPID", 8, 15, 0);
+        // m_headingPID.setIZone(Conversions.degToRad(18));
+        // m_headingPID.enableContinuousInput(0, 2 * Math.PI);
+        // m_headingPID.setTolerance(Conversions.degToRad(2), Conversions.degToRad(15));
+        // Test target heading
+        // m_targetHeading = Rotation2d.fromRadians(Math.PI);
 
         AutoBuilder.configureHolonomic(
             this::getPose,
@@ -150,28 +166,23 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
-    public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {
-            m_swerveModules[0].getPosition(), // fl
-            m_swerveModules[1].getPosition(), // fr
-            m_swerveModules[2].getPosition(), // bl
-            m_swerveModules[3].getPosition() // br
-        };
-    }
-
-    public Pose2d getPose() {
-        return m_poseEstimator.getEstimatedPosition();
-    }
-
-    public Rotation2d getHeading() {
-        return getPose().getRotation();
-    }
-
-    public void drive(double vx, double vy, double vrot, boolean fieldRelative) {
+    private void drive(double vx, double vy, double vrot, boolean fieldRelative) {
         drive(new ChassisSpeeds(vx, vy, vrot), fieldRelative);
     }
 
-    public void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
+    private void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
+        if (m_drivingMode == SwerveDrivingMode.HEADING_CONTROL && m_targetHeading != null) {
+            ChassisSpeeds currentSpeeds = getFieldRelativeChassisSpeeds();
+            desiredSpeeds.omegaRadiansPerSecond = m_headingPID
+                .calculate(getHeading().getRadians(), m_targetHeading.getRadians())
+                + (SwerveConstants.kHeadingControlVelocityCompensation // if use velocity compensation, calculate
+                                                                       // compensation
+                    ? (-SwerveConstants.kHeadingControlVelocityCompensationScalar
+                        * ((currentSpeeds.vyMetersPerSecond * Math.cos(m_targetHeading.getRadians()))
+                            + (currentSpeeds.vxMetersPerSecond * Math.sin(m_targetHeading.getRadians()))))
+                    : 0);
+        }
+
         ChassisSpeeds discreteSpeeds = ChassisSpeeds
             .discretize(desiredSpeeds, Constants.kRobotLoopPeriod.in(Units.Seconds));
         ChassisSpeeds speeds = fieldRelative
@@ -201,6 +212,23 @@ public class SwerveSubsystem extends SubsystemBase {
         drive(0, 0, 0, true);
     }
 
+    public SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[] {
+            m_swerveModules[0].getPosition(), // fl
+            m_swerveModules[1].getPosition(), // fr
+            m_swerveModules[2].getPosition(), // bl
+            m_swerveModules[3].getPosition() // br
+        };
+    }
+
+    public Pose2d getPose() {
+        return m_poseEstimator.getEstimatedPosition();
+    }
+
+    public Rotation2d getHeading() {
+        return getPose().getRotation();
+    }
+
     public SwerveModuleState[] getModuleStates() {
         return new SwerveModuleState[] {
             m_swerveModules[0].getState(),
@@ -208,10 +236,6 @@ public class SwerveSubsystem extends SubsystemBase {
             m_swerveModules[2].getState(),
             m_swerveModules[3].getState(),
         };
-    }
-
-    public void setPose(Pose2d pose) {
-        m_poseEstimator.resetPosition(m_gyro.getYaw(), getModulePositions(), pose);
     }
 
     public ChassisSpeeds getRobotRelativeChassisSpeeds() {
@@ -251,6 +275,18 @@ public class SwerveSubsystem extends SubsystemBase {
 
         return drivingState == SwerveDrivingState.STOPPED_BRAKING
             || drivingState == SwerveDrivingState.STOPPED_COASTING;
+    }
+
+    public SwerveDrivingMode getDrivingMode() {
+        return m_drivingMode;
+    }
+
+    public void setPose(Pose2d pose) {
+        m_poseEstimator.resetPosition(m_gyro.getYaw(), getModulePositions(), pose);
+    }
+
+    public void setDrivingMode(SwerveDrivingMode mode) {
+        m_drivingMode = mode;
     }
 
     public Command driveWithJoystickCommand(
@@ -299,7 +335,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 vx = -vx;
                 vy = -vy;
             }
-            vrot = -joyRightX * maxAngularSpeedRadPerSec;
+            vrot = m_drivingMode != SwerveDrivingMode.HEADING_CONTROL ? -joyRightX * maxAngularSpeedRadPerSec : 0.0;
 
             drive(vx, vy, vrot, fieldRelative);
         }).withName("DriveWithJoystickCommand");
@@ -323,6 +359,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command setPoseCommand(Pose2d pose) {
         return this.runOnce(() -> setPose(pose));
+    }
+
+    public Command setDrivingModeCommand(Supplier<SwerveDrivingMode> modeSupplier) {
+        return this.runOnce(() -> setDrivingMode(modeSupplier.get()));
     }
 
     private void updatePoseEstimator() {
@@ -389,5 +429,45 @@ public class SwerveSubsystem extends SubsystemBase {
         else {
             m_drivingState = SwerveDrivingState.STOPPED_COASTING;
         }
+
+        // target Speaker code for testing heading control
+        // Pose2d robotPose = getPose();
+        // Rotation2d heading = getHeading();
+        // Alliance alliance = Util.getAllianceGuaranteed();
+        // if (alliance == Alliance.Red) {
+        // Pose2d redPose = new Pose2d(
+        // Conversions.inToM(652.73),
+        // Conversions.inToM(218.42),
+        // Rotation2d.fromRadians(0)
+        // );
+
+        // Transform2d delta = new Transform2d(
+        // redPose.getX() - robotPose.getX(),
+        // redPose.getY() - robotPose.getY(),
+        // Rotation2d.fromRadians(0)
+        // );
+
+        // m_targetHeading = Rotation2d.fromRadians(Math.atan(delta.getY() / delta.getX()));
+        // }
+        // else {
+        // double angleOffset = Math.PI;
+
+        // // blue speaker tag pose
+        // Pose2d bluePose = new Pose2d(
+        // Conversions.inToM(-1.5),
+        // Conversions.inToM(218.42),
+        // Rotation2d.fromRadians(0)
+        // );
+
+        // Transform2d delta = new Transform2d(
+        // robotPose.getX() - bluePose.getX(),
+        // robotPose.getY() - bluePose.getY(),
+        // Rotation2d.fromRadians(0)
+        // );
+
+        // m_targetHeading = Rotation2d.fromRadians(Math.atan(delta.getY() / delta.getX() + angleOffset));
+        // }
+
+        // Logger.recordOutput("SwerveState/HeadingPIDAtSetpoint", m_headingPID.atSetpoint());
     }
 }

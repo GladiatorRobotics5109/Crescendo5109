@@ -11,6 +11,7 @@ import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 import frc.robot.util.MotorControllerType;
+
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
@@ -61,8 +62,8 @@ public class SwerveModule {
         m_index = constants.index;
 
         m_driveFeedforward = constants.driveFeedforward.get();
-        m_drivePID = constants.drivePID.get();
-        m_turnPID = constants.turnPID.get();
+        m_drivePID = constants.drivePID.getPIDController();
+        m_turnPID = constants.turnPID.getPIDController();
         m_turnPID.enableContinuousInput(0, 2 * Math.PI);
 
         m_turnAngleSetpoint = null;

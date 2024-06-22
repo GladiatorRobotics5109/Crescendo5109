@@ -58,6 +58,16 @@ public final class StateMachine {
             DRIVING_UNKNOWN /** The drivetrain is moving and it is being driven by an unknown source */
         }
 
+        /**
+         * Represents how much control the driver has over the swerve subsystem 
+         */
+        public static enum SwerveDrivingMode {
+            NO_ASSISTS, // Driver controls heading + translation
+            HEADING_CONTROL, // Heading is not being controlled by driver
+            // TRANSLATION_CONTROL, // Translation is not being controlled by driver
+            // TRANSLATION_AND_HEADING_CONTROL // Translation and heading is not being controlled by the driver
+        }
+
         public static Pose2d getPose() {
             return s_instance.m_swerve.getPose();
         }
@@ -94,6 +104,10 @@ public final class StateMachine {
             return s_instance.m_swerve.isStopped();
         }
 
+        public static SwerveDrivingMode getDrivingMode() {
+            return s_instance.m_swerve.getDrivingMode();
+        }
+
         private static void periodic() {
             Logger.recordOutput("SwerveState/RobotPose", getPose());
             Logger.recordOutput("SwerveState/ModuleStates", getModuleStates());
@@ -103,6 +117,7 @@ public final class StateMachine {
             Logger.recordOutput("SwerveState/IsDriving", isDriving());
             Logger.recordOutput("SwerveState/IsMoving", isMoving());
             Logger.recordOutput("SwerveState/IsStopped", isStopped());
+            Logger.recordOutput("SwerveState/DrivingMode", getDrivingMode());
         }
 
         private static SwerveState s_instance;

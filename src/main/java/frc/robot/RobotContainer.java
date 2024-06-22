@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
+import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -55,6 +56,16 @@ public class RobotContainer {
                 () -> Constants.TeleopConstants.kDriveFieldRelative
             )
         );
+
+        m_driverController.square().onTrue(m_swerve.setDrivingModeCommand(() -> {
+            switch (StateMachine.SwerveState.getDrivingMode()) {
+                case NO_ASSISTS:
+                    return SwerveDrivingMode.HEADING_CONTROL;
+
+                default:
+                    return SwerveDrivingMode.NO_ASSISTS;
+            }
+        }));
 
         // m_swerve.setDefaultCommand(
         // m_swerve.driveWithJoystickCommand(

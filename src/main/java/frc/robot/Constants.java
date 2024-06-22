@@ -76,6 +76,29 @@ public final class Constants {
         public static final PIDConstants kAutonYPID = new PIDConstants(1, 0, 0);
         public static final PIDConstants kAutonRotPID = new PIDConstants(1, 0, 0);
 
+        /**
+         * Offset the desired rotational velocity calculated by the heading PID controller in the
+         * {@link frc.robot.subsystems.swerve.SwerveSubsystem} based on the chassis velocity, useful for shooting while
+         * moving
+         */
+        public static final boolean kHeadingControlVelocityCompensation = true;
+        // TODO: Scalar should also be scaled by distance from target point, but heading targeting doens't target a
+        // point (it targets a heading) so this might be a large change/addition.
+        public static final double kHeadingControlVelocityCompensationScalar = 0.65;
+        public static final PIDConstants kSimHeadingPID = new PIDConstants(
+            8,
+            15,
+            0,
+            Conversions.degToRad(18),
+            true,
+            0,
+            2 * Math.PI,
+            Conversions.degToRad(2),
+            Conversions.degToRad(15)
+        );
+        // TODO: Figure out correct constants for heading control
+        public static final PIDConstants kRealHeadingPID = kSimHeadingPID;
+
         // Wether or not to feed estimated pose from cameras in to the subsystem's pose
         // estimator
         public static final boolean kUseSimCameraForPoseEstimation = false;
