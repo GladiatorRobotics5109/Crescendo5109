@@ -84,7 +84,7 @@ public class SwerveModule {
         SwerveModuleState state = optimize ? SwerveModuleState.optimize(desiredState, getAngle()) : desiredState;
 
         m_turnAngleSetpoint = state.angle;
-        m_driveWheelSpeedSetpointRadPerSec = Conversions.WheelMToWheelRad(state.speedMetersPerSecond);
+        m_driveWheelSpeedSetpointRadPerSec = Conversions.wheelMetersToWheelRadians(state.speedMetersPerSecond);
 
         return state;
     }
@@ -95,7 +95,7 @@ public class SwerveModule {
 
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            Conversions.WheelRadToWheelM(m_inputs.drivePositionRad),
+            Conversions.wheelRadiansToWheelMeters(m_inputs.drivePositionRad),
             m_inputs.turnPosition
         );
     }
@@ -106,7 +106,7 @@ public class SwerveModule {
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-            Conversions.WheelRadToWheelM(m_inputs.driveVelocityRadPerSec),
+            Conversions.wheelRadiansToWheelMeters(m_inputs.driveVelocityRadPerSec),
             getAngle()
         );
     }

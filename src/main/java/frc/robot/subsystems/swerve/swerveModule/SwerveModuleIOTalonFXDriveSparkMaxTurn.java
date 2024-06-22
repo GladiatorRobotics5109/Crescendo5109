@@ -74,8 +74,10 @@ public class SwerveModuleIOTalonFXDriveSparkMaxTurn implements SwerveModuleIO {
 
     @Override
     public void updateInputs(SwerveModuleIOInputs inputs) {
-        inputs.drivePositionRad = Conversions.DriveMotorRotToDriveWheelRad(m_drivePosition.getValueAsDouble());
-        inputs.driveVelocityRadPerSec = Conversions.DriveMotorRotToDriveWheelRad(m_driveVelocity.getValueAsDouble());
+        inputs.drivePositionRad = Conversions
+            .driveMotorRotationsToDriveWheelRadians(m_drivePosition.getValueAsDouble());
+        inputs.driveVelocityRadPerSec = Conversions
+            .driveMotorRotationsToDriveWheelRadians(m_driveVelocity.getValueAsDouble());
         inputs.driveAppliedVolts = m_driveAppliedVolts.getValueAsDouble();
         inputs.driveCurrentAmps = new double[] {
             m_driveCurrent.getValueAsDouble()
@@ -83,8 +85,9 @@ public class SwerveModuleIOTalonFXDriveSparkMaxTurn implements SwerveModuleIO {
 
         inputs.turnAbsolutePosition = Rotation2d.fromRotations(m_turnAbsoluteEncoder.getPosition())
             .minus(m_turnAbsoluteEncoderOffset);
-        inputs.turnPosition = Conversions.TurnMotorRotToWheelRotation2d(m_turnRelativeEncoder.getPosition());
-        inputs.turnVelocityRadPerSec = Conversions.TurnMotorRotToWheelRad(m_turnRelativeEncoder.getVelocity());
+        inputs.turnPosition = Conversions.turnMotorRotationsToWheelRotation2d(m_turnRelativeEncoder.getPosition());
+        inputs.turnVelocityRadPerSec = Conversions
+            .turnMotorRotationsToWheelRadians(m_turnRelativeEncoder.getVelocity());
         inputs.turnAppliedVolts = m_turnMotor.getAppliedOutput() * m_turnMotor.getBusVoltage();
         inputs.turnCurrentAmps = new double[] {
             m_turnMotor.getOutputCurrent()

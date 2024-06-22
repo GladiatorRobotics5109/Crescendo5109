@@ -9,83 +9,86 @@ public final class Conversions {
         throw new UnsupportedOperationException("This is a utility class!");
     }
 
-    public static double inToM(double in) {
+    // Most of these functions just call their respective functions in the Units utility class because of the conflict
+    // in naming between edu.wpi.first.math.util.Units and edu.wpi.first.units.Units classes (I HATE this conflict).
+
+    public static double inchesToMeters(double in) {
         return Units.inchesToMeters(in);
     }
 
-    public static double mToIn(double m) {
+    public static double metersToInches(double m) {
         return Units.metersToInches(m);
     }
 
-    public static double degToRad(double deg) {
+    public static double degreesToRadians(double deg) {
         return Units.degreesToRadians(deg);
     }
 
-    public static double radToDeg(double rad) {
+    public static double radiansToDegrees(double rad) {
         return Units.radiansToDegrees(rad);
     }
 
-    public static double RadToRot(double rad) {
-        return RadToRot(rad, 1);
+    public static double radiansToRotations(double rad) {
+        return radiansToRotations(rad, 1);
     }
 
-    public static double RadToRot(double rad, double gearRatio) {
-        return Units.radiansToDegrees(rad * gearRatio);
+    public static double radiansToRotations(double rad, double gearRatio) {
+        return Units.radiansToRotations(rad * gearRatio);
     }
 
-    public static double RotToRad(double rot) {
-        return RotToRad(rot, 1);
+    public static double rotationsToRadians(double rot) {
+        return rotationsToRadians(rot, 1);
     }
 
-    public static double RotToRad(double rot, double gearRatio) {
+    public static double rotationsToRadians(double rot, double gearRatio) {
         return Units.rotationsToRadians(rot * gearRatio);
     }
 
-    public static double RotPerMinToRadPerSec(double rotPerMin) {
-        return RotPerMinToRadPerSec(rotPerMin, 1);
+    public static double rotationsPerMinuteToRadiansPerSecond(double rotPerMin) {
+        return rotationsPerMinuteToRadiansPerSecond(rotPerMin, 1);
     }
 
-    public static double RotPerMinToRadPerSec(double rotPerMin, double gearRatio) {
+    public static double rotationsPerMinuteToRadiansPerSecond(double rotPerMin, double gearRatio) {
         return Units.rotationsPerMinuteToRadiansPerSecond(rotPerMin * gearRatio);
     }
 
-    public static double DriveMotorRotToDriveWheelRad(double rot) {
-        return RotToRad(rot, 1 / SwerveConstants.SwerveModuleConstants.kDriveGearRatio);
+    public static double driveMotorRotationsToDriveWheelRadians(double rot) {
+        return rotationsToRadians(rot, 1 / SwerveConstants.SwerveModuleConstants.kDriveGearRatio);
     }
 
-    public static double RadToM(double rad, double radiusM) {
-        return RadToM(rad, radiusM, 1);
+    public static double radiansToMeters(double rad, double radiusM) {
+        return radiansToMeters(rad, radiusM, 1);
     }
 
-    public static double RadToM(double rad, double radiusM, double gearRatio) {
+    public static double radiansToMeters(double rad, double radiusM, double gearRatio) {
         return (rad * gearRatio) * radiusM;
     }
 
-    public static double MToRad(double m, double radiusM, double gearRatio) {
+    public static double metersToRadians(double m, double radiusM, double gearRatio) {
         return (m * gearRatio) / radiusM;
     }
 
-    public static double WheelMToDriveMotorRad(double m) {
-        return MToRad(
+    public static double wheelMetersToDriveMotorRadians(double m) {
+        return metersToRadians(
             m,
             SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters,
             SwerveConstants.SwerveModuleConstants.kDriveGearRatio
         );
     }
 
-    public static double TurnMotorRotToWheelRad(double rot) {
-        return RotToRad(rot, 1 / SwerveConstants.SwerveModuleConstants.kTurnGearRatio);
+    public static double turnMotorRotationsToWheelRadians(double rot) {
+        return rotationsToRadians(rot, 1 / SwerveConstants.SwerveModuleConstants.kTurnGearRatio);
     }
 
-    public static Rotation2d TurnMotorRotToWheelRotation2d(double rot) {
-        return Rotation2d.fromRadians(TurnMotorRotToWheelRad(rot));
+    public static Rotation2d turnMotorRotationsToWheelRotation2d(double rot) {
+        return Rotation2d.fromRadians(turnMotorRotationsToWheelRadians(rot));
     }
 
-    public static double WheelRadToWheelM(double rad) {
-        return RadToM(rad, SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters);
+    public static double wheelRadiansToWheelMeters(double rad) {
+        return radiansToMeters(rad, SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters);
     }
 
-    public static double WheelMToWheelRad(double m) {
-        return MToRad(m, SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters, 1);
+    public static double wheelMetersToWheelRadians(double m) {
+        return metersToRadians(m, SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters, 1);
     }
 }

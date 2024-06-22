@@ -89,12 +89,12 @@ public final class Constants {
             8,
             15,
             0,
-            Conversions.degToRad(18),
+            Conversions.degreesToRadians(18),
             true,
             0,
             2 * Math.PI,
-            Conversions.degToRad(2),
-            Conversions.degToRad(15)
+            Conversions.degreesToRadians(2),
+            Conversions.degreesToRadians(15)
         );
         // TODO: Figure out correct constants for heading control
         public static final PIDConstants kRealHeadingPID = kSimHeadingPID;
@@ -330,16 +330,16 @@ public final class Constants {
             };
             public static final Transform3d[] kRealRobotToCameras = new Transform3d[] {
                 new Transform3d(
-                    Conversions.inToM(-(29.5 / 2 - 8)),
-                    Conversions.inToM(29.5 / 2 - 2.75),
-                    Conversions.inToM(2.85),
-                    new Rotation3d(0, Conversions.degToRad(-15), 0)
+                    Conversions.inchesToMeters(-(29.5 / 2 - 8)),
+                    Conversions.inchesToMeters(29.5 / 2 - 2.75),
+                    Conversions.inchesToMeters(2.85),
+                    new Rotation3d(0, Conversions.degreesToRadians(-15), 0)
                 ),
                 new Transform3d(
-                    Conversions.inToM(-(29.5 / 2 - 8)),
-                    Conversions.inToM(-29.5 / 2 - 2.75),
-                    Conversions.inToM(2.85),
-                    new Rotation3d(0, Conversions.degToRad(-15), 0)
+                    Conversions.inchesToMeters(-(29.5 / 2 - 8)),
+                    Conversions.inchesToMeters(-29.5 / 2 - 2.75),
+                    Conversions.inchesToMeters(2.85),
+                    new Rotation3d(0, Conversions.degreesToRadians(-15), 0)
                 )
             };
 
