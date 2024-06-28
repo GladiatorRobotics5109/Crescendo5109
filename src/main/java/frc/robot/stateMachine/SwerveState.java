@@ -2,6 +2,10 @@ package frc.robot.stateMachine;
 
 import java.util.HashSet;
 
+/**
+ * Represents the state of the drivetrain
+ * Flags can be added/removed with {@link SwerveStateEnum}
+ */
 public class SwerveState extends SubsystemState<SwerveState.SwerveStateEnum> {
     public enum SwerveStateEnum {
         DRIVING,

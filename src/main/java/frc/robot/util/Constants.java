@@ -36,14 +36,21 @@ import frc.robot.Robot;
  * R
  */
 public final class Constants {
-  
+  /**
+   * Range of driver joystick values to ignore
+   */
   public static final double kJoystickDeadzone = 0.15;
   
+  /**
+   * Constants for {@link frc.robot.subsystems.swerve.SwerveSubsystem}
+   */
   public static class SwerveConstants {
     // public static final double kMaxSpeed = 10;
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
-
+    // TODO: fix bug where this seems to be in feet instead of meters
+    // Max robot chassis speed in feet/s
     public static final double kMaxSpeed = 15;
+    // Max robot chassis rotational speed in rad/s
     public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
@@ -52,37 +59,50 @@ public final class Constants {
     // public static final Translation2d kModulePosBackLeft = new Translation2d(-0.2921-0.00635, 0.2921+0.00635);
     // public static final Translation2d kModulePosBackRight = new Translation2d(-0.2921-0.00635, -0.2921-0.00635);
 
+    // Positions of every swerve module
     public static final Translation2d kModulePosFrontLeft = new Translation2d(0.290449, 0.290449);
     public static final Translation2d kModulePosFrontRight = new Translation2d(0.290449, -0.290449);
     public static final Translation2d kModulePosBackLeft = new Translation2d(-0.290449, 0.290449);
     public static final Translation2d kModulePosBackRight = new Translation2d(-0.290449, -0.290449);
 
-
+    // Absolute encoder offsets (currently unused)
     public static final double kModuleEncoderOffsetFrontLeft = 2.736; // 0.445 rotations
     public static final double kModuleEncoderOffsetFrontRight = 0.319; // 0.061 rotations
     public static final double kModuleEncoderOffsetBackLeft = 4.564; // 0.721 rotations
     public static final double kModuleEncoderOffsetBackRight = 5.188; // 0.825 rotations
     
-
+    // Instantiate NavX
+    // TODO: don't instanite NavX here, should be done in swerve subsystem
     public static final AHRS kNavX = new AHRS(SPI.Port.kMXP);
 
     // public static final double kDriveBaseRadius = new Translation2d().getDistance(kModulePosBackLeft) + 0.05;
+    // Drivetrain radius in meters (used to determine the effective wheel radius inthe WheelRadiusCharacterization auto routine)
     public static final double kDriveBaseRadius = 0.411;
 
     public static class AutonConstants {
+      // Max chassis speed
       public static final double kMaxSpeed = 8;
+      // Max chassis acceleration
       public static final double kMaxAcceleration = 2;
 
       public static final double kMaxAngularSpeed = 3 * Math.PI;
       public static final double kMaxAngularAcceleration = 1 * Math.PI;
 
+      /**
+       * Path following translation and rotation PID constants
+       */
       public static final PIDConstants kTranslationPID = new PIDConstants(5, 0, 0);
       public static final PIDConstants kRotationPID = new PIDConstants(8, 0, 0);
 
+      // Dissable all replanning
       public static final ReplanningConfig kReplanningConfig = new ReplanningConfig(false, false);
 
-      public static final Boolean kAutoMirror = false; //Crescendo Field isn't symmetric, so won't work
+      // Crescendo Field isn't symmetric, auto mirroring wont work
+      public static final Boolean kAutoMirror = false;
 
+      /**
+       * Create a {@link HolonomicPathFollowerConfig} for {@link com.pathplanner.lib.auto.AutoBuilder}
+       */
       public static final HolonomicPathFollowerConfig kHolonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
         kTranslationPID, 
         kRotationPID, 
@@ -97,6 +117,8 @@ public final class Constants {
   public static class ModuleConstants {
 
       // public static final double kWheelRadius = 0.0508;
+
+      // Calculated effective wheel radius
       public static final double kWheelRadius = 0.0472659347214289;
   
       // L1 MK4 gear ratios
@@ -108,20 +130,23 @@ public final class Constants {
       // public static final double kNeoTicksPerWheelRadian = kNeoTicksPerMotorRadian * kSwerveDriveGearRatio;
       // public static final double kNeoTicksPerTurnWheelRadian = kSwerveTurnGearRatio / (2 * Math.PI);
       
-      public static final double kKrakenTicksPerRevolution = 2000;
-      public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
-      public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
-      public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
+//      public static final double kKrakenTicksPerRevolution = 2000;
+//      public static final double kKrakenTicksPerMotorRadian = kKrakenTicksPerRevolution / (2 * Math.PI);
+//      public static final double kKrakenTicksPerWheelRadian = kKrakenTicksPerMotorRadian * kSwerveDriveGearRatio;
+//      public static final double kKrakenTicksPerTurnWheelRadian = kKrakenTicksPerMotorRadian * kSwerveTurnGearRatio;
       
+      // Converts drive Kraken rotations to wheel distance in meters
       public static final double kDrivePositionConversionFactor = (kWheelRadius*2) * Math.PI / kSwerveDriveGearRatio; // rotations -> meters (1 motor turn x x 2pi*wheel radius / 8.14 motor turns)
       public static final double kDriveVelocityConversionFactor = kDrivePositionConversionFactor / 60.0; // rpm -> m/s 
 
       // FOR RELATIVE ENCODERS
+      // Not used because the aboslute encoers are a 1:1 ratio to the serve module's rotation
       public static final double kTurnPositionConversionFactor = (2 * Math.PI) / kSwerveTurnGearRatio; // rotations -> radians (1 motor turn x 2pi / 12.8 motor turns)
       public static final double kTurnVelocityConversionFactor = kTurnPositionConversionFactor / 60.0; // rpm -> rad/s
   
       public static final double kModuleTurnPositionConversionFactor = (2 * Math.PI);
 
+      // Define PID constants
       public static final double kDriveP = 1;
       public static final double kDriveI = 0;
       public static final double kDriveD = 0.05;

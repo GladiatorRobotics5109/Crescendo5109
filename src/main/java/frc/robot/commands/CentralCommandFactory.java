@@ -6,6 +6,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 
+// TODO: Make this a singleton
 public final class CentralCommandFactory {
 
     private final IntakeSubsystem m_intakeSubsystem;

@@ -55,9 +55,10 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     StateMachine.init();
-    // Instantiate swerve
+    // Instantiate the swerve subsystem
     m_swerve = new SwerveSubsystem();
 
+    // Set the default command on the swerve subsystem to be the drive with joystick command
     m_swerve.setDefaultCommand(
       m_swerve.getDriveWithJoystickCommand(
         () -> m_driverXLimiter.calculate(-m_driverController.getLeftX()), // l/r
@@ -69,17 +70,23 @@ public class RobotContainer {
       )
     );
 
-    // TODO: change intake motor port
+    // Instantiate intake subsystem
     m_intake = new IntakeSubsystem();
 
+    // Instantiate shooter subsystem
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
+
+    // Instantiate climb subsystem
     m_climb = new ClimbSubsystem();
+
+    // Bind has not trigger to stopping intake and auto aim
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
     m_shooter.getHasNoteTrigger().onFalse(m_swerve.getStopAutoAimCommand());
 
+    // Create the centeral command factory
     m_centralCommandFactory = new CentralCommandFactory(m_intake, m_shooter, m_swerve);
     
-    // Register all commands for auto
+    // Register all commands used in auto
     NamedCommands.registerCommand("startIntake", m_centralCommandFactory.getStartIntakeAndFeederCommand());
     NamedCommands.registerCommand("stopIntake", m_centralCommandFactory.getStopIntakeAndFeederCommand());
 
