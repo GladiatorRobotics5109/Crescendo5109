@@ -7,6 +7,9 @@ import java.util.Set;
  * Utility class that adds support for objects with a periodic loop
  */
 public final class PeriodicUtil {
+    /**
+     * Adds support to add objects into the robot periodic loop
+     */
     public static abstract class Periodic {
         public Periodic() {
             PeriodicUtil.add(this::periodic);

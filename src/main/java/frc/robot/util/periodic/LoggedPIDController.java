@@ -149,6 +149,11 @@ public class LoggedPIDController extends Periodic implements Sendable, AutoClose
         MathSharedStore.reportUsage(MathUsageId.kController_PIDController2, instances);
 
         m_name = name;
+
+        Logger.recordOutput(m_name + "/calculatedP", 0.0);
+        Logger.recordOutput(m_name + "/calculatedI", 0.0);
+        Logger.recordOutput(m_name + "/calculatedD", 0.0);
+        Logger.recordOutput(m_name + "/calculatedResult", 0.0);
     }
 
     @Override

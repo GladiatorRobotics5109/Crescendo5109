@@ -58,7 +58,6 @@ public class VisionIOSim implements VisionIO {
     @Override
     public void updateInputs(VisionIOInputs inputs) {
         Optional<EstimatedRobotPose> estimatedPose = m_poseEstimator.update();
-
         if (estimatedPose.isPresent()) {
             inputs.estimatedPose = estimatedPose.get().estimatedPose.toPose2d();
             inputs.measurementTimestampSeconds = estimatedPose.get().timestampSeconds;

@@ -113,5 +113,4 @@ public class SwerveModuleIOTalonFXDriveSparkMaxTurn implements SwerveModuleIO {
     public void setTurnBrakeMode(boolean enabled) {
         m_turnMotor.setIdleMode(enabled ? CANSparkBase.IdleMode.kBrake : CANSparkBase.IdleMode.kCoast);
     }
-
 }

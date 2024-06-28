@@ -23,7 +23,7 @@ public class VisionMeasurementStruct implements Struct<VisionMeasurement> {
 
     @Override
     public String getSchema() {
-        // Strings aren't supportred by struct serializaiton (I think), so cameraName
+        // Strings aren't supported by struct serialization (I think), so cameraName
         // cannot be serialized
         return "Pose2d estimatedPose; double timestamp; bool isFromSimCamera";
     }

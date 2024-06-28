@@ -27,9 +27,12 @@
   ],
   "java.test.defaultConfig": "WPIlibUnitTests",
   "cSpell.words": [
+    "AHRS",
+    "apriltag",
     "Arducam",
     "auton",
     "autonXPID",
+    "Brushless",
     "Choreo",
     "Deadzone",
     "dtheta",

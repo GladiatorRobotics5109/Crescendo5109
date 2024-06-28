@@ -17,7 +17,6 @@ public record SimpleMotorFeedforwardConstants(double ks, double kv, double ka) {
     }
 
     /**
-     *
      * @return {@link SimpleMotorFeedforward} object with the constants of this object
      */
     public SimpleMotorFeedforward get() {

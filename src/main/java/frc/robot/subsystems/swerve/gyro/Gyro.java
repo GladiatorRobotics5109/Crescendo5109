@@ -30,7 +30,6 @@ public class Gyro {
     }
 
     /**
-     *
      * @return true if this gyro object is simulated
      */
     public boolean isSim() {

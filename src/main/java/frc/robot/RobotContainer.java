@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.util.Util;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.NamedCommands;
@@ -12,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
-import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingMode;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -43,13 +43,13 @@ public class RobotContainer {
         m_autoChooser.addOption("Test", AutoBuilder.test(m_swerve));
     }
 
-    public Command getAutonomousCommand() {
+    public Command commandGetAutonomous() {
         return m_autoChooser.get();
     }
 
     private void configureBindings() {
         m_swerve.setDefaultCommand(
-            m_swerve.driveWithJoystickCommand(
+            m_swerve.commandDriveWithJoystick(
                 m_driverController::getLeftX,
                 m_driverController::getLeftY,
                 m_driverController::getRightX,
@@ -57,15 +57,10 @@ public class RobotContainer {
             )
         );
 
-        m_driverController.square().onTrue(m_swerve.setDrivingModeCommand(() -> {
-            switch (StateMachine.SwerveState.getDrivingMode()) {
-                case NO_ASSISTS:
-                    return SwerveDrivingMode.HEADING_CONTROL;
-
-                default:
-                    return SwerveDrivingMode.NO_ASSISTS;
-            }
-        }));
+        // Toggle target heading
+        m_driverController.square().onTrue(
+            m_swerve.commandSetTargetHeadingEnabled(() -> !m_swerve.isTargetingHeading(), Util::targetHeadingTest)
+        );
 
         // m_swerve.setDefaultCommand(
         // m_swerve.driveWithJoystickCommand(
@@ -79,5 +74,23 @@ public class RobotContainer {
 
     private void registerNamedCommands() {
         NamedCommands.registerCommand("PrintHello", Commands.print("HELLO WORLD"));
+
+        NamedCommands.registerCommand(
+            "Aim",
+            Commands.sequence(
+                m_swerve.commandSetTargetHeadingEnabled(() -> true, Util::targetHeadingTest),
+                Commands.print("AIMING")
+            )
+        );
+
+        NamedCommands.registerCommand(
+            "Shoot",
+            Commands.sequence(
+                Commands.print("WAITING UNTIL AIM GOOD"),
+                Commands.waitUntil(() -> m_swerve.isAtTargetHeading()),
+                m_swerve.commandSetTargetHeadingEnabled(() -> false),
+                Commands.print("SHOOT")
+            )
+        );
     }
 }

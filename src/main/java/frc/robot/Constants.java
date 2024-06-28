@@ -94,7 +94,7 @@ public final class Constants {
             0,
             2 * Math.PI,
             Conversions.degreesToRadians(2),
-            Conversions.degreesToRadians(15)
+            Conversions.degreesToRadians(25)
         );
         // TODO: Figure out correct constants for heading control
         public static final PIDConstants kRealHeadingPID = kSimHeadingPID;
@@ -106,7 +106,7 @@ public final class Constants {
         public static final HolonomicPathFollowerConfig kHolonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
             SwerveModuleConstants.kMaxAttainableSpeed.in(Units.MetersPerSecond),
             kDriveBaseRadius.in(Units.Meters),
-            new ReplanningConfig(true, true)
+            new ReplanningConfig(true, true, 0.01, 0.01)
         );
 
         public static final class SwerveModuleConstants {

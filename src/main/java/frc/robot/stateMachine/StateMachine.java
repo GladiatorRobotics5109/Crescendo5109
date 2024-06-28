@@ -6,6 +6,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -55,17 +58,8 @@ public final class StateMachine {
             /** The drivetrain is moving and it is being driven with a joystick */
             DRIVING_FOLLOWING_PATH,
             /** The drivetrain is moving and it is being driven by a path follower */
-            DRIVING_UNKNOWN /** The drivetrain is moving and it is being driven by an unknown source */
-        }
-
-        /**
-         * Represents how much control the driver has over the swerve subsystem 
-         */
-        public static enum SwerveDrivingMode {
-            NO_ASSISTS, // Driver controls heading + translation
-            HEADING_CONTROL, // Heading is not being controlled by driver
-            // TRANSLATION_CONTROL, // Translation is not being controlled by driver
-            // TRANSLATION_AND_HEADING_CONTROL // Translation and heading is not being controlled by the driver
+            DRIVING_UNKNOWN
+            /** The drivetrain is moving and it is being driven by an unknown source */
         }
 
         public static Pose2d getPose() {
@@ -104,8 +98,16 @@ public final class StateMachine {
             return s_instance.m_swerve.isStopped();
         }
 
-        public static SwerveDrivingMode getDrivingMode() {
-            return s_instance.m_swerve.getDrivingMode();
+        public static boolean isTargetingHeading() {
+            return s_instance.m_swerve.isTargetingHeading();
+        }
+
+        public static boolean isAtTargetHeading() {
+            return s_instance.m_swerve.isAtTargetHeading();
+        }
+
+        public static Measure<Velocity<Distance>> getCurrentMaxSpeed() {
+            return s_instance.m_swerve.getCurrentMaxSpeed();
         }
 
         private static void periodic() {
@@ -117,7 +119,9 @@ public final class StateMachine {
             Logger.recordOutput("SwerveState/IsDriving", isDriving());
             Logger.recordOutput("SwerveState/IsMoving", isMoving());
             Logger.recordOutput("SwerveState/IsStopped", isStopped());
-            Logger.recordOutput("SwerveState/DrivingMode", getDrivingMode());
+            Logger.recordOutput("SwerveState/IsTargetingHeading", isTargetingHeading());
+            Logger.recordOutput("SwerveState/IsAtTargetHeading", isAtTargetHeading());
+            Logger.recordOutput("SwerveState/CurrentMaxSpeed", getCurrentMaxSpeed());
         }
 
         private static SwerveState s_instance;
@@ -142,8 +146,7 @@ public final class StateMachine {
             VisionMeasurement[] measurements = getMeasurements();
             for (VisionMeasurement measurement : measurements) {
                 Logger.recordOutput(
-                    "VisionState/" + measurement.getCameraName() +
-                        "Measurement",
+                    "VisionState/" + measurement.getCameraName() + "Measurement",
                     measurement
                 );
             }

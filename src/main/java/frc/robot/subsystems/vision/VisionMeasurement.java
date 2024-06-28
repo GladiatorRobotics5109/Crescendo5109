@@ -3,6 +3,9 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.util.struct.StructSerializable;
 
+/**
+ * A serializable vision measurement.
+ */
 public class VisionMeasurement implements StructSerializable {
     public static final VisionMeasurementStruct struct = new VisionMeasurementStruct();
 
