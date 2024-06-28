@@ -387,13 +387,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command commandSetTargetHeadingEnabled(BooleanSupplier enabled) {
         // This command does not require this subsystem because it does not control the subsystem.
-        // It needs to be like this because auto paths may need to enable and dissable heading targeting while driving.
+        // It needs to be like this because auto paths may need to enable and disable heading targeting while driving.
         return Commands.runOnce(() -> setTargetHeadingEnabled(enabled.getAsBoolean()));
     }
 
     public Command commandSetTargetHeadingEnabled(BooleanSupplier enabled, Supplier<Rotation2d> targetHeadingSupplier) {
         // This command does not require this subsystem because it does not control the subsystem.
-        // It needs to be like this because auto paths may need to enable and dissable heading targeting while driving.
+        // It needs to be like this because auto paths may need to enable and disable heading targeting while driving.
         return Commands.runOnce(() -> setTargetHeadingEnabled(enabled.getAsBoolean(), targetHeadingSupplier));
     }
 

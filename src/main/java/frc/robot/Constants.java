@@ -82,7 +82,7 @@ public final class Constants {
          * moving
          */
         public static final boolean kHeadingControlVelocityCompensation = true;
-        // TODO: Scalar should also be scaled by distance from target point, but heading targeting doens't target a
+        // TODO: Scalar should also be scaled by distance from target point, but heading targeting doesn't target a
         // point (it targets a heading) so this might be a large change/addition.
         public static final double kHeadingControlVelocityCompensationScalar = 0.65;
         public static final PIDConstants kSimHeadingPID = new PIDConstants(
