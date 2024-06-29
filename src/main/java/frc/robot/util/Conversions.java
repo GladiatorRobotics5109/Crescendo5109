@@ -52,6 +52,14 @@ public final class Conversions {
         return Units.rotationsPerMinuteToRadiansPerSecond(rotPerMin * gearRatio);
     }
 
+    public static double radiansPerSecondToRotationsPerMinute(double radPerSec) {
+        return radiansPerSecondToRotationsPerMinute(radPerSec, 1);
+    }
+
+    public static double radiansPerSecondToRotationsPerMinute(double radPerSec, double gearRatio) {
+        return Units.radiansPerSecondToRotationsPerMinute(radPerSec * gearRatio);
+    }
+
     public static double driveMotorRotationsToDriveWheelRadians(double rot) {
         return rotationsToRadians(rot, 1 / SwerveConstants.SwerveModuleConstants.kDriveGearRatio);
     }
@@ -90,5 +98,13 @@ public final class Conversions {
 
     public static double wheelMetersToWheelRadians(double m) {
         return metersToRadians(m, SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters, 1);
+    }
+
+    public static double shooterRPMToShooterRadPerSec(double rpm) {
+        return rotationsPerMinuteToRadiansPerSecond(rpm);
+    }
+
+    public static double shooterRadiansPerSecondToShooterRotationsPerMinute(double radPerSec) {
+        return radiansPerSecondToRotationsPerMinute(radPerSec);
     }
 }

@@ -28,8 +28,8 @@ public class WinchIOSparkMax implements WinchIO {
 
     @Override
     public void updateInputs(WinchIOInputs inputs) {
-        inputs.motorPositionRads = Conversions.rotationsToRadians(m_encoder.getPosition());
-        inputs.motorVelocityRadsPerSec = Conversions.rotationsPerMinuteToRadiansPerSecond(m_encoder.getVelocity());
+        inputs.motorPositionRad = Conversions.rotationsToRadians(m_encoder.getPosition());
+        inputs.motorVelocityRadPerSec = Conversions.rotationsPerMinuteToRadiansPerSecond(m_encoder.getVelocity());
 
         inputs.motorAppliedVolts = m_motor.getAppliedOutput() * m_motor.getBusVoltage();
         inputs.motorSupplyCurrentAmps = m_motor.getOutputCurrent();

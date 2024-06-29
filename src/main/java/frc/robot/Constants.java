@@ -370,11 +370,22 @@ public final class Constants {
         public static final int kRealMotorCurrentLimit = 40;
         public static final PIDConstants kRealAnglePID = new PIDConstants(0.1, 0, 0);
 
+        public static final PIDConstants kSimAnglePID = kRealAnglePID;
+
         public static final double kPivotWinchAverageRadius = 0.75 / 2;
 
         public static final double kWinchGearRatio = 25;
 
         // public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) /
         // kWinchGearRatio;
+    }
+
+    public static final class ShooterConstants {
+        public static final PIDConstants kRealLeftPID = new PIDConstants(1, 0, 0);
+        public static final PIDConstants kRealRightPID = kRealLeftPID;
+
+        public static final double kAutoSpinUpRadiusMeters = 8.0;
+        public static final double kShootRPM = 5500.0;
+        public static final double kAutoSpinRPM = kShootRPM;
     }
 }

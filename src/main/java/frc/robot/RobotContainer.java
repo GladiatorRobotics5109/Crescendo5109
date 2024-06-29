@@ -9,16 +9,21 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.winch.WinchSubsystem;
 
 public class RobotContainer {
     private VisionSubsystem m_vision;
     private SwerveSubsystem m_swerve;
+    private WinchSubsystem m_winch;
+    private ShooterSubsystem m_shooter;
 
     private CommandPS5Controller m_driverController;
     // private GenericHID m_driverController;
@@ -28,6 +33,8 @@ public class RobotContainer {
     public RobotContainer() {
         m_vision = new VisionSubsystem();
         m_swerve = new SwerveSubsystem();
+        m_winch = new WinchSubsystem();
+        m_shooter = new ShooterSubsystem();
 
         StateMachine.init(m_vision, m_swerve);
 
@@ -59,8 +66,19 @@ public class RobotContainer {
 
         // Toggle target heading
         m_driverController.square().onTrue(
-            m_swerve.commandSetTargetHeadingEnabled(() -> !m_swerve.isTargetingHeading(), Util::targetHeadingTest)
+            Commands.sequence(
+                m_swerve.commandSetTargetHeadingEnabled(
+                    () -> !m_swerve.isTargetingHeading(),
+                    Util::targetHeadingTest
+                ),
+                m_winch.commandSetTargetAngleEnabled(
+                    () -> !m_swerve.isTargetingHeading(),
+                    () -> Rotation2d.fromDegrees(45)
+                )
+            )
         );
+
+        // m_driverController.cross().onTrue()
 
         // m_swerve.setDefaultCommand(
         // m_swerve.driveWithJoystickCommand(

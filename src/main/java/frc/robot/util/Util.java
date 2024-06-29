@@ -20,6 +20,23 @@ public class Util {
         return DriverStation.getAlliance().orElse(Constants.kDefaultAlliance);
     }
 
+    public static Pose2d getTargetSpeakerPose() {
+        switch (Util.getAlliance()) {
+            case Red:
+                return new Pose2d(
+                    Conversions.inchesToMeters(652.73),
+                    Conversions.inchesToMeters(218.42),
+                    Rotation2d.fromRadians(Math.PI)
+                );
+            default:
+                return new Pose2d(
+                    Conversions.inchesToMeters(-1.5),
+                    Conversions.inchesToMeters(218.42),
+                    Rotation2d.fromRadians(0)
+                );
+        }
+    }
+
     /**
      * Used for testing heading targeting
      */
