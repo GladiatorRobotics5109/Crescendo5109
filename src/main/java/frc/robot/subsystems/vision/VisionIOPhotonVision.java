@@ -22,8 +22,9 @@ public class VisionIOPhotonVision implements VisionIO {
         Transform3d robotToCamera
     ) {
         try {
-            m_fieldLayout = AprilTagFieldLayout
-                .loadFromResource(Constants.SwerveConstants.VisionConstants.kAprilTagFieldLayout.m_resourceFile);
+            m_fieldLayout = AprilTagFieldLayout.loadFromResource(
+                Constants.SwerveConstants.VisionConstants.kAprilTagFieldLayout.m_resourceFile
+            );
         }
         catch (IOException e) {
             DriverStation.reportError("Failed to load apriltag field layout!", e.getStackTrace());

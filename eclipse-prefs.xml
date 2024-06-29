@@ -84,7 +84,7 @@
       value="80" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation"
-      value="16" />
+      value="0" />
     <setting
       id="org.eclipse.jdt.core.formatter.alignment_for_superclass_in_type_declaration"
       value="16" />

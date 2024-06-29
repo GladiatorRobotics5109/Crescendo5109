@@ -66,8 +66,9 @@ public final class Constants {
     public static final class SwerveConstants {
         public static final double kOdometryFrequency = 250.0;
 
-        public static final Measure<Distance> kDriveBaseRadius = Units.Meters
-            .of(SwerveModuleConstants.kModulePosFL.getNorm());
+        public static final Measure<Distance> kDriveBaseRadius = Units.Meters.of(
+            SwerveModuleConstants.kModulePosFL.getNorm()
+        );
 
         public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.8);
         public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(1.5 * Math.PI);
@@ -362,5 +363,18 @@ public final class Constants {
                 public static final Rotation2d kFov = Rotation2d.fromDegrees(86.0510613313);
             }
         }
+    }
+
+    public final class WinchConstants {
+        public static final int kRealMotorPort = 5;
+        public static final int kRealMotorCurrentLimit = 40;
+        public static final PIDConstants kRealAnglePID = new PIDConstants(0.1, 0, 0);
+
+        public static final double kPivotWinchAverageRadius = 0.75 / 2;
+
+        public static final double kWinchGearRatio = 25;
+
+        // public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) /
+        // kWinchGearRatio;
     }
 }

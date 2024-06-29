@@ -175,8 +175,10 @@ public class SwerveSubsystem extends SubsystemBase {
         if (m_targetHeadingEnabled && m_targetHeadingSupplier != null) {
             Rotation2d targetHeading = m_targetHeadingSupplier.get();
             ChassisSpeeds currentSpeeds = getFieldRelativeChassisSpeeds();
-            desiredSpeeds.omegaRadiansPerSecond = m_targetHeadingPID
-                .calculate(getHeading().getRadians(), targetHeading.getRadians())
+            desiredSpeeds.omegaRadiansPerSecond = m_targetHeadingPID.calculate(
+                getHeading().getRadians(),
+                targetHeading.getRadians()
+            )
                 + (SwerveConstants.kHeadingControlVelocityCompensation // if use velocity compensation, calculate
                     // compensation
                     ? (-SwerveConstants.kHeadingControlVelocityCompensationScalar
@@ -185,8 +187,10 @@ public class SwerveSubsystem extends SubsystemBase {
                     : 0);
         }
 
-        ChassisSpeeds discreteSpeeds = ChassisSpeeds
-            .discretize(desiredSpeeds, Constants.kRobotLoopPeriod.in(Units.Seconds));
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(
+            desiredSpeeds,
+            Constants.kRobotLoopPeriod.in(Units.Seconds)
+        );
         ChassisSpeeds speeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(discreteSpeeds, getHeading().plus(getDriveRotationOffset()))
             : discreteSpeeds;
@@ -442,8 +446,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 Rotation2d.fromRadians(
                     MathUtil.applyDeadband(getRobotRelativeChassisSpeeds().omegaRadiansPerSecond, 0.45)
                         * Constants.kRobotLoopPeriodSecs
-                )
-                    .plus(m_gyro.getYaw())
+                ).plus(m_gyro.getYaw())
             );
         }
 
