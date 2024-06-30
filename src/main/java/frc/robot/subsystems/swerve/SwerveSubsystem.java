@@ -307,7 +307,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void setTargetHeadingEnabled(boolean enabled) {
         if (enabled && m_targetHeadingSupplier == null) {
-            DriverStation.reportWarning("Target Heading enabled but m_targetHeadingSupplier == null.", null);
+            DriverStation.reportWarning("Target Heading enabled but m_targetHeadingSupplier == null.", false);
         }
 
         m_targetHeadingEnabled = enabled;

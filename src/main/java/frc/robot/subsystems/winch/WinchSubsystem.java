@@ -3,6 +3,7 @@ package frc.robot.subsystems.winch;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -85,8 +86,26 @@ public class WinchSubsystem extends SubsystemBase {
         Logger.processInputs("Winch", m_inputs);
 
         if (m_targetAngleEnabled && m_targetAngleSupplier != null) {
+            Rotation2d desiredAngle = m_targetAngleSupplier.get();
+            if (desiredAngle.getRadians() > WinchConstants.kMaxAngle.getRadians()) {
+                DriverStation.reportWarning(
+                    "The WinchSubsystem has been requested to reach an angle of " + desiredAngle.getDegrees()
+                        + "deg but its max angle is " + WinchConstants.kMaxAngle.getDegrees() + "deg.",
+                    false
+                );
+                desiredAngle = WinchConstants.kMaxAngle;
+            }
+            else if (desiredAngle.getRadians() < WinchConstants.kMinAngle.getRadians()) {
+                DriverStation.reportWarning(
+                    "The WinchSubsystem has been requested to reach an angle of " + desiredAngle.getDegrees()
+                        + "deg but its min angle is " + WinchConstants.kMinAngle.getDegrees() + "deg.",
+                    false
+                );
+                desiredAngle = WinchConstants.kMinAngle;
+            }
+
             m_io.setVoltage(
-                m_anglePID.calculate(getCurrentAngle().getRadians(), m_targetAngleSupplier.get().getRadians())
+                m_anglePID.calculate(getCurrentAngle().getRadians(), desiredAngle.getRadians())
             );
         }
 

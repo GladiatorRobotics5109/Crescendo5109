@@ -33,6 +33,22 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightDesiredRPM = 0.0;
     }
 
+    public double getLeftCurrentRPM() {
+        return Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(m_inputs.leftMotorVelocityRadPerSec);
+    }
+
+    public double getRightCurrentRPM() {
+        return Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(m_inputs.rightMotorVelocityRadPerSec);
+    }
+
+    public double getLeftDesiredRPM() {
+        return m_leftDesiredRPM;
+    }
+
+    public double getRightDesiredRPM() {
+        return m_rightDesiredRPM;
+    }
+
     public void setDesiredRPM(double leftRPM, double rightRPM) {
         m_leftDesiredRPM = leftRPM;
         m_rightDesiredRPM = rightRPM;

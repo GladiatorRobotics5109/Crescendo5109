@@ -289,7 +289,7 @@ public final class Constants {
                 if (mode != Mode.REPLAY) {
                     DriverStation.reportWarning(
                         "Empty SwerveModuleConstants created for a robot that is not in Mode.REPLAY",
-                        null
+                        false
                     );
                 }
             }
@@ -378,6 +378,11 @@ public final class Constants {
 
         // public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) /
         // kWinchGearRatio;
+
+        public static final Rotation2d kMaxAngle = Rotation2d.fromDegrees(59);
+        public static final Rotation2d kMinAngle = Rotation2d.fromDegrees(30);
+
+        public static final Rotation2d kIntakeAngle = kMinAngle;
     }
 
     public static final class ShooterConstants {
@@ -387,5 +392,33 @@ public final class Constants {
         public static final double kAutoSpinUpRadiusMeters = 8.0;
         public static final double kShootRPM = 5500.0;
         public static final double kAutoSpinRPM = kShootRPM;
+    }
+
+    public static final class RollersConstants {
+        public static final class IntakeConstants {
+            public static final int kRealMotorPort = 0;
+
+            public static final int kRealCurrentLimitAmps = 40;
+
+            public static final PIDConstants kRealRPMPID = new PIDConstants(1, 0, 0);
+            public static final PIDConstants kSimRPMPID = kRealRPMPID;
+
+            public static final double kIntakeRPM = 100.0;
+
+            public static final int kNoteEnterCurrentThreashold = 10;
+        }
+
+        public static final class FeederConstants {
+            public static final int kRealMotorPort = 4;
+
+            public static final int kRealCurrentLimitAmps = 40;
+
+            public static final PIDConstants kRealRPMPID = new PIDConstants(1.0, 0.0, 0.0);
+            public static final PIDConstants kSImRPMPID = kRealRPMPID;
+
+            public static final int kNoteEnterCurrentThreashold = 10;
+
+            public static final double kFeedRPM = 100;
+        }
     }
 }

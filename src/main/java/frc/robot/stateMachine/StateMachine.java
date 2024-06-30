@@ -1,5 +1,7 @@
 package frc.robot.stateMachine;
 
+import frc.robot.subsystems.rollers.Rollers;
+import frc.robot.subsystems.winch.WinchSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,6 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -27,14 +30,26 @@ public final class StateMachine {
         throw new UnsupportedOperationException("This class should not be instantiated!");
     }
 
-    public static void init(VisionSubsystem vision, SwerveSubsystem swerve) {
-        VisionState.init(vision);
+    public static void init(
+        SwerveSubsystem swerve,
+        VisionSubsystem vision,
+        ShooterSubsystem shooter,
+        WinchSubsystem winch,
+        Rollers rollers
+    ) {
         SwerveState.init(swerve);
+        VisionState.init(vision);
+        ShooterState.init(shooter);
+        WinchState.init(winch);
+        RollersState.init(rollers);
     }
 
     public static void periodic() {
         SwerveState.periodic();
         VisionState.periodic();
+        ShooterState.periodic();
+        WinchState.periodic();
+        RollersState.periodic();
     }
 
     /**
@@ -162,6 +177,122 @@ public final class StateMachine {
 
         private VisionState(VisionSubsystem vision) {
             m_vision = vision;
+        }
+    }
+
+    public static final class ShooterState {
+        public static double getLeftCurrentRPM() {
+            return s_instance.m_shooter.getLeftCurrentRPM();
+        }
+
+        public static double getRightCurrentRPM() {
+            return s_instance.m_shooter.getRightCurrentRPM();
+        }
+
+        public static double getLeftDesiredRPM() {
+            return s_instance.m_shooter.getLeftDesiredRPM();
+        }
+
+        public static double getRightDesiredRPM() {
+            return s_instance.m_shooter.getRightDesiredRPM();
+        }
+
+        public static void periodic() {
+            Logger.recordOutput("ShooterState/LeftCurrentRPM", getLeftCurrentRPM());
+            Logger.recordOutput("ShooterState/RightCurrentRPM", getRightCurrentRPM());
+            Logger.recordOutput("ShooterState/LeftDesiredRPM", getLeftDesiredRPM());
+            Logger.recordOutput("ShooterState/RightDesiredRPM", getRightDesiredRPM());
+        }
+
+        private static ShooterState s_instance;
+
+        private static void init(ShooterSubsystem shooter) {
+            s_instance = new ShooterState(shooter);
+        }
+
+        private ShooterSubsystem m_shooter;
+
+        private ShooterState(ShooterSubsystem shooter) {
+            m_shooter = shooter;
+        }
+    }
+
+    public static final class WinchState {
+        public static Rotation2d getCurrentAngle() {
+            return s_instance.m_winch.getCurrentAngle();
+        }
+
+        private static void periodic() {
+            Logger.recordOutput("WinchState/CurrentAngle", getCurrentAngle());
+        }
+
+        private static WinchState s_instance;
+
+        private static void init(WinchSubsystem winch) {
+            s_instance = new WinchState(winch);
+        }
+
+        private final WinchSubsystem m_winch;
+
+        private WinchState(WinchSubsystem winch) {
+            m_winch = winch;
+        }
+    }
+
+    public final static class RollersState {
+        public static double getIntakeDesiredRPM() {
+            return s_instance.m_rollers.getIntakeDesiredRPM();
+        }
+
+        public static double getIntakeCurrentRPM() {
+            return s_instance.m_rollers.getIntakeCurrentRPM();
+        }
+
+        public static boolean getIntakeIsIntaking() {
+            return s_instance.m_rollers.getIntakeIsIntaking();
+        }
+
+        public static boolean getIntakeHasNote() {
+            return s_instance.m_rollers.getIntakeHasNote();
+        }
+
+        public static boolean getFeederHasNote() {
+            return s_instance.m_rollers.getFeederHasNote();
+        }
+
+        public static double getFeederDesiredRPM() {
+            return s_instance.m_rollers.getFeederDesriedRPM();
+        }
+
+        public static double getFeederCurrentRPM() {
+            return s_instance.m_rollers.getFeederCurrentRPM();
+        }
+
+        public static boolean hasNote() {
+            return s_instance.m_rollers.hasNote();
+        }
+
+        private static void periodic() {
+            Logger.recordOutput("RollersState/Intake/DesiredRPM", getIntakeDesiredRPM());
+            Logger.recordOutput("RollersState/Intake/CurrentRPM", getIntakeCurrentRPM());
+            Logger.recordOutput("RollersState/Intake/isIntaking", getIntakeIsIntaking());
+            Logger.recordOutput("RollersState/Intake/HasNote", getIntakeHasNote());
+            Logger.recordOutput("RollersState/Fedder/HasNote", getFeederHasNote());
+            Logger.recordOutput("RollersState/Fedder/DesiredRPM", getFeederDesiredRPM());
+            Logger.recordOutput("RollersState/Fedder/CurrentRPM", getFeederCurrentRPM());
+            Logger.recordOutput("RollersState/HasNote", hasNote());
+        }
+
+        private static RollersState s_instance;
+
+        private static void init(Rollers rollers) {
+            s_instance = new RollersState(rollers);
+        }
+
+        private final Rollers m_rollers;
+
+        private RollersState(Rollers rollers) {
+            m_rollers = rollers;
         }
     }
 }

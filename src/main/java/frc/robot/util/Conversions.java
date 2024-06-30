@@ -100,7 +100,7 @@ public final class Conversions {
         return metersToRadians(m, SwerveConstants.SwerveModuleConstants.kWheelRadiusMeters, 1);
     }
 
-    public static double shooterRPMToShooterRadPerSec(double rpm) {
+    public static double shooterRotationsPerMinuteToShooterRadiansPerSecond(double rpm) {
         return rotationsPerMinuteToRadiansPerSecond(rpm);
     }
 

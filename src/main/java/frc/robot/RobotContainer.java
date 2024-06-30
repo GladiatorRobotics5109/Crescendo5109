@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.rollers.Rollers;
 import frc.robot.util.Util;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -20,10 +21,11 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.winch.WinchSubsystem;
 
 public class RobotContainer {
-    private VisionSubsystem m_vision;
-    private SwerveSubsystem m_swerve;
-    private WinchSubsystem m_winch;
-    private ShooterSubsystem m_shooter;
+    private final VisionSubsystem m_vision;
+    private final SwerveSubsystem m_swerve;
+    private final WinchSubsystem m_winch;
+    private final ShooterSubsystem m_shooter;
+    private final Rollers m_rollers;
 
     private CommandPS5Controller m_driverController;
     // private GenericHID m_driverController;
@@ -35,8 +37,10 @@ public class RobotContainer {
         m_swerve = new SwerveSubsystem();
         m_winch = new WinchSubsystem();
         m_shooter = new ShooterSubsystem();
+        m_rollers = new Rollers();
 
-        StateMachine.init(m_vision, m_swerve);
+        StateMachine.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
+        CommandBuilder.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
         // m_driverController = new GenericHID(0);
@@ -78,7 +82,7 @@ public class RobotContainer {
             )
         );
 
-        // m_driverController.cross().onTrue()
+        m_driverController.cross().onTrue(CommandBuilder.startIntake());
 
         // m_swerve.setDefaultCommand(
         // m_swerve.driveWithJoystickCommand(

@@ -11,7 +11,7 @@ public class WinchIOSim implements WinchIO {
 
     public WinchIOSim() {
         // TODO: figure out correct moi
-        m_motor = new DCMotorSim(DCMotor.getNEO(1), WinchConstants.kWinchGearRatio, 0.025);
+        m_motor = new DCMotorSim(DCMotor.getNEO(1), WinchConstants.kWinchGearRatio, 0.005);
     }
 
     @Override
