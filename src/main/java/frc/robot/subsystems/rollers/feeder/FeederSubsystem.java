@@ -3,6 +3,7 @@ package frc.robot.subsystems.rollers.feeder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Constants;
 import frc.robot.Constants.RollersConstants.FeederConstants;
 import frc.robot.util.Conversions;
@@ -40,8 +41,11 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public boolean hasNote() {
-        return m_inputs.motorSupplyCurrentAmps.length > 0
-            && m_inputs.motorSupplyCurrentAmps[0] >= FeederConstants.kNoteEnterCurrentThreashold;
+        return m_inputs.motorSupplyCurrentAmps >= FeederConstants.kNoteEnterCurrentThreashold;
+    }
+
+    public boolean isIntaking() {
+        return m_desiredRPM != 0.0;
     }
 
     public double getDesiredRPM() {
@@ -49,7 +53,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public double getCurrentRPM() {
-        return Conversions.radiansPerSecondToRotationsPerMinute(m_inputs.motorVelocityRadPerSec);
+        return Conversions.radiansPerSecondToRotationsPerMinute(m_inputs.feederVelocityRadPerSec);
     }
 
     public void setDesiredRPM(double desiredRPM) {
@@ -70,7 +74,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public Command commandStop() {
-        return this.runOnce(this::stop);
+        return this.runOnce(this::stop).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
     @Override

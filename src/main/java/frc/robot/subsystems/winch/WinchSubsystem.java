@@ -55,6 +55,10 @@ public class WinchSubsystem extends SubsystemBase {
         );
     }
 
+    public boolean isAtTargetAngle() {
+        return m_targetAngleEnabled && m_anglePID.atSetpoint();
+    }
+
     public void setDesiredAngle(Supplier<Rotation2d> angleSupplier) {
         m_targetAngleSupplier = angleSupplier;
     }

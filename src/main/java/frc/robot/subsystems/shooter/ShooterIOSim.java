@@ -10,8 +10,8 @@ public class ShooterIOSim implements ShooterIO {
     private DCMotorSim m_rightMotor;
 
     public ShooterIOSim() {
-        m_leftMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 0.005);
-        m_rightMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 0.005);
+        m_leftMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 0.0015);
+        m_rightMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 0.0015);
     }
 
     @Override

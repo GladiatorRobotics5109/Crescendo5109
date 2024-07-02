@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 
 public final class Conversions {
@@ -106,5 +107,16 @@ public final class Conversions {
 
     public static double shooterRadiansPerSecondToShooterRotationsPerMinute(double radPerSec) {
         return radiansPerSecondToRotationsPerMinute(radPerSec);
+    }
+
+    public static double intakeMotorRotationsToIntakeRadians(double rot) {
+        return rotationsToRadians(rot, 1 / Constants.RollersConstants.IntakeConstants.kIntakeGearRatio);
+    }
+
+    public static double intakeMotorRotationsPerMinuteToIntakeRadiansPerSecond(double rotPerMin) {
+        return rotationsPerMinuteToRadiansPerSecond(
+            rotPerMin,
+            1 / Constants.RollersConstants.IntakeConstants.kIntakeGearRatio
+        );
     }
 }

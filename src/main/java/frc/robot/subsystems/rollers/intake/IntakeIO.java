@@ -1,12 +1,15 @@
 package frc.robot.subsystems.rollers.intake;
 
-import frc.robot.util.GenericMotorInputs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeIO {
     @AutoLog
-    public class IntakeIOInputs extends GenericMotorInputs {
-
+    public static class IntakeIOInputs {
+        public double intakePositionRad = Double.NaN;
+        public double intakeVelocityRadPerSec = Double.NaN;
+        public double motorAppliedVolts = Double.NaN;
+        public double motorSupplyCurrentAmps = Double.NaN;
+        public double motorTempCelcius = Double.NaN;
     }
 
     public default void updateInputs(IntakeIOInputs inputs) {}

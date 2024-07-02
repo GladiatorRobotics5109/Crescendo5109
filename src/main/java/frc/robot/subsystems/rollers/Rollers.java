@@ -1,8 +1,6 @@
 package frc.robot.subsystems.rollers;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.rollers.feeder.FeederSubsystem;
 import frc.robot.subsystems.rollers.intake.IntakeSubsystem;
@@ -32,11 +30,15 @@ public class Rollers {
         return m_intake.hasNote();
     }
 
+    public boolean getFeederIsIntaking() {
+        return m_feeder.isIntaking();
+    }
+
     public boolean getFeederHasNote() {
         return m_feeder.hasNote();
     }
 
-    public double getFeederDesriedRPM() {
+    public double getFeederDesiredRPM() {
         return m_feeder.getDesiredRPM();
     }
 
@@ -48,6 +50,10 @@ public class Rollers {
         return m_intake.hasNote() || m_feeder.hasNote();
     }
 
+    public boolean isIntaking() {
+        return m_intake.isIntaking() && m_feeder.isIntaking();
+    }
+
     public Command commandStartIntakeProcedure() {
         return Commands.sequence(
             m_intake.commandStart(),
@@ -55,11 +61,31 @@ public class Rollers {
             m_intake.commandWaitUntilNoteEnterExit(),
             m_intake.commandStop(),
             m_feeder.commandStop()
-        ).withInterruptBehavior(InterruptionBehavior.kCancelSelf).handleInterrupt(
-            () -> DriverStation.reportWarning(
-                "CommandBuilder.commandStartIntakeProcedure() command has been interrupted!",
-                false
-            )
+        ).withName("Rollers::commandStartIntakeProcedure");
+    }
+
+    public Command commandStopIntake() {
+        return Commands.sequence(
+            m_intake.commandStop(),
+            m_feeder.commandStop()
+        );
+    }
+
+    public Command commandStartManualShoot() {
+        return m_feeder.commandStart();
+    }
+
+    public Command commandStopManualShoot() {
+        return m_feeder.commandStop();
+    }
+
+    public Command commandStartShootProcedure() {
+        return Commands.sequence(
+            Commands.print("START SHOOT PROCEDURE"),
+            m_feeder.commandStart(),
+            Commands.waitUntil(() -> !hasNote()).withTimeout(2.5),
+            m_feeder.commandStop(),
+            Commands.print("STOP SHOOT PROCEDURE")
         );
     }
 }

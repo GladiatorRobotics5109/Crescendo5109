@@ -19,17 +19,19 @@ public class IntakeIOSparkMax implements IntakeIO {
         m_motor.setSmartCurrentLimit(IntakeConstants.kRealCurrentLimitAmps);
         m_motor.setIdleMode(IdleMode.kCoast);
 
+        m_motor.burnFlash();
+
         m_encoder = m_motor.getEncoder();
     }
 
     @Override
     public void updateInputs(IntakeIOInputs inputs) {
-        inputs.motorPositionRad = m_encoder.getPosition();
-        inputs.motorVelocityRadPerSec = Conversions.rotationsPerMinuteToRadiansPerSecond(m_encoder.getVelocity());
+        inputs.intakePositionRad = Conversions.intakeMotorRotationsToIntakeRadians(m_encoder.getPosition());
+        inputs.intakeVelocityRadPerSec = Conversions.intakeMotorRotationsPerMinuteToIntakeRadiansPerSecond(
+            m_encoder.getVelocity()
+        );
         inputs.motorAppliedVolts = m_motor.getAppliedOutput() * m_motor.getBusVoltage();
-        inputs.motorSupplyCurrentAmps = new double[] {
-            m_motor.getOutputCurrent()
-        };
+        inputs.motorSupplyCurrentAmps = m_motor.getOutputCurrent();
         inputs.motorTempCelcius = m_motor.getMotorTemperature();
     }
 

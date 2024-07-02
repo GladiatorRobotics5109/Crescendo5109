@@ -1,10 +1,14 @@
 package frc.robot.subsystems.shooter;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.stateMachine.StateMachine;
@@ -21,6 +25,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double m_leftDesiredRPM;
     private double m_rightDesiredRPM;
 
+    private boolean m_autoSpinUpEnabled;
+
     public ShooterSubsystem() {
         m_inputs = new ShooterIOInputsAutoLogged();
 
@@ -31,6 +37,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_leftDesiredRPM = 0.0;
         m_rightDesiredRPM = 0.0;
+
+        m_autoSpinUpEnabled = true;
     }
 
     public double getLeftCurrentRPM() {
@@ -54,11 +62,26 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightDesiredRPM = rightRPM;
     }
 
-    public void stop() {
-        setDesiredRPM(0, 0);
+    public void setAutoSpinUpEnabled(boolean enabled) {
+        m_autoSpinUpEnabled = enabled;
     }
 
-    private boolean shouldAutoSpinUp() {
+    public boolean getAutoSpinUpEnabled() {
+        return m_autoSpinUpEnabled;
+    }
+
+    public boolean isAtDesiredRPM() {
+        return m_leftDesiredRPM != 0.0 && m_rightDesiredRPM != 0.0 && m_leftPID.atSetpoint() && m_rightPID.atSetpoint();
+    }
+
+    public boolean isSpinning() {
+        return !MathUtil.isNear(0.0, getLeftCurrentRPM(), 1.0) || !MathUtil.isNear(0.0, getRightCurrentRPM(), 1.0);
+    }
+
+    public boolean shouldAutoSpinUp() {
+        if (!m_autoSpinUpEnabled)
+            return false;
+
         Pose2d speakerPose = Util.getTargetSpeakerPose();
         Pose2d botPose = StateMachine.SwerveState.getPose();
 
@@ -67,12 +90,48 @@ public class ShooterSubsystem extends SubsystemBase {
                 speakerPose.getTranslation()
             ) <= ShooterConstants.kAutoSpinUpRadiusMeters
         ) {
-            Logger.recordOutput("ShooterState/ShouldAutoSpinUp", true);
             return true;
         }
 
-        Logger.recordOutput("ShooterState/ShouldAutoSpinUp", false);
         return false;
+    }
+
+    public boolean hasDesiredRPM() {
+        return m_leftDesiredRPM != 0.0 || m_rightDesiredRPM != 0.0;
+    }
+
+    public void stop() {
+        setDesiredRPM(0, 0);
+    }
+
+    public void start() {
+        setDesiredRPM(ShooterConstants.kShootRPM, ShooterConstants.kShootRPM);
+    }
+
+    public Command commandManualStop() {
+        return this.runOnce(() -> {
+            setAutoSpinUpEnabled(false);
+            stop();
+        });
+    }
+
+    public Command commandManualStart() {
+        return this.runOnce(() -> {
+            setAutoSpinUpEnabled(false);
+            start();
+        });
+    }
+
+    public Command commandStart() {
+        return this.runOnce(this::start);
+    }
+
+    public Command commandStop() {
+        return this.runOnce(this::stop);
+    }
+
+    public Command commandSetAutoSpinUpEnabled(BooleanSupplier enabled) {
+        return this.runOnce(() -> setAutoSpinUpEnabled(enabled.getAsBoolean()));
     }
 
     @Override
@@ -83,13 +142,15 @@ public class ShooterSubsystem extends SubsystemBase {
         // if should auto spin up and desired rpm is lower than auto spin up rpm (to allow high shoot rpm than auto spin
         // rpm)
         if (
-            shouldAutoSpinUp() && (m_leftDesiredRPM <= ShooterConstants.kAutoSpinRPM
-                || m_rightDesiredRPM <= ShooterConstants.kAutoSpinRPM)
+            m_autoSpinUpEnabled && shouldAutoSpinUp()
+                && (m_leftDesiredRPM <= ShooterConstants.kAutoSpinRPM
+                    || m_rightDesiredRPM <= ShooterConstants.kAutoSpinRPM)
         ) {
             setDesiredRPM(ShooterConstants.kAutoSpinRPM, ShooterConstants.kAutoSpinRPM);
         }
         else if (
-            m_leftDesiredRPM == ShooterConstants.kAutoSpinRPM && m_rightDesiredRPM == ShooterConstants.kAutoSpinRPM
+            m_autoSpinUpEnabled &&
+                m_leftDesiredRPM == ShooterConstants.kAutoSpinRPM && m_rightDesiredRPM == ShooterConstants.kAutoSpinRPM
         ) {
             stop();
         }
@@ -118,16 +179,5 @@ public class ShooterSubsystem extends SubsystemBase {
         else {
             stop();
         }
-
-        Logger.recordOutput(
-            "ShooterState/leftCurrentRPM",
-            Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(m_inputs.leftMotorVelocityRadPerSec)
-        );
-        Logger.recordOutput("ShooterState/leftDesiredRPM", m_leftDesiredRPM);
-        Logger.recordOutput(
-            "ShooterState/rightCurrentRPM",
-            Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(m_inputs.rightMotorVelocityRadPerSec)
-        );
-        Logger.recordOutput("ShooterState/rightDesiredRPM", m_rightDesiredRPM);
     }
 }

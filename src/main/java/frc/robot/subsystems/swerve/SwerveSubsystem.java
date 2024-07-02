@@ -366,7 +366,7 @@ public class SwerveSubsystem extends SubsystemBase {
             vrot = !m_targetHeadingEnabled ? -joyRightX * maxAngularSpeedRadPerSec : 0.0;
 
             drive(vx, vy, vrot, fieldRelative);
-        }).withName("DriveWithJoystickCommand");
+        }).withName("SwerveSubsystem::DriveWithJoystickCommand");
     }
 
     // public Command followTrajectoryCommand(ChoreoTrajectory traj) {

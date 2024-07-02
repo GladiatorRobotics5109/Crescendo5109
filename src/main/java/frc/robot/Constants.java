@@ -386,7 +386,17 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final PIDConstants kRealLeftPID = new PIDConstants(1, 0, 0);
+        public static final PIDConstants kRealLeftPID = new PIDConstants(
+            0.5,
+            0.0,
+            0.0,
+            Double.POSITIVE_INFINITY,
+            false,
+            Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY,
+            300,
+            Double.POSITIVE_INFINITY
+        );
         public static final PIDConstants kRealRightPID = kRealLeftPID;
 
         public static final double kAutoSpinUpRadiusMeters = 8.0;
@@ -406,6 +416,8 @@ public final class Constants {
             public static final double kIntakeRPM = 100.0;
 
             public static final int kNoteEnterCurrentThreashold = 10;
+
+            public static final double kIntakeGearRatio = 5;
         }
 
         public static final class FeederConstants {

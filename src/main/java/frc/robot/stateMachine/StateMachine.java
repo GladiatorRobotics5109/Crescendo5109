@@ -42,6 +42,7 @@ public final class StateMachine {
         ShooterState.init(shooter);
         WinchState.init(winch);
         RollersState.init(rollers);
+        RobotState.init();
     }
 
     public static void periodic() {
@@ -50,6 +51,28 @@ public final class StateMachine {
         ShooterState.periodic();
         WinchState.periodic();
         RollersState.periodic();
+    }
+
+    public static final class RobotState {
+        public static boolean isAssistedShooting() {
+            return s_instance.m_isAssistedShooting;
+        }
+
+        public static void setIsAssistedShooting(boolean isAssistedShooting) {
+            s_instance.m_isAssistedShooting = isAssistedShooting;
+        }
+
+        private static RobotState s_instance;
+
+        private static void init() {
+            s_instance = new RobotState();
+        }
+
+        private boolean m_isAssistedShooting;
+
+        private RobotState() {
+            m_isAssistedShooting = false;
+        }
     }
 
     /**
@@ -197,11 +220,36 @@ public final class StateMachine {
             return s_instance.m_shooter.getRightDesiredRPM();
         }
 
+        public static boolean getAutoSpinUpEnabled() {
+            return s_instance.m_shooter.getAutoSpinUpEnabled();
+        }
+
+        public static boolean isSpinning() {
+            return s_instance.m_shooter.isSpinning();
+        }
+
+        public static boolean shouldAutoSpinUp() {
+            return s_instance.m_shooter.shouldAutoSpinUp();
+        }
+
+        public static boolean hasDesiredRPM() {
+            return s_instance.m_shooter.hasDesiredRPM();
+        }
+
+        public static boolean isAtDesiredRPM() {
+            return s_instance.m_shooter.isAtDesiredRPM();
+        }
+
         public static void periodic() {
             Logger.recordOutput("ShooterState/LeftCurrentRPM", getLeftCurrentRPM());
             Logger.recordOutput("ShooterState/RightCurrentRPM", getRightCurrentRPM());
             Logger.recordOutput("ShooterState/LeftDesiredRPM", getLeftDesiredRPM());
             Logger.recordOutput("ShooterState/RightDesiredRPM", getRightDesiredRPM());
+            Logger.recordOutput("ShooterState/AutoSpinUpEnabled", getAutoSpinUpEnabled());
+            Logger.recordOutput("ShooterState/ShouldAutoSpinUp", shouldAutoSpinUp());
+            Logger.recordOutput("ShooterState/IsSpinning", isSpinning());
+            Logger.recordOutput("ShooterState/HasDesiredRPM", hasDesiredRPM());
+            Logger.recordOutput("ShooterState/IsAtDesiredRPM", isAtDesiredRPM());
         }
 
         private static ShooterState s_instance;
@@ -261,15 +309,23 @@ public final class StateMachine {
         }
 
         public static double getFeederDesiredRPM() {
-            return s_instance.m_rollers.getFeederDesriedRPM();
+            return s_instance.m_rollers.getFeederDesiredRPM();
         }
 
         public static double getFeederCurrentRPM() {
             return s_instance.m_rollers.getFeederCurrentRPM();
         }
 
+        public static boolean getFeederIsIntaking() {
+            return s_instance.m_rollers.getFeederIsIntaking();
+        }
+
         public static boolean hasNote() {
             return s_instance.m_rollers.hasNote();
+        }
+
+        public static boolean isIntaking() {
+            return s_instance.m_rollers.isIntaking();
         }
 
         private static void periodic() {
@@ -277,9 +333,11 @@ public final class StateMachine {
             Logger.recordOutput("RollersState/Intake/CurrentRPM", getIntakeCurrentRPM());
             Logger.recordOutput("RollersState/Intake/isIntaking", getIntakeIsIntaking());
             Logger.recordOutput("RollersState/Intake/HasNote", getIntakeHasNote());
-            Logger.recordOutput("RollersState/Fedder/HasNote", getFeederHasNote());
-            Logger.recordOutput("RollersState/Fedder/DesiredRPM", getFeederDesiredRPM());
-            Logger.recordOutput("RollersState/Fedder/CurrentRPM", getFeederCurrentRPM());
+            Logger.recordOutput("RollersState/Feeder/HasNote", getFeederHasNote());
+            Logger.recordOutput("RollersState/Feeder/DesiredRPM", getFeederDesiredRPM());
+            Logger.recordOutput("RollersState/Feeder/CurrentRPM", getFeederCurrentRPM());
+            Logger.recordOutput("RollersState/Feeder/IsIntaking", getFeederIsIntaking());
+            Logger.recordOutput("RollersState/IsIntaking", isIntaking());
             Logger.recordOutput("RollersState/HasNote", hasNote());
         }
 

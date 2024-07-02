@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import frc.robot.Constants;
 import frc.robot.Constants.RollersConstants.IntakeConstants;
 import frc.robot.util.Conversions;
@@ -55,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public double getCurrentRPM() {
-        return Conversions.radiansPerSecondToRotationsPerMinute(m_inputs.motorVelocityRadPerSec);
+        return Conversions.radiansPerSecondToRotationsPerMinute(m_inputs.intakeVelocityRadPerSec);
     }
 
     public boolean isIntaking() {
@@ -63,8 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean hasNote() {
-        return m_inputs.motorSupplyCurrentAmps.length > 0
-            && m_inputs.motorSupplyCurrentAmps[0] >= IntakeConstants.kNoteEnterCurrentThreashold;
+        return m_inputs.motorSupplyCurrentAmps >= IntakeConstants.kNoteEnterCurrentThreashold;
     }
 
     public Command commandStart() {
@@ -72,7 +72,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command commandStop() {
-        return this.runOnce(this::stop);
+        return this.runOnce(this::stop).withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
     public Command commandToggleIntake() {

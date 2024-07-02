@@ -10,8 +10,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
@@ -52,6 +52,17 @@ public class RobotContainer {
 
         m_autoChooser.addDefaultOption("DoNothing", AutoBuilder.doNothing(m_swerve));
         m_autoChooser.addOption("Test", AutoBuilder.test(m_swerve));
+
+        CommandScheduler.getInstance().onCommandInitialize(
+            (
+                Command command
+            ) -> System.out.println("Command Started: " + command.getName() + ", Subsystem: " + command.getSubsystem())
+        );
+        CommandScheduler.getInstance().onCommandFinish(
+            (
+                Command command
+            ) -> System.out.println("Command Finished:" + command.getName() + ", Subsystem: " + command.getSubsystem())
+        );
     }
 
     public Command commandGetAutonomous() {
@@ -68,21 +79,10 @@ public class RobotContainer {
             )
         );
 
-        // Toggle target heading
-        m_driverController.square().onTrue(
-            Commands.sequence(
-                m_swerve.commandSetTargetHeadingEnabled(
-                    () -> !m_swerve.isTargetingHeading(),
-                    Util::targetHeadingTest
-                ),
-                m_winch.commandSetTargetAngleEnabled(
-                    () -> !m_swerve.isTargetingHeading(),
-                    () -> Rotation2d.fromDegrees(45)
-                )
-            )
-        );
-
-        m_driverController.cross().onTrue(CommandBuilder.startIntake());
+        m_driverController.square().onTrue(CommandBuilder.commandToggleAutoAim());
+        m_driverController.cross().onTrue(CommandBuilder.commandToggleManualShoot());
+        m_driverController.L1().onTrue(CommandBuilder.commandToggleIntake());
+        m_driverController.R1().onTrue(CommandBuilder.commandToggleAssistedShoot());
 
         // m_swerve.setDefaultCommand(
         // m_swerve.driveWithJoystickCommand(
@@ -109,7 +109,7 @@ public class RobotContainer {
             "Shoot",
             Commands.sequence(
                 Commands.print("WAITING UNTIL AIM GOOD"),
-                Commands.waitUntil(() -> m_swerve.isAtTargetHeading()),
+                Commands.waitUntil(m_swerve::isAtTargetHeading),
                 m_swerve.commandSetTargetHeadingEnabled(() -> false),
                 Commands.print("SHOOT")
             )

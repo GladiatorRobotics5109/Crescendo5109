@@ -38,6 +38,7 @@
     "dtheta",
     "Feedforward",
     "Holonomic",
+    "Intaking",
     "odometry",
     "Setpoint",
     "Teleop",
