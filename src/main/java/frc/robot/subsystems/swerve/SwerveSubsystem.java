@@ -34,6 +34,7 @@ import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 import frc.robot.util.Util;
 import frc.robot.util.periodic.LoggedPIDController;
 
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
@@ -44,6 +45,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 public class SwerveSubsystem extends SubsystemBase {
     public static final Lock odometryLock = new ReentrantLock();
@@ -164,6 +166,18 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveConstants.kHolonomicPathFollowerConfig,
             () -> false,
             this
+        );
+
+        PathPlannerLogging.setLogActivePathCallback((List<Pose2d> activePath) -> {
+            Pose2d[] arr = new Pose2d[activePath.size()];
+            activePath.toArray(arr);
+            Logger.recordOutput("SwerveState/ActivePath", arr);
+        });
+        PathPlannerLogging.setLogTargetPoseCallback(
+            (Pose2d desiredPose) -> Logger.recordOutput("SwerveState/PathPlannerDesiredPose", desiredPose)
+        );
+        PathPlannerLogging.setLogCurrentPoseCallback(
+            (Pose2d currentPose) -> Logger.recordOutput("SwerveState/PathPlannerCurrentPose", currentPose)
         );
     }
 
