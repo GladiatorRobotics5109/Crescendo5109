@@ -75,7 +75,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Update all vision sources
         for (int i = 0; i < m_visionSources.length; i++) {
             m_visionSources[i].updateInputs(m_inputs[i]);
-            Logger.processInputs("Vision/" + m_visionSources[i].getName(), m_inputs[i]);
+            Logger.processInputs("VisionInputs/" + m_visionSources[i].getName(), m_inputs[i]);
         }
 
         List<VisionMeasurement> measurements = new ArrayList<>();

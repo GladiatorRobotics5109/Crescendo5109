@@ -51,7 +51,7 @@ public final class AutoBuilder {
     private static Command suffix(SwerveSubsystem swerve) {
         return Commands.sequence(
             swerve.commandSetMaxSpeed(() -> Constants.SwerveConstants.kDefaultSpeed),
-            swerve.commandSetTargetHeadingEnabled(() -> false)
+            swerve.commandSetTargetHeadingEnabled(false)
         );
     }
 }

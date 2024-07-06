@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
@@ -98,12 +97,12 @@ public final class CommandBuilder {
         return Commands.sequence(
             commandDisableAutoAimImpl(),
             Commands.parallel(
-                Commands.print("START INTAKE COMMAND"),
                 m_winch.commandSetTargetAngleEnabled(() -> true, () -> Constants.WinchConstants.kIntakeAngle),
-                m_swerve.commandSetTargetHeadingEnabled(() -> false),
-                m_shooter.commandSetAutoSpinUpEnabled(() -> false),
+                m_swerve.commandSetTargetHeadingEnabled(false),
+                m_shooter.commandSetAutoSpinUpEnabled(false).andThen(m_shooter.commandStop()).asProxy(),
                 m_rollers.commandStartIntakeProcedure().asProxy()
-            )
+            ),
+            commandStopIntakeImpl()
         ).withName("CommandBuilder::commandStartIntake").handleInterrupt(
             () -> DriverStation.reportWarning("CommandBuilder::commandStartIntake has been interrupted!", false)
         ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
@@ -111,9 +110,9 @@ public final class CommandBuilder {
 
     private Command commandStopIntakeImpl() {
         return Commands.sequence(
-            Commands.print("STOP INTAKE COMMAND"),
             m_winch.commandSetTargetAngleEnabled(() -> false),
-            m_rollers.commandStopIntake()
+            m_rollers.commandStopIntake(),
+            m_shooter.commandSetAutoSpinUpEnabled(true)
         ).withName("CommandBuilder::commandStopIntake");
     }
 
@@ -129,17 +128,17 @@ public final class CommandBuilder {
         return Commands.sequence(
             commandStopIntakeImpl(),
             Commands.parallel(
-                m_swerve.commandSetTargetHeadingEnabled(() -> true, Util::targetHeadingTest),
-                m_shooter.commandSetAutoSpinUpEnabled(() -> true),
+                m_swerve.commandSetTargetHeadingEnabled(true, Util::targetHeadingTest),
+                m_shooter.commandSetAutoSpinUpEnabled(true),
                 // TODO: make target angle method
-                m_winch.commandSetTargetAngleEnabled(() -> true, () -> Rotation2d.fromDegrees(45))
+                m_winch.commandSetTargetAngleEnabled(() -> true, Util::getWinchAutoAimAngle)
             )
         ).withName("CommandBuilder::commandEnableAutoAim");
     }
 
     private Command commandDisableAutoAimImpl() {
         return Commands.parallel(
-            m_swerve.commandSetTargetHeadingEnabled(() -> false),
+            m_swerve.commandSetTargetHeadingEnabled(false),
             m_winch.commandSetTargetAngleEnabled(() -> false)
         ).withName("CommandBuilder::commandDisableAutoAim");
     }
@@ -182,7 +181,7 @@ public final class CommandBuilder {
             m_shooter.commandStart(),
             Commands.waitUntil(
                 () -> m_shooter.isAtDesiredRPM() && m_swerve.isAtTargetHeading() && m_winch.isAtTargetAngle()
-            ).withTimeout(1.5),
+            ).withTimeout(5),
             m_rollers.commandStartShootProcedure(),
             m_shooter.commandStop(),
             commandDisableAutoAim(),

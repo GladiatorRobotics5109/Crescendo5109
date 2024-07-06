@@ -1,7 +1,5 @@
 package frc.robot.subsystems.shooter;
 
-import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -130,14 +128,14 @@ public class ShooterSubsystem extends SubsystemBase {
         return this.runOnce(this::stop);
     }
 
-    public Command commandSetAutoSpinUpEnabled(BooleanSupplier enabled) {
-        return this.runOnce(() -> setAutoSpinUpEnabled(enabled.getAsBoolean()));
+    public Command commandSetAutoSpinUpEnabled(boolean enabled) {
+        return this.runOnce(() -> setAutoSpinUpEnabled(enabled));
     }
 
     @Override
     public void periodic() {
         m_io.updateInputs(m_inputs);
-        Logger.processInputs("Shooter", m_inputs);
+        Logger.processInputs("ShooterInputs", m_inputs);
 
         // if should auto spin up and desired rpm is lower than auto spin up rpm (to allow high shoot rpm than auto spin
         // rpm)

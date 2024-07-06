@@ -368,19 +368,32 @@ public final class Constants {
     public final class WinchConstants {
         public static final int kRealMotorPort = 5;
         public static final int kRealMotorCurrentLimit = 40;
-        public static final PIDConstants kRealAnglePID = new PIDConstants(0.1, 0, 0);
+        public static final PIDConstants kRealAnglePID = new PIDConstants(1.0, 0.0, 0.0);
 
-        public static final PIDConstants kSimAnglePID = kRealAnglePID;
+        public static final PIDConstants kSimAnglePID = new PIDConstants(
+            200,
+            0,
+            0,
+            Double.POSITIVE_INFINITY,
+            false,
+            Double.NEGATIVE_INFINITY,
+            Double.POSITIVE_INFINITY,
+            Conversions.degreesToRadians(1),
+            Conversions.degreesToRadians(4)
+        );
 
         public static final double kPivotWinchAverageRadius = 0.75 / 2;
 
-        public static final double kWinchGearRatio = 25;
+        public static final double kRealWinchGearRatio = 25;
+        // Use a different gear ratio than real bc the sim motors are unrealistically slow for some reason
+        public static final double kSimWinchGearRatio = 5;
 
         // public static final double kWinchPositionConversionFactor = kPivotWinchAverageRadius * (2 * Math.PI) /
         // kWinchGearRatio;
 
         public static final Rotation2d kMaxAngle = Rotation2d.fromDegrees(59);
         public static final Rotation2d kMinAngle = Rotation2d.fromDegrees(30);
+        public static final Rotation2d kStartingAngle = kMinAngle;
 
         public static final Rotation2d kIntakeAngle = kMinAngle;
     }

@@ -113,7 +113,7 @@ public class SwerveModule {
 
     public void periodic() {
         m_io.updateInputs(m_inputs);
-        Logger.processInputs("Swerve/Module" + m_index, m_inputs);
+        Logger.processInputs("SwerveInputs/ModuleInputs" + m_index, m_inputs);
 
         if (m_turnRelativeOffset == null) {
             m_turnRelativeOffset = m_inputs.turnAbsolutePosition.minus(m_inputs.turnPosition);

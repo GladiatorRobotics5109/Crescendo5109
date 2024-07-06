@@ -50,6 +50,6 @@ public class Gyro {
 
     public void periodic() {
         m_io.updateInputs(m_inputs);
-        Logger.processInputs("Swerve/Gyro", m_inputs);
+        Logger.processInputs("SwerveInputs/GyroInputs", m_inputs);
     }
 }

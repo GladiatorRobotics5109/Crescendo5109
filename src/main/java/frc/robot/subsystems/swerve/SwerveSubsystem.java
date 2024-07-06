@@ -171,7 +171,7 @@ public class SwerveSubsystem extends SubsystemBase {
         PathPlannerLogging.setLogActivePathCallback((List<Pose2d> activePath) -> {
             Pose2d[] arr = new Pose2d[activePath.size()];
             activePath.toArray(arr);
-            Logger.recordOutput("SwerveState/ActivePath", arr);
+            Logger.recordOutput("SwerveState/PathPlannerActivePath", arr);
         });
         PathPlannerLogging.setLogTargetPoseCallback(
             (Pose2d desiredPose) -> Logger.recordOutput("SwerveState/PathPlannerDesiredPose", desiredPose)
@@ -306,7 +306,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public boolean isAtTargetHeading() {
-        return m_targetHeadingPID.atSetpoint();
+        return m_targetHeadingEnabled && m_targetHeadingPID.atSetpoint();
     }
 
     public void setPose(Pose2d pose) {
@@ -403,16 +403,16 @@ public class SwerveSubsystem extends SubsystemBase {
         return this.runOnce(() -> setPose(pose));
     }
 
-    public Command commandSetTargetHeadingEnabled(BooleanSupplier enabled) {
+    public Command commandSetTargetHeadingEnabled(boolean enabled) {
         // This command does not require this subsystem because it does not control the subsystem.
         // It needs to be like this because auto paths may need to enable and disable heading targeting while driving.
-        return Commands.runOnce(() -> setTargetHeadingEnabled(enabled.getAsBoolean()));
+        return Commands.runOnce(() -> setTargetHeadingEnabled(enabled));
     }
 
-    public Command commandSetTargetHeadingEnabled(BooleanSupplier enabled, Supplier<Rotation2d> targetHeadingSupplier) {
+    public Command commandSetTargetHeadingEnabled(boolean enabled, Supplier<Rotation2d> targetHeadingSupplier) {
         // This command does not require this subsystem because it does not control the subsystem.
         // It needs to be like this because auto paths may need to enable and disable heading targeting while driving.
-        return Commands.runOnce(() -> setTargetHeadingEnabled(enabled.getAsBoolean(), targetHeadingSupplier));
+        return Commands.runOnce(() -> setTargetHeadingEnabled(enabled, targetHeadingSupplier));
     }
 
     public Command commandSetMaxSpeed(Supplier<Measure<Velocity<Distance>>> speed) {

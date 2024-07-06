@@ -119,4 +119,25 @@ public final class Conversions {
             1 / Constants.RollersConstants.IntakeConstants.kIntakeGearRatio
         );
     }
+
+    public static Rotation2d winchMotorRadiansToWinchAngle(double rad) {
+        return Rotation2d.fromDegrees(
+            57.8763 + (-1.07687 * Conversions.radiansToRotations(rad))
+        );
+    }
+
+    public static double winchAngleToWinchMotorRadians(Rotation2d angle) {
+        // angleDeg = 57.8763 + (-1.07687 * Conversions.radiansToRotations(rot))
+        // angleDeg - 57.8763 = -1.07687 * Conversions.radiansToRotations(rot)
+        // (angleDeg - 57.8763) / -1.07687 = Conversions.radiansToRotations(rot)
+        return Conversions.rotationsToRadians((angle.getDegrees() - 57.8763) / -1.07687);
+    }
+
+    public static double feetToMeters(double ft) {
+        return Units.feetToMeters(ft);
+    }
+
+    public static double metersToFeet(double m) {
+        return Units.metersToFeet(m);
+    }
 }

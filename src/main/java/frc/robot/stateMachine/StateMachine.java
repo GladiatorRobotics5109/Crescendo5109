@@ -270,8 +270,23 @@ public final class StateMachine {
             return s_instance.m_winch.getCurrentAngle();
         }
 
+        public static Rotation2d getTargetAngle() {
+            return s_instance.m_winch.getTargetAngle();
+        }
+
+        public static boolean isAtTargetAngle() {
+            return s_instance.m_winch.isAtTargetAngle();
+        }
+
+        public static boolean isTargetingAngle() {
+            return s_instance.m_winch.isTargetingAngle();
+        }
+
         private static void periodic() {
             Logger.recordOutput("WinchState/CurrentAngle", getCurrentAngle());
+            Logger.recordOutput("WinchState/TargetAngle", getTargetAngle());
+            Logger.recordOutput("WinchState/IsAtTargetAngle", isAtTargetAngle());
+            Logger.recordOutput("WinchState/IsTargetingAngle", isTargetingAngle());
         }
 
         private static WinchState s_instance;

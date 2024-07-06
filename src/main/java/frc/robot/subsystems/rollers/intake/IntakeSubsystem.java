@@ -101,7 +101,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_io.updateInputs(m_inputs);
-        Logger.processInputs("Rollers/Intake", m_inputs);
+        Logger.processInputs("RollersInputs/IntakeInputs", m_inputs);
 
         if (m_desiredRPM != 0.0) {
             m_io.setVoltage(m_rpmPID.calculate(getCurrentRPM(), m_desiredRPM));

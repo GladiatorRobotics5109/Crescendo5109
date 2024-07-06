@@ -2,6 +2,8 @@ package frc.robot.subsystems.winch;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public interface WinchIO {
     @AutoLog
     class WinchIOInputs {
@@ -16,4 +18,6 @@ public interface WinchIO {
     public default void updateInputs(WinchIOInputs inputs) {};
 
     public default void setVoltage(double volts) {};
+
+    public default void setMotorPosition(Rotation2d angle) {};
 }

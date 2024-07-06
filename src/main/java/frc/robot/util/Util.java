@@ -3,6 +3,7 @@ package frc.robot.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
@@ -77,5 +78,21 @@ public class Util {
 
             return Rotation2d.fromRadians(Math.atan(delta.getY() / delta.getX()) + angleOffset);
         }
+    }
+
+    public static Rotation2d getWinchAutoAimAngle() {
+        Translation2d targetPose = Util.getTargetSpeakerPose().getTranslation();
+
+        double dist = StateMachine.SwerveState.getPose().getTranslation().getDistance(targetPose);
+
+        double height = Conversions.feetToMeters(6.6) + Conversions.inchesToMeters(5);
+        double angle = Math.atan(height / dist);
+
+        // double result = Units.radiansToDegrees(angle) + (2.3 * dist);
+        // double result = Units.radiansToDegrees(angle) + (0.6 * dist * dist);
+        double result = Conversions.radiansToDegrees(angle) + (0.5 * dist * dist);
+        // System.out.println("Auto Aim Request: " + result + "Gravity Compensation: " + (0.5 * dist * dist));
+
+        return Rotation2d.fromDegrees(result);
     }
 }

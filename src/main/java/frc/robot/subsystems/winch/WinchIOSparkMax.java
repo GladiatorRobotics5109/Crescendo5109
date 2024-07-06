@@ -5,6 +5,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.WinchConstants;
 import frc.robot.util.Conversions;
 
@@ -39,5 +40,10 @@ public class WinchIOSparkMax implements WinchIO {
     @Override
     public void setVoltage(double volts) {
         m_motor.setVoltage(volts);
+    }
+
+    @Override
+    public void setMotorPosition(Rotation2d angle) {
+        m_encoder.setPosition(angle.getRotations());
     }
 }

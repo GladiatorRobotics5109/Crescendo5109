@@ -28,7 +28,6 @@ public class RobotContainer {
     private final Rollers m_rollers;
 
     private CommandPS5Controller m_driverController;
-    // private GenericHID m_driverController;
 
     private LoggedDashboardChooser<Command> m_autoChooser;
 
@@ -43,7 +42,6 @@ public class RobotContainer {
         CommandBuilder.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
-        // m_driverController = new GenericHID(0);
 
         configureBindings();
         registerNamedCommands();
@@ -58,6 +56,7 @@ public class RobotContainer {
                 Command command
             ) -> System.out.println("Command Started: " + command.getName() + ", Subsystem: " + command.getSubsystem())
         );
+
         CommandScheduler.getInstance().onCommandFinish(
             (
                 Command command
@@ -83,15 +82,6 @@ public class RobotContainer {
         m_driverController.cross().onTrue(CommandBuilder.commandToggleManualShoot());
         m_driverController.L1().onTrue(CommandBuilder.commandToggleIntake());
         m_driverController.R1().onTrue(CommandBuilder.commandToggleAssistedShoot());
-
-        // m_swerve.setDefaultCommand(
-        // m_swerve.driveWithJoystickCommand(
-        // () -> m_driverController.getRawAxis(0),
-        // () -> m_driverController.getRawAxis(1),
-        // () -> m_driverController.getRawAxis(2),
-        // () -> Constants.TeleopConstants.kDriveFieldRelative
-        // )
-        // );
     }
 
     private void registerNamedCommands() {
@@ -100,7 +90,7 @@ public class RobotContainer {
         NamedCommands.registerCommand(
             "Aim",
             Commands.sequence(
-                m_swerve.commandSetTargetHeadingEnabled(() -> true, Util::targetHeadingTest),
+                m_swerve.commandSetTargetHeadingEnabled(true, Util::targetHeadingTest),
                 Commands.print("AIMING")
             )
         );
@@ -110,7 +100,7 @@ public class RobotContainer {
             Commands.sequence(
                 Commands.print("WAITING UNTIL AIM GOOD"),
                 Commands.waitUntil(m_swerve::isAtTargetHeading),
-                m_swerve.commandSetTargetHeadingEnabled(() -> false),
+                m_swerve.commandSetTargetHeadingEnabled(false),
                 Commands.print("SHOOT")
             )
         );
