@@ -2,6 +2,7 @@ package frc.robot.subsystems.rollers;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.rollers.feeder.FeederSubsystem;
 import frc.robot.subsystems.rollers.intake.IntakeSubsystem;
 
@@ -44,6 +45,10 @@ public class Rollers {
 
     public double getFeederCurrentRPM() {
         return m_feeder.getCurrentRPM();
+    }
+
+    public Trigger getFeederHasNoteTrigger() {
+        return m_feeder.getHasNoteTrigger();
     }
 
     public boolean hasNote() {

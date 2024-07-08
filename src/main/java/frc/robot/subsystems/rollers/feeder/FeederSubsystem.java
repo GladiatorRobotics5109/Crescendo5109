@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.RollersConstants.FeederConstants;
 import frc.robot.util.Conversions;
@@ -15,6 +16,8 @@ public class FeederSubsystem extends SubsystemBase {
 
     private final PIDController m_rpmPID;
     private double m_desiredRPM;
+
+    private final Trigger m_hasNoteTrigger;
 
     public FeederSubsystem() {
         switch (Constants.kCurrentMode) {
@@ -38,6 +41,8 @@ public class FeederSubsystem extends SubsystemBase {
         m_desiredRPM = 0.0;
 
         m_inputs = new FeederIOInputsAutoLogged();
+
+        m_hasNoteTrigger = new Trigger(this::hasNote);
     }
 
     public boolean hasNote() {
@@ -54,6 +59,10 @@ public class FeederSubsystem extends SubsystemBase {
 
     public double getCurrentRPM() {
         return Conversions.radiansPerSecondToRotationsPerMinute(m_inputs.feederVelocityRadPerSec);
+    }
+
+    public Trigger getHasNoteTrigger() {
+        return m_hasNoteTrigger;
     }
 
     public void setDesiredRPM(double desiredRPM) {

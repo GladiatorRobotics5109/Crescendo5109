@@ -38,10 +38,12 @@ public class RobotContainer {
         m_shooter = new ShooterSubsystem();
         m_rollers = new Rollers();
 
-        StateMachine.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
-        CommandBuilder.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
-
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
+
+        StateMachine.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
+        CommandBuilder.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers, m_driverController);
+
+        // m_rollers.getFeederHasNoteTrigger().onTrue(CommandBuilder.commandDriverControllerNoteEnterSequence());
 
         configureBindings();
         registerNamedCommands();
@@ -54,13 +56,17 @@ public class RobotContainer {
         CommandScheduler.getInstance().onCommandInitialize(
             (
                 Command command
-            ) -> System.out.println("Command Started: " + command.getName() + ", Subsystem: " + command.getSubsystem())
+            ) -> System.out.println(
+                "Command Started:\n    Name: " + command.getName() + "\n    Subsystem: " + command.getSubsystem()
+            )
         );
 
         CommandScheduler.getInstance().onCommandFinish(
             (
                 Command command
-            ) -> System.out.println("Command Finished:" + command.getName() + ", Subsystem: " + command.getSubsystem())
+            ) -> System.out.println(
+                "Command Finished:\n    Name: " + command.getName() + "\n    Subsystem: " + command.getSubsystem()
+            )
         );
     }
 
@@ -80,6 +86,7 @@ public class RobotContainer {
 
         m_driverController.square().onTrue(CommandBuilder.commandToggleAutoAim());
         m_driverController.cross().onTrue(CommandBuilder.commandToggleManualShoot());
+        m_driverController.circle().onTrue(CommandBuilder.commandDriverControllerNoteEnterSequence());
         m_driverController.L1().onTrue(CommandBuilder.commandToggleIntake());
         m_driverController.R1().onTrue(CommandBuilder.commandToggleAssistedShoot());
     }

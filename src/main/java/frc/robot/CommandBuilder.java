@@ -1,15 +1,23 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.rollers.Rollers;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.winch.WinchSubsystem;
+import frc.robot.util.Conversions;
 import frc.robot.util.Util;
 
 public final class CommandBuilder {
@@ -20,9 +28,10 @@ public final class CommandBuilder {
         VisionSubsystem vision,
         ShooterSubsystem shooter,
         WinchSubsystem winch,
-        Rollers rollers
+        Rollers rollers,
+        CommandPS5Controller driverController
     ) {
-        s_instance = new CommandBuilder(swerve, vision, shooter, winch, rollers);
+        s_instance = new CommandBuilder(swerve, vision, shooter, winch, rollers, driverController);
     }
 
     public static Command commandStartIntake() {
@@ -73,24 +82,32 @@ public final class CommandBuilder {
         return s_instance.commandToggleAssistedShootImpl();
     }
 
+    public static Command commandDriverControllerNoteEnterSequence() {
+        return s_instance.commandDriverControllerNoteEnterSequenceImpl();
+    }
+
     private final SwerveSubsystem m_swerve;
     private final VisionSubsystem m_vision;
     private final ShooterSubsystem m_shooter;
     private final WinchSubsystem m_winch;
     private final Rollers m_rollers;
 
+    private final CommandPS5Controller m_driverController;
+
     private CommandBuilder(
         SwerveSubsystem swerve,
         VisionSubsystem vision,
         ShooterSubsystem shooter,
         WinchSubsystem winch,
-        Rollers rollers
+        Rollers rollers,
+        CommandPS5Controller driverController
     ) {
         m_swerve = swerve;
         m_vision = vision;
         m_shooter = shooter;
         m_winch = winch;
         m_rollers = rollers;
+        m_driverController = driverController;
     }
 
     private Command commandStartIntakeImpl() {
@@ -208,5 +225,53 @@ public final class CommandBuilder {
 
     private Command commandSetIsAssistedShooting(boolean isAssistedShooting) {
         return Commands.runOnce(() -> StateMachine.RobotState.setIsAssistedShooting(isAssistedShooting));
+    }
+
+    private Command commandDriverControllerNoteEnterSequenceImpl() {
+        Timer timer = new Timer();
+
+        return new FunctionalCommand(
+            // init
+            () -> {
+                timer.reset();
+
+                // Logger.recordOutput("Controllers/RumbleValue", 0);
+                Logger.recordOutput("Controllers/ElapsedTime", timer.get());
+            },
+            // execute
+            () -> {
+                timer.start();
+
+                double value = MathUtil.clamp(
+                    Math.sin(
+                        Conversions.rotationsToRadians(
+                            (timer.get() / Constants.DriveTeamConstants.kDriverOnNoteEnterRumbleDurationSecs) / 2
+                        )
+                    ),
+                    0.0,
+                    1.0
+                );
+
+                Logger.recordOutput("Controllers/RumbleValue", value);
+                Logger.recordOutput("Controllers/ElapsedTime", timer.get());
+                m_driverController.getHID().setRumble(
+                    RumbleType.kBothRumble,
+                    value
+                );
+            },
+            // end
+            interrupted -> {
+                m_driverController.getHID().setRumble(
+                    RumbleType.kBothRumble,
+                    0.0
+                );
+
+                Logger.recordOutput("Controllers/RumbleValue", 0.0);
+            },
+            // isFinished
+            () -> {
+                return timer.hasElapsed(Constants.DriveTeamConstants.kDriverOnNoteEnterRumbleDurationSecs);
+            }
+        ).withName("CommandBuilder::commandDriverControllerNoteEnterSequence");
     }
 }

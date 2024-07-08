@@ -57,6 +57,8 @@ public final class Constants {
         public static final double kDriveJoystickDeadzone = 0.15;
         public static final double kDriveJoystickTranslationRateLimit = 20;
         public static final double kDriveJoystickAngularRateLimit = 10;
+
+        public static final double kDriverOnNoteEnterRumbleDurationSecs = 0.5;
     }
 
     public static final class TeleopConstants {
