@@ -1,7 +1,6 @@
 package frc.robot.subsystems.swerve;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -62,10 +61,6 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SlewRateLimiter m_driverControllerRightXLimiter;
 
     private SwerveDrivingState m_drivingState;
-
-    private final PIDController m_autonXPID;
-    private final PIDController m_autonYPID;
-    private final PIDController m_autonRotPID;
 
     private boolean m_targetHeadingEnabled;
     private final LoggedPIDController m_targetHeadingPID;
@@ -148,10 +143,6 @@ public class SwerveSubsystem extends SubsystemBase {
         );
 
         m_drivingState = SwerveDrivingState.STOPPED_COASTING;
-
-        m_autonXPID = SwerveConstants.kAutonXPID.getPIDController();
-        m_autonYPID = SwerveConstants.kAutonYPID.getPIDController();
-        m_autonRotPID = SwerveConstants.kAutonRotPID.getPIDController();
 
         m_targetHeadingEnabled = false;
         m_targetHeadingPID = SwerveConstants.kSimHeadingPID.getLoggedPIDController("SwerveState/HeadingPID");
@@ -382,18 +373,6 @@ public class SwerveSubsystem extends SubsystemBase {
             drive(vx, vy, vrot, fieldRelative);
         }).withName("SwerveSubsystem::DriveWithJoystickCommand");
     }
-
-    // public Command followTrajectoryCommand(ChoreoTrajectory traj) {
-    // return Choreo.choreoSwerveCommand(
-    // traj,
-    // this::getPose,
-    // m_autonXPID,
-    // m_autonYPID,
-    // m_autonRotPID,
-    // (ChassisSpeeds speeds) -> drive(speeds, false),
-    // () -> false,
-    // this);
-    // }
 
     public Command commandFollowPathPlannerPath(PathPlannerPath path) {
         return AutoBuilder.followPath(path);
