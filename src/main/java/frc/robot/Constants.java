@@ -333,15 +333,15 @@ public final class Constants {
             };
             public static final Transform3d[] kRealRobotToCameras = new Transform3d[] {
                 new Transform3d(
-                    Conversions.inchesToMeters(-(29.5 / 2 - 8)),
-                    Conversions.inchesToMeters(29.5 / 2 - 2.75),
-                    Conversions.inchesToMeters(2.85),
+                    0.17145,
+                    0.152654,
+                    0.107442,
                     new Rotation3d(0, Conversions.degreesToRadians(-15), 0)
                 ),
                 new Transform3d(
-                    Conversions.inchesToMeters(-(29.5 / 2 - 8)),
-                    Conversions.inchesToMeters(-29.5 / 2 - 2.75),
-                    Conversions.inchesToMeters(2.85),
+                    0.17145,
+                    -0.152654,
+                    0.107442,
                     new Rotation3d(0, Conversions.degreesToRadians(-15), 0)
                 )
             };

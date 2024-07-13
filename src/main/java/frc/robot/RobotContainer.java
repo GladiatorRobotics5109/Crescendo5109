@@ -54,17 +54,13 @@ public class RobotContainer {
         m_autoChooser.addOption("Test", AutoBuilder.test(m_swerve));
 
         CommandScheduler.getInstance().onCommandInitialize(
-            (
-                Command command
-            ) -> System.out.println(
+            (Command command) -> System.out.println(
                 "Command Started:\n    Name: " + command.getName() + "\n    Subsystem: " + command.getSubsystem()
             )
         );
 
         CommandScheduler.getInstance().onCommandFinish(
-            (
-                Command command
-            ) -> System.out.println(
+            (Command command) -> System.out.println(
                 "Command Finished:\n    Name: " + command.getName() + "\n    Subsystem: " + command.getSubsystem()
             )
         );
