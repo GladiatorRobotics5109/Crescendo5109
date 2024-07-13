@@ -52,7 +52,6 @@ public class WinchSubsystem extends SubsystemBase {
     }
 
     public Rotation2d getCurrentAngle() {
-        // TODO: add better impl for encoder rot -> shooter angle
         return Conversions.winchMotorRadiansToWinchAngle(m_inputs.motorPositionRad);
     }
 

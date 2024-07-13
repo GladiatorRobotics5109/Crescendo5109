@@ -64,7 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public boolean hasNote() {
-        return m_inputs.motorSupplyCurrentAmps >= IntakeConstants.kNoteEnterCurrentThreashold;
+        return m_inputs.motorSupplyCurrentAmps >= IntakeConstants.kNoteEnterCurrentThreshold;
     }
 
     public Command commandStart() {

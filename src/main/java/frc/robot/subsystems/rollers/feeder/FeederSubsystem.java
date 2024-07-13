@@ -46,7 +46,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public boolean hasNote() {
-        return m_inputs.motorSupplyCurrentAmps >= FeederConstants.kNoteEnterCurrentThreashold;
+        return m_inputs.motorSupplyCurrentAmps >= FeederConstants.kNoteEnterCurrentThreshold;
     }
 
     public boolean isIntaking() {

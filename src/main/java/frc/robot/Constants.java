@@ -430,7 +430,7 @@ public final class Constants {
 
             public static final double kIntakeRPM = 100.0;
 
-            public static final int kNoteEnterCurrentThreashold = 10;
+            public static final int kNoteEnterCurrentThreshold = 10;
 
             public static final double kIntakeGearRatio = 5;
         }
@@ -443,7 +443,7 @@ public final class Constants {
             public static final PIDConstants kRealRPMPID = new PIDConstants(1.0, 0.0, 0.0);
             public static final PIDConstants kSImRPMPID = kRealRPMPID;
 
-            public static final int kNoteEnterCurrentThreashold = 10;
+            public static final int kNoteEnterCurrentThreshold = 10;
 
             public static final double kFeedRPM = 100;
         }

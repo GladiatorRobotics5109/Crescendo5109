@@ -40,6 +40,7 @@
     "Holonomic",
     "Intaking",
     "odometry",
+    "RPMPID",
     "Setpoint",
     "Teleop",
     "traj",

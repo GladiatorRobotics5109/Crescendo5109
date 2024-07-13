@@ -147,7 +147,6 @@ public final class CommandBuilder {
             Commands.parallel(
                 m_swerve.commandSetTargetHeadingEnabled(true, Util::targetHeadingTest),
                 m_shooter.commandSetAutoSpinUpEnabled(true),
-                // TODO: make target angle method
                 m_winch.commandSetTargetAngleEnabled(() -> true, Util::getWinchAutoAimAngle)
             )
         ).withName("CommandBuilder::commandEnableAutoAim");
