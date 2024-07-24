@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.RollersConstants.FeederConstants;
 import frc.robot.util.Conversions;
+import frc.robot.util.LoggedDigitalInput.LoggedDigitalInput;
 import org.littletonrobotics.junction.Logger;
 
 public class FeederSubsystem extends SubsystemBase {
@@ -17,6 +18,7 @@ public class FeederSubsystem extends SubsystemBase {
     private final PIDController m_rpmPID;
     private double m_desiredRPM;
 
+    private final LoggedDigitalInput m_noteSensor;
     private final Trigger m_hasNoteTrigger;
 
     public FeederSubsystem() {
@@ -41,6 +43,11 @@ public class FeederSubsystem extends SubsystemBase {
         m_desiredRPM = 0.0;
 
         m_inputs = new FeederIOInputsAutoLogged();
+
+        m_noteSensor = new LoggedDigitalInput(
+            "RollersInputs/FeederInputs/NoteSensor",
+            FeederConstants.kNoteSensorChannel
+        );
 
         m_hasNoteTrigger = new Trigger(this::hasNote);
     }

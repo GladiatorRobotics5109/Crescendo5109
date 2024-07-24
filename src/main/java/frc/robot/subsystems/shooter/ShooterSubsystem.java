@@ -1,9 +1,9 @@
 package frc.robot.subsystems.shooter;
 
+import edu.wpi.first.math.controller.BangBangController;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,8 +17,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private ShooterIO m_io;
     private ShooterIOInputsAutoLogged m_inputs;
 
-    private PIDController m_leftPID;
-    private PIDController m_rightPID;
+    private BangBangController m_leftBangBang;
+    private BangBangController m_rightBangBang;
 
     private double m_leftDesiredRPM;
     private double m_rightDesiredRPM;
@@ -30,8 +30,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         m_io = new ShooterIOSim();
 
-        m_leftPID = ShooterConstants.kRealLeftPID.getPIDController();
-        m_rightPID = ShooterConstants.kRealRightPID.getPIDController();
+        m_leftBangBang = new BangBangController(ShooterConstants.kRPMTolerance);
+        m_rightBangBang = new BangBangController(ShooterConstants.kRPMTolerance);
 
         m_leftDesiredRPM = 0.0;
         m_rightDesiredRPM = 0.0;
@@ -69,7 +69,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isAtDesiredRPM() {
-        return m_leftDesiredRPM != 0.0 && m_rightDesiredRPM != 0.0 && m_leftPID.atSetpoint() && m_rightPID.atSetpoint();
+        return m_leftDesiredRPM != 0.0 && m_rightDesiredRPM != 0.0 && m_leftBangBang.atSetpoint()
+            && m_rightBangBang.atSetpoint();
     }
 
     public boolean isSpinning() {
@@ -83,15 +84,9 @@ public class ShooterSubsystem extends SubsystemBase {
         Pose2d speakerPose = Util.getTargetSpeakerPose();
         Pose2d botPose = StateMachine.SwerveState.getPose();
 
-        if (
-            botPose.getTranslation().getDistance(
-                speakerPose.getTranslation()
-            ) <= ShooterConstants.kAutoSpinUpRadiusMeters
-        ) {
-            return true;
-        }
-
-        return false;
+        return botPose.getTranslation().getDistance(
+            speakerPose.getTranslation()
+        ) <= ShooterConstants.kAutoSpinUpRadiusMeters;
     }
 
     public boolean hasDesiredRPM() {
@@ -137,42 +132,41 @@ public class ShooterSubsystem extends SubsystemBase {
         m_io.updateInputs(m_inputs);
         Logger.processInputs("ShooterInputs", m_inputs);
 
-        // if should auto spin up and desired rpm is lower than auto spin up rpm (to allow high shoot rpm than auto spin
+        // if should auto spin up and desired rpm is lower than auto spin up rpm (to allow higher shoot rpm than auto
+        // spin
         // rpm)
         if (
-            m_autoSpinUpEnabled && shouldAutoSpinUp()
-                && (m_leftDesiredRPM <= ShooterConstants.kAutoSpinRPM
-                    || m_rightDesiredRPM <= ShooterConstants.kAutoSpinRPM)
+            shouldAutoSpinUp() && (m_leftDesiredRPM <= ShooterConstants.kAutoSpinRPM
+                || m_rightDesiredRPM <= ShooterConstants.kAutoSpinRPM)
         ) {
             setDesiredRPM(ShooterConstants.kAutoSpinRPM, ShooterConstants.kAutoSpinRPM);
         }
         else if (
-            m_autoSpinUpEnabled &&
-                m_leftDesiredRPM == ShooterConstants.kAutoSpinRPM && m_rightDesiredRPM == ShooterConstants.kAutoSpinRPM
+            !shouldAutoSpinUp() && m_leftDesiredRPM == ShooterConstants.kAutoSpinRPM
+                && m_rightDesiredRPM == ShooterConstants.kAutoSpinRPM
         ) {
             stop();
         }
 
+        if (m_leftDesiredRPM == 0.0 && m_rightDesiredRPM == 0.0) {
+            m_io.setVoltage(0.0, 0.0);
+        }
+
         if (DriverStation.isEnabled()) {
-            if (m_leftDesiredRPM == 0.0 && m_rightDesiredRPM == 0.0) {
-                m_io.setVoltage(0.0, 0.0);
-            }
-            else {
-                m_io.setVoltage(
-                    m_leftPID.calculate(
-                        Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(
-                            m_inputs.leftMotorVelocityRadPerSec
-                        ),
-                        m_leftDesiredRPM
+            m_io.setVoltage(
+                m_leftBangBang.calculate(
+                    Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(
+                        m_inputs.leftMotorVelocityRadPerSec
                     ),
-                    m_rightPID.calculate(
-                        Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(
-                            m_inputs.rightMotorVelocityRadPerSec
-                        ),
-                        m_rightDesiredRPM
-                    )
-                );
-            }
+                    m_leftDesiredRPM
+                ),
+                m_rightBangBang.calculate(
+                    Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(
+                        m_inputs.rightMotorVelocityRadPerSec
+                    ),
+                    m_rightDesiredRPM
+                )
+            );
         }
         else {
             stop();

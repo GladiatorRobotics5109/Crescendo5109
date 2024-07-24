@@ -27,9 +27,9 @@ public class RobotContainer {
     private final ShooterSubsystem m_shooter;
     private final Rollers m_rollers;
 
-    private CommandPS5Controller m_driverController;
+    private final CommandPS5Controller m_driverController;
 
-    private LoggedDashboardChooser<Command> m_autoChooser;
+    private final LoggedDashboardChooser<Command> m_autoChooser;
 
     public RobotContainer() {
         m_vision = new VisionSubsystem();

@@ -75,10 +75,6 @@ public final class Constants {
         public static final Measure<Velocity<Distance>> kDefaultSpeed = Units.MetersPerSecond.of(3.8);
         public static final Measure<Velocity<Angle>> kDefaultAngularSpeed = Units.RadiansPerSecond.of(1.5 * Math.PI);
 
-        public static final PIDConstants kAutonXPID = new PIDConstants(1, 0, 0);
-        public static final PIDConstants kAutonYPID = new PIDConstants(1, 0, 0);
-        public static final PIDConstants kAutonRotPID = new PIDConstants(1, 0, 0);
-
         /**
          * Offset the desired rotational velocity calculated by the heading PID controller in the
          * {@link frc.robot.subsystems.swerve.SwerveSubsystem} based on the chassis velocity, useful for shooting while
@@ -102,8 +98,7 @@ public final class Constants {
         // TODO: Figure out correct constants for heading control
         public static final PIDConstants kRealHeadingPID = kSimHeadingPID;
 
-        // Wether or not to feed estimated pose from cameras in to the subsystem's pose
-        // estimator
+        // Wether or not to feed estimated pose from cameras in to the subsystem's pose estimator
         public static final boolean kUseSimCameraForPoseEstimation = false;
 
         public static final HolonomicPathFollowerConfig kHolonomicPathFollowerConfig = new HolonomicPathFollowerConfig(
@@ -266,9 +261,6 @@ public final class Constants {
             public SimpleMotorFeedforwardConstants driveFeedforward;
             public PIDConstants drivePID;
             public PIDConstants turnPID;
-            public PIDConstants autonXPID;
-            public PIDConstants autonYPID;
-            public PIDConstants autonRotPID;
 
             public Translation2d moduleTranslation2d;
 
@@ -284,8 +276,6 @@ public final class Constants {
 
             /**
              * Empty SwerveModuleConstants (for replaying a log file with no io impl)
-             *
-             * @param mode
              */
             public SwerveModuleConstants(Mode mode) {
                 if (mode != Mode.REPLAY) {
@@ -367,7 +357,7 @@ public final class Constants {
         }
     }
 
-    public final class WinchConstants {
+    public static final class WinchConstants {
         public static final int kRealMotorPort = 5;
         public static final int kRealMotorCurrentLimit = 40;
         public static final PIDConstants kRealAnglePID = new PIDConstants(1.0, 0.0, 0.0);
@@ -401,18 +391,7 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final PIDConstants kRealLeftPID = new PIDConstants(
-            0.5,
-            0.0,
-            0.0,
-            Double.POSITIVE_INFINITY,
-            false,
-            Double.NEGATIVE_INFINITY,
-            Double.POSITIVE_INFINITY,
-            300,
-            Double.POSITIVE_INFINITY
-        );
-        public static final PIDConstants kRealRightPID = kRealLeftPID;
+        public static final double kRPMTolerance = 50.0;
 
         public static final double kAutoSpinUpRadiusMeters = 8.0;
         public static final double kShootRPM = 5500.0;
@@ -446,6 +425,8 @@ public final class Constants {
             public static final int kNoteEnterCurrentThreshold = 10;
 
             public static final double kFeedRPM = 100;
+
+            public static final int kNoteSensorChannel = 0;
         }
     }
 }
