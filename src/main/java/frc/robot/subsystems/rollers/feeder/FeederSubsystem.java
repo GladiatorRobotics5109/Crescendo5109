@@ -1,6 +1,6 @@
 package frc.robot.subsystems.rollers.feeder;
 
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggeddigitalinput.LoggedDigitalInput;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.loggeddigitalinput.LoggedDigitalInput;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;

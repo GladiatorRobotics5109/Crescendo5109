@@ -1,6 +1,6 @@
 package frc.robot.util;
 
-import org.gladiatorrobotics.gladiatorroboticslib.math.ConversionsBase;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.math.ConversionsBase;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;

@@ -11,8 +11,8 @@ import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 
-import org.gladiatorrobotics.gladiatorroboticslib.MotorControllerType;
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.Mode;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.MotorControllerType;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.Mode;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {

@@ -1,11 +1,11 @@
 package frc.robot;
 
-import org.gladiatorrobotics.gladiatorroboticslib.MotorControllerType;
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.Mode;
-import org.gladiatorrobotics.gladiatorroboticslib.constants.swerveModuleConstants.SwerveDriveSpecialtiesConstants.MK4Constants;
-import org.gladiatorrobotics.gladiatorroboticslib.constants.swerveModuleConstants.SwerveDriveSpecialtiesConstants.MK4Constants.MK4GearRatio;
-import org.gladiatorrobotics.gladiatorroboticslib.math.controller.PIDConstants;
-import org.gladiatorrobotics.gladiatorroboticslib.math.controller.SimpleMotorFeedforwardConstants;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.MotorControllerType;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.Mode;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.constants.swerveModuleConstants.SwerveDriveSpecialtiesConstants.MK4Constants;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.constants.swerveModuleConstants.SwerveDriveSpecialtiesConstants.MK4Constants.MK4GearRatio;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.math.controller.PIDConstants;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.math.controller.SimpleMotorFeedforwardConstants;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;

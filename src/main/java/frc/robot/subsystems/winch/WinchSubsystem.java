@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedpidcontroller.LoggedPIDController;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.loggedpidcontroller.LoggedPIDController;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;

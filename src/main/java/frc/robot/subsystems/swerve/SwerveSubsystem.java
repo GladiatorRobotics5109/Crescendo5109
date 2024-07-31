@@ -35,10 +35,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyro;
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyroIO;
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyroIOSim;
-import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedpidcontroller.LoggedPIDController;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyro;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyroIO;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyroIOSim;
+import com.github.gladiatorrobotics5109.gladiatorroboticslib.advantagekitutil.loggedpidcontroller.LoggedPIDController;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
