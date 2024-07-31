@@ -1,5 +1,11 @@
 package frc.robot;
 
+import org.gladiatorrobotics.gladiatorroboticslib.MotorControllerType;
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.Mode;
+import org.gladiatorrobotics.gladiatorroboticslib.constants.swerveModuleConstants.SwerveDriveSpecialtiesConstants.MK4Constants;
+import org.gladiatorrobotics.gladiatorroboticslib.constants.swerveModuleConstants.SwerveDriveSpecialtiesConstants.MK4Constants.MK4GearRatio;
+import org.gladiatorrobotics.gladiatorroboticslib.math.controller.PIDConstants;
+import org.gladiatorrobotics.gladiatorroboticslib.math.controller.SimpleMotorFeedforwardConstants;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -18,10 +24,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.util.SimpleMotorFeedforwardConstants;
 import frc.robot.util.Conversions;
-import frc.robot.util.MotorControllerType;
-import frc.robot.util.PIDConstants;
 
 public final class Constants {
     public static final Measure<Time> kRobotLoopPeriod = Units.Seconds.of(Robot.defaultPeriodSecs);
@@ -33,23 +36,6 @@ public final class Constants {
     public static final Alliance kDefaultAlliance = Alliance.Blue;
 
     public static final Mode kCurrentMode = Mode.SIM;
-
-    public enum Mode {
-        /**
-         * Running on a real robot.
-         */
-        REAL,
-
-        /**
-         * Running a physics simulator.
-         */
-        SIM,
-
-        /**
-         * Replaying from a log file.
-         */
-        REPLAY
-    }
 
     public static final class DriveTeamConstants {
         public static final int kDriverControllerPort = 0;
@@ -118,8 +104,9 @@ public final class Constants {
             public static final Translation2d kModulePosBR = new Translation2d(-0.290449, -0.290449);
 
             // SDS MK4 L1 gear ratios
-            public static final double kDriveGearRatio = 8.14; // 8.14:1
-            public static final double kTurnGearRatio = 12.8; // 12.8:1
+            public static final MK4GearRatio kDriveGearRatioEnum = MK4GearRatio.L1;
+            public static final double kDriveGearRatio = MK4Constants.getDriveGearRatio(kDriveGearRatioEnum); // 8.14:1
+            public static final double kTurnGearRatio = MK4Constants.kTurnGearRatio; // 12.8:1
             public static final Measure<Velocity<Distance>> kMaxAttainableSpeed = Units.FeetPerSecond.of(12.9);
 
             public static final SimpleMotorFeedforwardConstants kRealFeedForwardConstants = new SimpleMotorFeedforwardConstants(

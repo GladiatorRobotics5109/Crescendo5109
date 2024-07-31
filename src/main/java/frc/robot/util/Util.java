@@ -1,24 +1,18 @@
 package frc.robot.util;
 
+import org.gladiatorrobotics.gladiatorroboticslib.UtilBase;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
 import frc.robot.stateMachine.StateMachine;
 
-public class Util {
-    /**
-     * Guarantees that Alliance will be a valid value by returning
-     * Constants.kDefaultAlliance if DriverStation.getAlliance() is empty
-     *
-     * @return an {@link Alliance} object instead of the optional returned by
-     *         DriverStation.getAlliance()
-     */
+public class Util extends UtilBase {
     public static Alliance getAlliance() {
-        return DriverStation.getAlliance().orElse(Constants.kDefaultAlliance);
+        return UtilBase.getAlliance(Constants.kDefaultAlliance);
     }
 
     public static Pose2d getTargetSpeakerPose() {

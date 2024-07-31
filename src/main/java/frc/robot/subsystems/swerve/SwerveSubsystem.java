@@ -23,15 +23,10 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.StateMachine.SwerveState.SwerveDrivingState;
-import frc.robot.subsystems.swerve.gyro.Gyro;
-import frc.robot.subsystems.swerve.gyro.GyroIO;
-import frc.robot.subsystems.swerve.gyro.GyroIONavX;
-import frc.robot.subsystems.swerve.gyro.GyroIOSim;
 import frc.robot.subsystems.swerve.swerveModule.SwerveModule;
 import frc.robot.subsystems.vision.VisionMeasurement;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
 import frc.robot.util.Util;
-import frc.robot.util.periodic.LoggedPIDController;
 
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -40,6 +35,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyro;
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyroIO;
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedgyro.LoggedGyroIOSim;
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedpidcontroller.LoggedPIDController;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -51,7 +50,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private SwerveModule[] m_swerveModules;
 
-    private Gyro m_gyro;
+    private LoggedGyro m_gyro;
 
     private final SwerveDriveKinematics m_kinematics;
     private final SwerveDrivePoseEstimator m_poseEstimator;
@@ -79,7 +78,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         new SwerveModule(SwerveModuleConstants.kBackRightRealModuleConstants)
                     };
 
-                    m_gyro = new Gyro(new GyroIONavX());
+                    m_gyro = new LoggedGyro("SwerveInputs/Gyro", new LoggedGyroIOSim());
 
                     break;
                 case SIM:
@@ -90,7 +89,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         new SwerveModule(SwerveModuleConstants.kBackRightSimModuleConstants)
                     };
 
-                    m_gyro = new Gyro(new GyroIOSim());
+                    m_gyro = new LoggedGyro("SwerveInputs/Gyro", new LoggedGyroIOSim());
 
                     break;
                 default:
@@ -108,7 +107,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         new SwerveModule(SwerveModuleConstants.kBackRightRealModuleConstants)
                     };
 
-                    m_gyro = new Gyro(new GyroIO() {});
+                    m_gyro = new LoggedGyro("SwerveInputs/Gyro", new LoggedGyroIO() {});
 
                     break;
             }
@@ -428,8 +427,6 @@ public class SwerveSubsystem extends SubsystemBase {
         for (SwerveModule module : m_swerveModules) {
             module.periodic();
         }
-
-        m_gyro.periodic();
 
         // If simulated gyro, update its yaw based off of angular chassis speed and
         // delta time (is this physically accurate? m_kinematics.toTwist2d() wouldn't

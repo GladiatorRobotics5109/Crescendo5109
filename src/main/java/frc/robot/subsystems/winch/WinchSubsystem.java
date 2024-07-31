@@ -4,6 +4,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
+
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggedpidcontroller.LoggedPIDController;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.WinchConstants;
 import frc.robot.util.Conversions;
-import frc.robot.util.periodic.LoggedPIDController;
 
 public class WinchSubsystem extends SubsystemBase {
     private WinchIO m_io;

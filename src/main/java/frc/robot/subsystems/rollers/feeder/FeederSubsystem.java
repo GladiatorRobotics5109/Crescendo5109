@@ -1,5 +1,7 @@
 package frc.robot.subsystems.rollers.feeder;
 
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.loggeddigitalinput.LoggedDigitalInput;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -8,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.RollersConstants.FeederConstants;
 import frc.robot.util.Conversions;
-import frc.robot.util.LoggedDigitalInput.LoggedDigitalInput;
+
 import org.littletonrobotics.junction.Logger;
 
 public class FeederSubsystem extends SubsystemBase {
@@ -46,14 +48,15 @@ public class FeederSubsystem extends SubsystemBase {
 
         m_noteSensor = new LoggedDigitalInput(
             "RollersInputs/FeederInputs/NoteSensor",
-            FeederConstants.kNoteSensorChannel
+            FeederConstants.kNoteSensorChannel,
+            Constants.kCurrentMode
         );
 
         m_hasNoteTrigger = new Trigger(this::hasNote);
     }
 
     public boolean hasNote() {
-        return m_inputs.motorSupplyCurrentAmps >= FeederConstants.kNoteEnterCurrentThreshold;
+        return m_noteSensor.get() || m_inputs.motorSupplyCurrentAmps >= FeederConstants.kNoteEnterCurrentThreshold;
     }
 
     public boolean isIntaking() {
@@ -69,6 +72,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public Trigger getHasNoteTrigger() {
+        // TODO: make sure its ok j to return a reference instead of make a copy
         return m_hasNoteTrigger;
     }
 

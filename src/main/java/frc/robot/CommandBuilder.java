@@ -15,7 +15,6 @@ import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.rollers.Rollers;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
-import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.subsystems.winch.WinchSubsystem;
 import frc.robot.util.Conversions;
 import frc.robot.util.Util;
@@ -25,13 +24,12 @@ public final class CommandBuilder {
 
     public static void init(
         SwerveSubsystem swerve,
-        VisionSubsystem vision,
         ShooterSubsystem shooter,
         WinchSubsystem winch,
         Rollers rollers,
         CommandPS5Controller driverController
     ) {
-        s_instance = new CommandBuilder(swerve, vision, shooter, winch, rollers, driverController);
+        s_instance = new CommandBuilder(swerve, shooter, winch, rollers, driverController);
     }
 
     public static Command commandStartIntake() {
@@ -87,7 +85,6 @@ public final class CommandBuilder {
     }
 
     private final SwerveSubsystem m_swerve;
-    private final VisionSubsystem m_vision;
     private final ShooterSubsystem m_shooter;
     private final WinchSubsystem m_winch;
     private final Rollers m_rollers;
@@ -96,14 +93,12 @@ public final class CommandBuilder {
 
     private CommandBuilder(
         SwerveSubsystem swerve,
-        VisionSubsystem vision,
         ShooterSubsystem shooter,
         WinchSubsystem winch,
         Rollers rollers,
         CommandPS5Controller driverController
     ) {
         m_swerve = swerve;
-        m_vision = vision;
         m_shooter = shooter;
         m_winch = winch;
         m_rollers = rollers;

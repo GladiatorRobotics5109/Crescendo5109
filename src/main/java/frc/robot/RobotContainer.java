@@ -41,7 +41,7 @@ public class RobotContainer {
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
 
         StateMachine.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
-        CommandBuilder.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers, m_driverController);
+        CommandBuilder.init(m_swerve, m_shooter, m_winch, m_rollers, m_driverController);
 
         // m_rollers.getFeederHasNoteTrigger().onTrue(CommandBuilder.commandDriverControllerNoteEnterSequence());
 

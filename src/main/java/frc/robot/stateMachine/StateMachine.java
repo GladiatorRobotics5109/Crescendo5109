@@ -346,7 +346,7 @@ public final class StateMachine {
         private static void periodic() {
             Logger.recordOutput("RollersState/Intake/DesiredRPM", getIntakeDesiredRPM());
             Logger.recordOutput("RollersState/Intake/CurrentRPM", getIntakeCurrentRPM());
-            Logger.recordOutput("RollersState/Intake/isIntaking", getIntakeIsIntaking());
+            Logger.recordOutput("RollersState/Intake/IsIntaking", getIntakeIsIntaking());
             Logger.recordOutput("RollersState/Intake/HasNote", getIntakeHasNote());
             Logger.recordOutput("RollersState/Feeder/HasNote", getFeederHasNote());
             Logger.recordOutput("RollersState/Feeder/DesiredRPM", getFeederDesiredRPM());

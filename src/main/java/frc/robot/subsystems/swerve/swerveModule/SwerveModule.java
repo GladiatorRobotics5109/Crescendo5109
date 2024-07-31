@@ -10,8 +10,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants.SwerveModuleConstants;
 import frc.robot.util.Conversions;
 import frc.robot.util.InvalidSwerveModuleMotorConfigurationException;
-import frc.robot.util.MotorControllerType;
 
+import org.gladiatorrobotics.gladiatorroboticslib.MotorControllerType;
+import org.gladiatorrobotics.gladiatorroboticslib.advantagekitutil.Mode;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
@@ -34,7 +35,7 @@ public class SwerveModule {
         MotorControllerType driveController = constants.driveMotorController;
         MotorControllerType turnController = constants.turnMotorController;
 
-        if (Constants.kCurrentMode == Constants.Mode.REPLAY) {
+        if (Constants.kCurrentMode == Mode.REPLAY) {
             m_io = new SwerveModuleIO() {};
         }
         else if (driveController == MotorControllerType.TalonFX && turnController == MotorControllerType.SparkMAX) {
@@ -47,7 +48,7 @@ public class SwerveModule {
         }
         else if (
             driveController == MotorControllerType.Sim && turnController == MotorControllerType.Sim
-                && Constants.kCurrentMode == Constants.Mode.SIM
+                && Constants.kCurrentMode == Mode.SIM
         ) {
             m_io = new SwerveModuleIOSim();
         }
