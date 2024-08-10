@@ -32,6 +32,7 @@ public class RobotContainer {
     private final LoggedDashboardChooser<Command> m_autoChooser;
 
     public RobotContainer() {
+        // Instantiate subsystems
         m_vision = new VisionSubsystem();
         m_swerve = new SwerveSubsystem();
         m_winch = new WinchSubsystem();
@@ -40,6 +41,7 @@ public class RobotContainer {
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
 
+        // Initialize StateMachine and CommandBuilder
         StateMachine.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
         CommandBuilder.init(m_swerve, m_shooter, m_winch, m_rollers, m_driverController);
 
@@ -48,11 +50,13 @@ public class RobotContainer {
         configureBindings();
         registerNamedCommands();
 
+        // Put auto routines to smart dashboard
         m_autoChooser = new LoggedDashboardChooser<Command>("AutoChooser");
 
         m_autoChooser.addDefaultOption("DoNothing", AutoBuilder.doNothing(m_swerve));
         m_autoChooser.addOption("Test", AutoBuilder.test(m_swerve));
 
+        // Log start and end of commands
         CommandScheduler.getInstance().onCommandInitialize(
             (Command command) -> System.out.println(
                 "Command Started:\n    Name: " + command.getName() + "\n    Subsystem: " + command.getSubsystem()
@@ -87,6 +91,7 @@ public class RobotContainer {
         m_driverController.R1().onTrue(CommandBuilder.commandToggleAssistedShoot());
     }
 
+    // Register named commands for PathPlanner autos
     private void registerNamedCommands() {
         NamedCommands.registerCommand("PrintHello", Commands.print("HELLO WORLD"));
 

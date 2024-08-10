@@ -148,6 +148,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         m_currentMaxSpeed = SwerveConstants.kDefaultSpeed;
 
+        // Configure AutoBuilder for PathPlanner Autos
         AutoBuilder.configureHolonomic(
             this::getPose,
             this::setPose,
@@ -158,6 +159,7 @@ public class SwerveSubsystem extends SubsystemBase {
             this
         );
 
+        // Set PathPlannerLogging callbacks
         PathPlannerLogging.setLogActivePathCallback((List<Pose2d> activePath) -> {
             Pose2d[] arr = new Pose2d[activePath.size()];
             activePath.toArray(arr);
@@ -175,30 +177,35 @@ public class SwerveSubsystem extends SubsystemBase {
         drive(new ChassisSpeeds(vx, vy, vrot), fieldRelative);
     }
 
+    /**
+     * Drives with the given field/robot relative chassis speeds
+     */
     private void drive(ChassisSpeeds desiredSpeeds, boolean fieldRelative) {
         if (m_targetHeadingEnabled && m_targetHeadingSupplier != null) {
             Rotation2d targetHeading = m_targetHeadingSupplier.get();
             ChassisSpeeds currentSpeeds = getFieldRelativeChassisSpeeds();
+
+            // Calculate velocity compensation if enabled
+            double velocityCompensation = SwerveConstants.kHeadingControlVelocityCompensation
+                ? -SwerveConstants.kHeadingControlVelocityCompensationScalar
+                    * ((currentSpeeds.vyMetersPerSecond * Math.cos(targetHeading.getRadians()))
+                        + (currentSpeeds.vxMetersPerSecond * -Math.sin(targetHeading.getRadians())))
+                : 0;
+
             desiredSpeeds.omegaRadiansPerSecond = m_targetHeadingPID.calculate(
                 getHeading().getRadians(),
                 targetHeading.getRadians()
-            )
-                + (SwerveConstants.kHeadingControlVelocityCompensation // if use velocity compensation, calculate
-                    // compensation
-                    ? (-SwerveConstants.kHeadingControlVelocityCompensationScalar
-                        * ((currentSpeeds.vyMetersPerSecond * Math.cos(targetHeading.getRadians()))
-                            + (currentSpeeds.vxMetersPerSecond * -Math.sin(targetHeading.getRadians()))))
-                    : 0);
+            ) + velocityCompensation;
         }
 
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(
             desiredSpeeds,
             Constants.kRobotLoopPeriod.in(Units.Seconds)
         );
-        ChassisSpeeds speeds = fieldRelative
+        ChassisSpeeds robotRelativeSpeeds = fieldRelative
             ? ChassisSpeeds.fromFieldRelativeSpeeds(discreteSpeeds, getHeading().plus(getDriveRotationOffset()))
             : discreteSpeeds;
-        SwerveModuleState[] desiredStates = m_kinematics.toSwerveModuleStates(speeds);
+        SwerveModuleState[] desiredStates = m_kinematics.toSwerveModuleStates(robotRelativeSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, m_currentMaxSpeed);
 
         SwerveModuleState[] optimizedStates = new SwerveModuleState[4];
@@ -206,7 +213,7 @@ public class SwerveSubsystem extends SubsystemBase {
             optimizedStates[i] = m_swerveModules[i].setDesiredState(desiredStates[i]);
         }
 
-        // Change state if the desired state isn't already set to stopping
+        // Change state if the desired state isn't set to stopping
         if (
             desiredSpeeds.vxMetersPerSecond != 0.0 && desiredSpeeds.vyMetersPerSecond != 0.0
                 && desiredSpeeds.omegaRadiansPerSecond != 0.0
@@ -222,6 +229,9 @@ public class SwerveSubsystem extends SubsystemBase {
         drive(0, 0, 0, true);
     }
 
+    /**
+     * @return swerve modules positions
+     */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
             m_swerveModules[0].getPosition(), // fl
@@ -257,7 +267,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     *
      * @return what the swerve subsystem is currently doing
      */
     public SwerveDrivingState getDrivingState() {
@@ -269,36 +278,36 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public boolean isDriving() {
-        SwerveDrivingState drivingState = getDrivingState();
-
-        return drivingState == SwerveDrivingState.DRIVING_FOLLOWING_PATH
-            || drivingState == SwerveDrivingState.DRIVING_JOYSTICK
-            || drivingState == SwerveDrivingState.DRIVING_UNKNOWN;
+        return m_drivingState == SwerveDrivingState.DRIVING_FOLLOWING_PATH
+            || m_drivingState == SwerveDrivingState.DRIVING_JOYSTICK
+            || m_drivingState == SwerveDrivingState.DRIVING_UNKNOWN;
     }
 
     public boolean isMoving() {
-        SwerveDrivingState drivingState = getDrivingState();
-
-        return drivingState == SwerveDrivingState.MOVING_BRAKING
-            || drivingState == SwerveDrivingState.MOVING_COASTING
+        return m_drivingState == SwerveDrivingState.MOVING_BRAKING
+            || m_drivingState == SwerveDrivingState.MOVING_COASTING
             || isDriving();
     }
 
     public boolean isStopped() {
-        SwerveDrivingState drivingState = getDrivingState();
-
-        return drivingState == SwerveDrivingState.STOPPED_BRAKING
-            || drivingState == SwerveDrivingState.STOPPED_COASTING;
+        return m_drivingState == SwerveDrivingState.STOPPED_BRAKING
+            || m_drivingState == SwerveDrivingState.STOPPED_COASTING;
     }
 
     public boolean isTargetingHeading() {
-        return m_targetHeadingEnabled;
+        return m_targetHeadingEnabled && m_targetHeadingSupplier != null;
     }
 
     public boolean isAtTargetHeading() {
-        return m_targetHeadingEnabled && m_targetHeadingPID.atSetpoint();
+        return isTargetingHeading() && m_targetHeadingPID.atSetpoint();
     }
 
+    /**
+     * Resets pose estimator pose
+     *
+     * @param pose
+     *            new robot pose
+     */
     public void setPose(Pose2d pose) {
         m_poseEstimator.resetPosition(m_gyro.getYaw(), getModulePositions(), pose);
     }
@@ -311,7 +320,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void setTargetHeadingEnabled(boolean enabled) {
         if (enabled && m_targetHeadingSupplier == null) {
-            DriverStation.reportWarning("Target Heading enabled but m_targetHeadingSupplier == null.", false);
+            DriverStation.reportWarning("Target Heading enabled but m_targetHeadingSupplier == null.", true);
         }
 
         m_targetHeadingEnabled = enabled;
@@ -321,6 +330,20 @@ public class SwerveSubsystem extends SubsystemBase {
         m_currentMaxSpeed = speed;
     }
 
+    // -- Commands --
+
+    /**
+     * Constructs a command that drives with given joystick inputs
+     *
+     * @param joyLeftXSupplier
+     *            left joystick x
+     * @param joyLeftYSupplier
+     *            left joystick y
+     * @param joyRightXSupplier
+     *            right joystick x
+     * @param fieldRelativeSupplier
+     *            wether or not to drive field relative
+     */
     public Command commandDriveWithJoystick(
         DoubleSupplier joyLeftXSupplier,
         DoubleSupplier joyLeftYSupplier,
@@ -363,11 +386,14 @@ public class SwerveSubsystem extends SubsystemBase {
             double vx, vy, vrot;
             vx = joyLeftY * maxSpeedMetersPerSec;
             vy = joyLeftX * maxSpeedMetersPerSec;
+            // if robot relative, invert vx and vy
             if (!fieldRelative) {
                 vx = -vx;
                 vy = -vy;
             }
-            vrot = !m_targetHeadingEnabled ? -joyRightX * maxAngularSpeedRadPerSec : 0.0;
+            // If targeting heading, return 0 for desired vrot.
+            // This isn't really required because 'drive' will ignore angular speed if target heading is enabled.
+            vrot = !isTargetingHeading() ? -joyRightX * maxAngularSpeedRadPerSec : 0.0;
 
             drive(vx, vy, vrot, fieldRelative);
         }).withName("SwerveSubsystem::DriveWithJoystickCommand");
@@ -382,13 +408,15 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command commandSetTargetHeadingEnabled(boolean enabled) {
-        // This command does not require this subsystem because it does not control the subsystem.
+        // This command does not require this subsystem because it does not control the subsystem/it is ok for this
+        // command and another command to control this subsystem.
         // It needs to be like this because auto paths may need to enable and disable heading targeting while driving.
         return Commands.runOnce(() -> setTargetHeadingEnabled(enabled));
     }
 
     public Command commandSetTargetHeadingEnabled(boolean enabled, Supplier<Rotation2d> targetHeadingSupplier) {
-        // This command does not require this subsystem because it does not control the subsystem.
+        // This command does not require this subsystem because it does not control the subsystem/it is ok for this
+        // command and another command to control this subsystem.
         // It needs to be like this because auto paths may need to enable and disable heading targeting while driving.
         return Commands.runOnce(() -> setTargetHeadingEnabled(enabled, targetHeadingSupplier));
     }
