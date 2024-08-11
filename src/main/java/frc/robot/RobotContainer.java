@@ -10,9 +10,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -28,6 +30,7 @@ public class RobotContainer {
     private final Rollers m_rollers;
 
     private final CommandPS5Controller m_driverController;
+    private final CommandJoystick m_operatorJoystick;
 
     private final LoggedDashboardChooser<Command> m_autoChooser;
 
@@ -40,6 +43,7 @@ public class RobotContainer {
         m_rollers = new Rollers();
 
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
+        m_operatorJoystick = new CommandJoystick(Constants.DriveTeamConstants.kOperatorJoystickPort);
 
         // Initialize StateMachine and CommandBuilder
         StateMachine.init(m_swerve, m_vision, m_shooter, m_winch, m_rollers);
@@ -89,6 +93,24 @@ public class RobotContainer {
         m_driverController.circle().onTrue(CommandBuilder.commandDriverControllerNoteEnterSequence());
         m_driverController.L1().onTrue(CommandBuilder.commandToggleIntake());
         m_driverController.R1().onTrue(CommandBuilder.commandToggleAssistedShoot());
+
+        m_operatorJoystick.button(4).whileTrue(
+            m_winch.commandSetTargetAngleEnabled(
+                () -> true,
+                () -> m_winch.getTargetAngle().minus(Rotation2d.fromDegrees(2))
+            )
+        );
+        m_operatorJoystick.button(5).whileTrue(
+            m_winch.commandSetTargetAngleEnabled(
+                () -> true,
+                () -> m_winch.getTargetAngle().plus(Rotation2d.fromDegrees(2))
+            )
+        );
+        m_operatorJoystick.button(6).onTrue(m_winch.commandResetWinchAngle(() -> Constants.WinchConstants.kMaxAngle));
+        m_operatorJoystick.button(7).onTrue(m_winch.commandResetWinchAngle(() -> Constants.WinchConstants.kMinAngle));
+        CommandScheduler.getInstance().schedule(
+            CommandBuilder.commandOverrideModeWatcher(m_operatorJoystick.button(8))
+        );
     }
 
     // Register named commands for PathPlanner autos

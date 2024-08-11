@@ -27,7 +27,7 @@ public class SwerveModule {
     private Rotation2d m_turnAngleSetpoint;
     private Double m_driveWheelSpeedSetpointRadPerSec;
     private Rotation2d m_turnRelativeOffset;
-    private SwerveModulePosition[] m_odometryPositions;
+    // private SwerveModulePosition[] m_odometryPositions;
 
     private Translation2d m_moduleTranslation2d;
 
@@ -72,7 +72,7 @@ public class SwerveModule {
 
         m_turnRelativeOffset = constants.turnRelativeOffset;
 
-        m_odometryPositions = new SwerveModulePosition[] {};
+        // m_odometryPositions = new SwerveModulePosition[] {};
 
         m_moduleTranslation2d = constants.moduleTranslation2d;
     }

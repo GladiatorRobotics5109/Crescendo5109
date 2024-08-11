@@ -58,8 +58,16 @@ public final class StateMachine {
             return s_instance.m_isAssistedShooting;
         }
 
+        public static boolean getOverrideModeEnabled() {
+            return s_instance.m_overrideModeEnabled;
+        }
+
         public static void setIsAssistedShooting(boolean isAssistedShooting) {
             s_instance.m_isAssistedShooting = isAssistedShooting;
+        }
+
+        public static void setOverrideModeEnabled(boolean enabled) {
+            s_instance.m_overrideModeEnabled = enabled;
         }
 
         private static RobotState s_instance;
@@ -69,9 +77,11 @@ public final class StateMachine {
         }
 
         private boolean m_isAssistedShooting;
+        private boolean m_overrideModeEnabled;
 
         private RobotState() {
             m_isAssistedShooting = false;
+            m_overrideModeEnabled = false;
         }
     }
 

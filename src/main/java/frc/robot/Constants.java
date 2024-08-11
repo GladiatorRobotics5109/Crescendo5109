@@ -39,6 +39,7 @@ public final class Constants {
 
     public static final class DriveTeamConstants {
         public static final int kDriverControllerPort = 0;
+        public static final int kOperatorJoystickPort = 1;
 
         public static final double kDriveJoystickDeadzone = 0.15;
         public static final double kDriveJoystickTranslationRateLimit = 20;

@@ -10,9 +10,11 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.WinchConstants;
+import frc.robot.stateMachine.StateMachine;
 import frc.robot.util.Conversions;
 
 public class WinchSubsystem extends SubsystemBase {
@@ -93,6 +95,10 @@ public class WinchSubsystem extends SubsystemBase {
         return this.runOnce(() -> setTargetAngleEnabled(enabled.getAsBoolean()));
     }
 
+    public Command commandResetWinchAngle(Supplier<Rotation2d> angle) {
+        return Commands.runOnce(() -> setWinchAngle(angle.get()));
+    }
+
     private void setWinchAngle(Rotation2d angle) {
         m_io.setMotorPosition(Rotation2d.fromRadians(Conversions.winchAngleToWinchMotorRadians(angle)));
     }
@@ -107,20 +113,24 @@ public class WinchSubsystem extends SubsystemBase {
             if (m_targetAngle.getRadians() > WinchConstants.kMaxAngle.getRadians()) {
                 DriverStation.reportWarning(
                     "The WinchSubsystem has been requested to reach an angle of " + m_targetAngle.getDegrees()
-                        + "deg but its max angle is " + WinchConstants.kMaxAngle.getDegrees() + "deg.",
-                    false
+                        + "deg but its max angle is " + WinchConstants.kMaxAngle.getDegrees() + "deg. Override mode: "
+                        + StateMachine.RobotState.getOverrideModeEnabled(),
+                    true
                 );
 
-                m_targetAngle = WinchConstants.kMaxAngle;
+                if (!StateMachine.RobotState.getOverrideModeEnabled())
+                    m_targetAngle = WinchConstants.kMaxAngle;
             }
             else if (m_targetAngle.getRadians() < WinchConstants.kMinAngle.getRadians()) {
                 DriverStation.reportWarning(
                     "The WinchSubsystem has been requested to reach an angle of " + m_targetAngle.getDegrees()
-                        + "deg but its min angle is " + WinchConstants.kMinAngle.getDegrees() + "deg.",
-                    false
+                        + "deg but its min angle is " + WinchConstants.kMinAngle.getDegrees() + "deg. Override mode: "
+                        + StateMachine.RobotState.getOverrideModeEnabled(),
+                    true
                 );
 
-                m_targetAngle = WinchConstants.kMinAngle;
+                if (!StateMachine.RobotState.getOverrideModeEnabled())
+                    m_targetAngle = WinchConstants.kMinAngle;
             }
 
             m_io.setVoltage(

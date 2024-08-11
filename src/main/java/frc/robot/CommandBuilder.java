@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
@@ -267,5 +269,17 @@ public final class CommandBuilder {
                 return timer.hasElapsed(Constants.DriveTeamConstants.kDriverOnNoteEnterRumbleDurationSecs);
             }
         ).withName("CommandBuilder::commandDriverControllerNoteEnterSequence");
+    }
+
+    /**
+     * Constructs a command that polls a boolean supplier and enables/disables override mode.
+     *
+     * @param enabled
+     *            {@link BooleanSupplier} supplier to use
+     */
+    public static Command commandOverrideModeWatcher(BooleanSupplier enabled) {
+        return Commands.run(() -> StateMachine.RobotState.setOverrideModeEnabled(enabled.getAsBoolean())).withName(
+            "CommandBuilder::commandOverrideModeWatcher"
+        );
     }
 }
