@@ -31,4 +31,5 @@ props.setProperty("org.gradle.internal.native.headers.unresolved.dependencies.ig
 
 // Include GladiatorRoboticsLib
 include 'GladiatorRoboticsLib:lib'
+project(':GladiatorRoboticsLib').projectDir = file("vendor/GladiatorRoboticsLib/")
 project(':GladiatorRoboticsLib:lib').projectDir = file("vendor/GladiatorRoboticsLib/lib")
