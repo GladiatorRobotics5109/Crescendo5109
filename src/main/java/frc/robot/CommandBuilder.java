@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
-import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.stateMachine.StateMachine;
@@ -29,7 +29,7 @@ public final class CommandBuilder {
         ShooterSubsystem shooter,
         WinchSubsystem winch,
         Rollers rollers,
-        CommandPS5Controller driverController
+        CommandGenericHID driverController
     ) {
         s_instance = new CommandBuilder(swerve, shooter, winch, rollers, driverController);
     }
@@ -91,14 +91,14 @@ public final class CommandBuilder {
     private final WinchSubsystem m_winch;
     private final Rollers m_rollers;
 
-    private final CommandPS5Controller m_driverController;
+    private final CommandGenericHID m_driverController;
 
     private CommandBuilder(
         SwerveSubsystem swerve,
         ShooterSubsystem shooter,
         WinchSubsystem winch,
         Rollers rollers,
-        CommandPS5Controller driverController
+        CommandGenericHID driverController
     ) {
         m_swerve = swerve;
         m_shooter = shooter;
@@ -166,9 +166,18 @@ public final class CommandBuilder {
 
     private Command commandStartManualShootImpl() {
         return Commands.sequence(
+            // Get bot in desired state
             commandStopIntakeImpl(),
+            m_shooter.commandManualStart(),
+            Commands.print("Starting shooter..."),
+            Commands.waitUntil(m_shooter::isAtDesiredRPM).withTimeout(3),
+            // Start feeders
             m_rollers.commandStartManualShoot(),
-            m_shooter.commandManualStart()
+            Commands.print("Starting feeder..."),
+            // Wait till note leaves
+            Commands.waitUntil(() -> !m_rollers.hasNote()).withTimeout(2),
+            commandStopManualShootImpl(),
+            Commands.print("DONE")
         ).withName("CommandBuilder::commandStartManualShoot");
     }
 

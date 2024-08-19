@@ -9,7 +9,7 @@ public interface FeederIO {
         public double feederVelocityRadPerSec = Double.NaN;
         public double motorAppliedVolts = Double.NaN;
         public double motorSupplyCurrentAmps = Double.NaN;
-        public double motorTempCelcius = Double.NaN;
+        public double motorTempCelsius = Double.NaN;
     }
 
     public default void updateInputs(FeederIOInputs inputs) {}

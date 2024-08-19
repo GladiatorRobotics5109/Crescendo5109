@@ -348,16 +348,26 @@ public final class Constants {
     public static final class WinchConstants {
         public static final int kRealMotorPort = 5;
         public static final int kRealMotorCurrentLimit = 40;
-        public static final PIDConstants kRealAnglePID = new PIDConstants(1.0, 0.0, 0.0);
+        public static final PIDConstants kRealAnglePID = new PIDConstants(
+            1.0,
+            0.0,
+            0.0,
+            PIDConstants.kIZone,
+            PIDConstants.kEnableContinuousInput,
+            PIDConstants.kMinimumInput,
+            PIDConstants.kMaximumInput,
+            Conversions.degreesToRadians(1.5),
+            Conversions.degreesToRadians(1.5)
+        );
 
         public static final PIDConstants kSimAnglePID = new PIDConstants(
             200,
             0,
             0,
-            Double.POSITIVE_INFINITY,
-            false,
-            Double.NEGATIVE_INFINITY,
-            Double.POSITIVE_INFINITY,
+            PIDConstants.kIZone,
+            PIDConstants.kEnableContinuousInput,
+            PIDConstants.kMinimumInput,
+            PIDConstants.kMaximumInput,
             Conversions.degreesToRadians(1),
             Conversions.degreesToRadians(4)
         );
@@ -384,6 +394,9 @@ public final class Constants {
         public static final double kAutoSpinUpRadiusMeters = 8.0;
         public static final double kShootRPM = 5500.0;
         public static final double kAutoSpinRPM = kShootRPM;
+
+        public static final int kLeftMotorPort = 55;
+        public static final int kRightMotorPort = 9;
     }
 
     public static final class RollersConstants {

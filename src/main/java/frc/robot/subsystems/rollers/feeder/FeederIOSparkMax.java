@@ -28,7 +28,7 @@ public class FeederIOSparkMax implements FeederIO {
         inputs.feederVelocityRadPerSec = Conversions.rotationsPerMinuteToRadiansPerSecond(m_encoder.getVelocity());
         inputs.motorAppliedVolts = m_motor.getAppliedOutput() * m_motor.getBusVoltage();
         inputs.motorSupplyCurrentAmps = m_motor.getOutputCurrent();
-        inputs.motorTempCelcius = m_motor.getMotorTemperature();
+        inputs.motorTempCelsius = m_motor.getMotorTemperature();
     }
 
     @Override

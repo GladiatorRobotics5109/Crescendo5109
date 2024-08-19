@@ -29,6 +29,8 @@ public class RobotContainer {
     private final ShooterSubsystem m_shooter;
     private final Rollers m_rollers;
 
+    // with keyboard
+    // private final CommandGenericHID m_driverController;
     private final CommandPS5Controller m_driverController;
     private final CommandJoystick m_operatorJoystick;
 
@@ -42,6 +44,7 @@ public class RobotContainer {
         m_shooter = new ShooterSubsystem();
         m_rollers = new Rollers();
 
+        // m_driverController = new CommandGenericHID(Constants.DriveTeamConstants.kDriverControllerPort);
         m_driverController = new CommandPS5Controller(Constants.DriveTeamConstants.kDriverControllerPort);
         m_operatorJoystick = new CommandJoystick(Constants.DriveTeamConstants.kOperatorJoystickPort);
 
@@ -89,10 +92,15 @@ public class RobotContainer {
         );
 
         m_driverController.square().onTrue(CommandBuilder.commandToggleAutoAim());
-        m_driverController.cross().onTrue(CommandBuilder.commandToggleManualShoot());
-        m_driverController.circle().onTrue(CommandBuilder.commandDriverControllerNoteEnterSequence());
+        m_driverController.circle().onTrue(CommandBuilder.commandToggleManualShoot());
+        m_driverController.cross().onTrue(m_shooter.commandManualStart());
+        // For testing
+        // m_driverController.circle().onTrue(CommandBuilder.commandDriverControllerNoteEnterSequence());
+
         m_driverController.L1().onTrue(CommandBuilder.commandToggleIntake());
         m_driverController.R1().onTrue(CommandBuilder.commandToggleAssistedShoot());
+
+        // m_driverController.button(1).onTrue(CommandBuilder.commandToggleManualShoot());
 
         m_operatorJoystick.button(4).whileTrue(
             m_winch.commandSetTargetAngleEnabled(
@@ -129,7 +137,7 @@ public class RobotContainer {
             "Shoot",
             Commands.sequence(
                 Commands.print("WAITING UNTIL AIM GOOD"),
-                Commands.waitUntil(m_swerve::isAtTargetHeading),
+                Commands.waitUntil(() -> m_swerve.isAtTargetHeading() && m_winch.isAtTargetAngle()),
                 m_swerve.commandSetTargetHeadingEnabled(false),
                 Commands.print("SHOOT")
             )

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.util.Conversions;
@@ -24,11 +25,26 @@ public class ShooterSubsystem extends SubsystemBase {
     private double m_rightDesiredRPM;
 
     private boolean m_autoSpinUpEnabled;
+    /* Wether or not the current desired rpm is because of auto spin up algorithm or not */
+    private boolean m_isAutoSpinningUp;
 
     public ShooterSubsystem() {
         m_inputs = new ShooterIOInputsAutoLogged();
 
-        m_io = new ShooterIOSim();
+        switch (Constants.kCurrentMode) {
+            case REAL:
+                m_io = new ShooterIOSparkMax(ShooterConstants.kLeftMotorPort, ShooterConstants.kRightMotorPort);
+
+                break;
+            case SIM:
+                m_io = new ShooterIOSim();
+
+                break;
+            default:
+                m_io = new ShooterIO() {};
+
+                break;
+        }
 
         m_leftBangBang = new BangBangController(ShooterConstants.kRPMTolerance);
         m_rightBangBang = new BangBangController(ShooterConstants.kRPMTolerance);
@@ -37,6 +53,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_rightDesiredRPM = 0.0;
 
         m_autoSpinUpEnabled = true;
+        m_isAutoSpinningUp = false;
     }
 
     public double getLeftCurrentRPM() {
@@ -140,12 +157,11 @@ public class ShooterSubsystem extends SubsystemBase {
                 || m_rightDesiredRPM <= ShooterConstants.kAutoSpinRPM)
         ) {
             setDesiredRPM(ShooterConstants.kAutoSpinRPM, ShooterConstants.kAutoSpinRPM);
+            m_isAutoSpinningUp = true;
         }
-        else if (
-            !shouldAutoSpinUp() && m_leftDesiredRPM == ShooterConstants.kAutoSpinRPM
-                && m_rightDesiredRPM == ShooterConstants.kAutoSpinRPM
-        ) {
+        else if (!shouldAutoSpinUp() && m_isAutoSpinningUp) {
             stop();
+            m_isAutoSpinningUp = false;
         }
 
         if (m_leftDesiredRPM == 0.0 && m_rightDesiredRPM == 0.0) {
@@ -159,13 +175,13 @@ public class ShooterSubsystem extends SubsystemBase {
                         m_inputs.leftMotorVelocityRadPerSec
                     ),
                     m_leftDesiredRPM
-                ),
+                ) * 12,
                 m_rightBangBang.calculate(
                     Conversions.shooterRadiansPerSecondToShooterRotationsPerMinute(
                         m_inputs.rightMotorVelocityRadPerSec
                     ),
                     m_rightDesiredRPM
-                )
+                ) * 12
             );
         }
         else {

@@ -19,6 +19,6 @@ public class FeederIOSim implements FeederIO {
         inputs.feederVelocityRadPerSec = m_motor.getAngularVelocityRadPerSec();
         inputs.motorAppliedVolts = inputs.motorAppliedVolts;
         inputs.motorSupplyCurrentAmps = m_motor.getCurrentDrawAmps();
-        inputs.motorTempCelcius = inputs.motorTempCelcius;
+        inputs.motorTempCelsius = inputs.motorTempCelsius;
     }
 }
