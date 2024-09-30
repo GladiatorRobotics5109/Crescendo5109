@@ -155,6 +155,7 @@ public final class Constants {
       // public static final double kTurnP = 3;
       public static final double kTurnI = 0;
       public static final double kTurnD = 0;
+      public static final double kTurnS = 0;
       public static final double kMaxTurnVelocity = 3 * Math.PI;
       public static final double kMaxTurnAccel = 3 * Math.PI;
   }

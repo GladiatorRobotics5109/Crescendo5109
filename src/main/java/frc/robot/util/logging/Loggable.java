@@ -1,7 +1,6 @@
 package frc.robot.util.logging;
 
 import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.DataLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 
 /**

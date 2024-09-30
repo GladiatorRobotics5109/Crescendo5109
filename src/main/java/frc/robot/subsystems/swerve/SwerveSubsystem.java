@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.stateMachine.StateMachine;
 import frc.robot.stateMachine.SwerveState;
 import frc.robot.stateMachine.SwerveState.SwerveStateEnum;
@@ -18,7 +17,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -31,12 +29,14 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.ADXL345_I2C.AllAxes;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.util.Constants;
 import frc.robot.Robot;
 import frc.robot.util.Constants.SwerveConstants;
@@ -48,10 +48,10 @@ import frc.robot.vision.VisionManager;
 
 public class SwerveSubsystem extends SubsystemBase {
     // swerve modules
-    private final SwerveModuleNeoTurnKrakenDrive m_moduleFL;
-    private final SwerveModuleNeoTurnKrakenDrive m_moduleFR;
-    private final SwerveModuleNeoTurnKrakenDrive m_moduleBL;
-    private final SwerveModuleNeoTurnKrakenDrive m_moduleBR;
+    private final SwerveModuleKrakenTurnKrakenDrive m_moduleFL;
+    private final SwerveModuleKrakenTurnKrakenDrive m_moduleFR;
+    private final SwerveModuleKrakenTurnKrakenDrive m_moduleBL;
+    private final SwerveModuleKrakenTurnKrakenDrive m_moduleBR;
     
     private final double m_defaultSpeed;
     private double m_currentSpeed;
@@ -85,10 +85,10 @@ public class SwerveSubsystem extends SubsystemBase {
         m_state = StateMachine.getSwerveState();
 
         // TODO: select right CAN ids for motors
-        m_moduleFL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 2, 5, Constants.SwerveConstants.kModuleEncoderOffsetFrontLeft);
-        m_moduleFR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 4, 40, Constants.SwerveConstants.kModuleEncoderOffsetFrontRight);
-        m_moduleBL = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 1, 22, Constants.SwerveConstants.kModuleEncoderOffsetBackLeft);
-        m_moduleBR = new SwerveModuleNeoTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 3, 30, Constants.SwerveConstants.kModuleEncoderOffsetBackRight);
+        m_moduleFL = new SwerveModuleKrakenTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontLeft, "frontLeft", 0, 2, 5);
+        m_moduleFR = new SwerveModuleKrakenTurnKrakenDrive(Constants.SwerveConstants.kModulePosFrontRight, "frontRight", 1, 4, 40);
+        m_moduleBL = new SwerveModuleKrakenTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackLeft, "backLeft", 2, 1, 22);
+        m_moduleBR = new SwerveModuleKrakenTurnKrakenDrive(Constants.SwerveConstants.kModulePosBackRight, "backRight", 3, 3, 30);
     
         m_navX = SwerveConstants.kNavX;
         m_navX.reset();
@@ -333,6 +333,18 @@ public class SwerveSubsystem extends SubsystemBase {
         };
     }
 
+    /*
+     * For debug purposes
+     */
+    public SwerveModule[] getSwerveModules() {
+        return new SwerveModule[] {
+            m_moduleFL,
+            m_moduleFR,
+            m_moduleBL,
+            m_moduleBR
+        };
+    }
+
     public ChassisSpeeds getSpeeds() {
         return m_kinematics.toChassisSpeeds(getStates());
     }
@@ -399,6 +411,32 @@ public class SwerveSubsystem extends SubsystemBase {
             );
             System.out.println("offset: " + offset);
         });
+    }
+
+    public Command getModuleTurnSysIdCommand() {
+        SysIdRoutine fl = m_moduleFL.getTurnSysIdRoutine(this);
+        SysIdRoutine fr = m_moduleFR.getTurnSysIdRoutine(this);
+        SysIdRoutine bl = m_moduleBL.getTurnSysIdRoutine(this);
+        SysIdRoutine br = m_moduleBR.getTurnSysIdRoutine(this);
+        return Commands.sequence(
+            fl.dynamic(Direction.kForward),
+            fl.dynamic(Direction.kReverse),
+            fl.quasistatic(Direction.kForward),
+            fl.quasistatic(Direction.kReverse),
+            fr.dynamic(Direction.kForward),
+            fr.dynamic(Direction.kReverse),
+            fr.quasistatic(Direction.kForward),
+            fr.quasistatic(Direction.kReverse),
+            bl.dynamic(Direction.kForward),
+            bl.dynamic(Direction.kReverse),
+            bl.quasistatic(Direction.kForward),
+            bl.quasistatic(Direction.kReverse),
+            br.dynamic(Direction.kForward),
+            br.dynamic(Direction.kReverse),
+            br.quasistatic(Direction.kForward),
+            br.quasistatic(Direction.kReverse),
+            Commands.print("Swerve Module SysId Complete!")
+        );
     }
 
     /**
