@@ -152,7 +152,7 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
     m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
     m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
-    m_driverController.y().onTrue(m_shooter.getSetAngleCommand(30));
+    m_driverController.y().onTrue(m_shooter.getSetAngleCommand(35));
     m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
     m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
@@ -164,7 +164,7 @@ public class RobotContainer {
     // m_operatorJoystick.button(6).onTrue(m_climb.getRetractLeftCommand()).onFalse(m_climb.getStopLeftCommand());
     // m_operatorJoystick.button(7).whileTrue(m_climb.getExtendLeftCommand()).onFalse(m_climb.getStopLeftCommand());
     m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
-    m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand());
+    m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand()); 
     // m_operatorJoystick.button(10).onTrue(m_climb.getRetractRightCommand()).onFalse(m_climb.getStopRightCommand());
     // m_operatorJoystick.button(11).onTrue(m_climb.getExtendRightCommand()).onFalse(m_climb.getStopRightCommand());
   }

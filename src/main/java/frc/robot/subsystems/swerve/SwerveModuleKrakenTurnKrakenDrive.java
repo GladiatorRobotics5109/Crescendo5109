@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.Constants;
 import frc.robot.util.Conversions;
 import frc.robot.util.RevOptimizer;
+import frc.robot.util.logging.LoggableDouble;
 
 public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
     private final Translation2d m_modulePos;
@@ -31,6 +32,10 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
 
     private final VelocityVoltage m_driveVelocity;
     private final PositionVoltage m_turnPosition;
+
+    private final LoggableDouble m_desiredVelocityLog;
+    private final LoggableDouble m_desiredVelocityNoOptLog;
+    private final LoggableDouble m_currentVelocityLog;
 
     public SwerveModuleKrakenTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort) {
         m_modulePos = modulePos;
@@ -60,6 +65,7 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
         driveConfig.Slot0.kP = Constants.ModuleConstants.kDriveP;
         driveConfig.Slot0.kI = Constants.ModuleConstants.kDriveI;
         driveConfig.Slot0.kD = Constants.ModuleConstants.kDriveD;
+        // driveConfig.Slot0.kV = 5;
         driveConfig.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kSwerveDriveGearRatio;
 
         m_driveMotor.getConfigurator().apply(driveConfig);
@@ -72,6 +78,10 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
 
         m_driveMotor.set(0);
         m_turnMotor.set(0);
+
+        m_desiredVelocityLog = new LoggableDouble(moduleName + "DesiredVelocity");
+        m_desiredVelocityNoOptLog = new LoggableDouble(moduleName + "DesiredVelocityNoOpt");
+        m_currentVelocityLog = new LoggableDouble(moduleName + "CurrentVelocity");
     }
 
     @Override
@@ -82,6 +92,8 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
     @Override
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, getAngle()) : state;
+        m_desiredVelocityLog.log(optimizedState.speedMetersPerSecond);
+        m_desiredVelocityNoOptLog.log(state.speedMetersPerSecond);
 
         // m_driveMotor.setControl(m_driveVelocity.withVelocity(1));
         // m_turnMotor.setControl(m_turnPosition.withPosition(0.5));
@@ -119,6 +131,8 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
 
     @Override
     public SwerveModuleState getState() {
+        m_currentVelocityLog.log(m_driveMotor.getVelocity().getValueAsDouble());
+
         return new SwerveModuleState(
             Conversions.wheelRotToWheelM(m_driveMotor.getVelocity().getValueAsDouble()),
             Rotation2d.fromRotations(m_turnMotor.getPosition().getValueAsDouble())

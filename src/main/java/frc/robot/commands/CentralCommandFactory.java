@@ -42,7 +42,7 @@ public final class CentralCommandFactory {
         return Commands.sequence(
             m_intakeSubsystem.getToggleIntakeCommand(),
             m_shooterSubsystem.getToggleFeederCommand(),
-            m_shooterSubsystem.getSetAngleCommand(30)
+            m_shooterSubsystem.getSetAngleCommand(35)
         );
     }
 
