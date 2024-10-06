@@ -1,12 +1,13 @@
 package frc.robot.stateMachine;
 
+/**
+ * Represents the entire robot state
+ */
 public final class StateMachine {
     private static SwerveState s_swerveState;
     private static ShooterState s_shooterState;
     private static IntakeState s_intakeState;
     private static ClimbState s_climbState;
-    
-    // private static Logger s_logger;
 
     public static void init() {
         s_swerveState = new SwerveState();

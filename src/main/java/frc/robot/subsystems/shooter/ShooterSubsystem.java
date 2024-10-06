@@ -182,7 +182,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
         m_angleLimitSwitch = new DigitalInput(ShooterConstants.kLimitSwitchChannel);
 
-        m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
+        m_winchEncoder.setPosition((52 - 57.8763) / (-1.07687));
 
 
         m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
@@ -377,8 +377,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command getResetEncoderMinCommand() {
         return this.runOnce(() -> {
-            m_winchEncoder.setPosition((30 - 57.8763) / (-1.07687));
-            setAngle(30);
+            m_winchEncoder.setPosition((35 - 57.8763) / (-1.07687));
+            setAngle(35);
         });
     }
 
@@ -474,7 +474,7 @@ public class ShooterSubsystem extends SubsystemBase {
             System.out.println("MAX: " + angle);
             return;
         }
-        if (!m_overrideMinMaxAngle && angle < 30) {
+        if (!m_overrideMinMaxAngle && angle < 35) {
             System.out.println("MIN: " + angle);
             return;
         }

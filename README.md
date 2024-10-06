@@ -1,12 +1,4 @@
-# 5109's Crescendo Robot Code SwerveBase
-Template project featuring base code for a swerve drivetrain.
-
-Code for different paradigms found in branches
-
-# Features
-- NEO turn and drive support
-- Kraken turn and NEO drive support (in development)
-- CommandBased
+# 5109's Crescendo Robot Code
 
 # WPILib
 - version 2024.3.2

@@ -26,10 +26,4 @@ public final class AutonFactory {
             shooter.getStopShooterCommand()
         );
     }
-
-    // public static Command getMidPeiceCommand(SwerveSubsystem swerve, ShooterSubsystem shooter) {
-    //     return Commands.sequence(
-
-    //     );
-    // }
 }
