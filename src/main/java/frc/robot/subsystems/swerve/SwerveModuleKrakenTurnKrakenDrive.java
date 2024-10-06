@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Units;
@@ -49,7 +50,7 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
         m_driveMotor.setNeutralMode(NeutralModeValue.Coast);
 
         TalonFXConfiguration turnConfig = new TalonFXConfiguration();
-        turnConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        turnConfig.CurrentLimits.SupplyCurrentLimit = 30;
         turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         turnConfig.Slot0.kP = Constants.ModuleConstants.kTurnP;
         turnConfig.Slot0.kI = Constants.ModuleConstants.kTurnI;
@@ -91,14 +92,19 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
 
     @Override
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
-        SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, getAngle()) : state;
+        SwerveModuleState optimizedState = optimize ? SwerveModuleState.optimize(state, getAngle()) : state;
+        optimizedState.speedMetersPerSecond *= Math.abs(Math.cos(getAngle().minus(state.angle).getRadians()));
         m_desiredVelocityLog.log(optimizedState.speedMetersPerSecond);
         m_desiredVelocityNoOptLog.log(state.speedMetersPerSecond);
 
         // m_driveMotor.setControl(m_driveVelocity.withVelocity(1));
         // m_turnMotor.setControl(m_turnPosition.withPosition(0.5));
 
-        m_driveMotor.setControl(m_driveVelocity.withVelocity(optimizedState.speedMetersPerSecond));
+        m_driveMotor.setControl(
+            m_driveVelocity.withVelocity(
+                Conversions.wheelMToWheelRot(optimizedState.speedMetersPerSecond)
+            )
+        );
         m_turnMotor.setControl(m_turnPosition.withPosition(optimizedState.angle.getRotations()));
     }
 

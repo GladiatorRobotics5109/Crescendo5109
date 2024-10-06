@@ -49,9 +49,11 @@ public final class Constants {
     // public static final double kMaxAngularSpeed = 2.5 * Math.PI;
     // TODO: fix bug where this seems to be in feet instead of meters
     // Max robot chassis speed in feet/s
-    public static final double kMaxSpeed = 25;
+    public static final double kMaxSpeed = 10;
+    // public static final double kMaxSpeed = 5;
     // Max robot chassis rotational speed in rad/s
-    public static final double kMaxAngularSpeed = 3 * Math.PI * 3.5;
+    // public static final double kMaxAngularSpeed = 3 * Math.PI * 3.5;
+    public static final double kMaxAngularSpeed = 3 * Math.PI;
 
 
     // public static final Translation2d kModulePosFrontLeft = new Translation2d(0.2921+0.00635, 0.2921+0.00635);
@@ -147,7 +149,7 @@ public final class Constants {
       public static final double kModuleTurnPositionConversionFactor = (2 * Math.PI);
 
       // Define PID constants
-      public static final double kDriveP = 1;
+      public static final double kDriveP = 2.5;
       public static final double kDriveI = 0;
       public static final double kDriveD = 0.05;
       // public static final double kDriveP = 2;
