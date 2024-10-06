@@ -3,7 +3,9 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -12,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.MotorLog;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.Constants;
@@ -26,12 +29,8 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
     private final TalonFX m_driveMotor;
     private final TalonFX m_turnMotor;
 
-    private final VelocityDutyCycle m_driveVelocity;
-    private final PositionDutyCycle m_turnPosition;
-
-    private final StatusSignal<Double> m_drivePositionSignal;
-    private final StatusSignal<Double> m_driveVelocitySignal;
-    private final StatusSignal<Double> m_turnPositionSignal;
+    private final VelocityVoltage m_driveVelocity;
+    private final PositionVoltage m_turnPosition;
 
     public SwerveModuleKrakenTurnKrakenDrive(Translation2d modulePos, String moduleName, int moduleNum, int driveMotorPort, int turnMotorPort) {
         m_modulePos = modulePos;
@@ -51,7 +50,7 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
         turnConfig.Slot0.kI = Constants.ModuleConstants.kTurnI;
         turnConfig.Slot0.kD = Constants.ModuleConstants.kTurnD;
         turnConfig.Slot0.kS = Constants.ModuleConstants.kTurnS;
-        turnConfig.Feedback.SensorToMechanismRatio = 1 / Constants.ModuleConstants.kSwerveTurnGearRatio;
+        turnConfig.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kSwerveTurnGearRatio;
 
         m_turnMotor.getConfigurator().apply(turnConfig);
 
@@ -61,16 +60,18 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
         driveConfig.Slot0.kP = Constants.ModuleConstants.kDriveP;
         driveConfig.Slot0.kI = Constants.ModuleConstants.kDriveI;
         driveConfig.Slot0.kD = Constants.ModuleConstants.kDriveD;
-        driveConfig.Feedback.SensorToMechanismRatio = 1 / Constants.ModuleConstants.kSwerveDriveGearRatio;
+        driveConfig.Feedback.SensorToMechanismRatio = Constants.ModuleConstants.kSwerveDriveGearRatio;
 
         m_driveMotor.getConfigurator().apply(driveConfig);
 
-        m_driveVelocity = new VelocityDutyCycle(0);
-        m_turnPosition = new PositionDutyCycle(0);
-        
-        m_drivePositionSignal = m_driveMotor.getPosition();
-        m_driveVelocitySignal = m_driveMotor.getVelocity();
-        m_turnPositionSignal = m_turnMotor.getPosition();
+        m_driveVelocity = new VelocityVoltage(0);
+        m_turnPosition = new PositionVoltage(0);
+
+        m_turnMotor.setPosition(0);
+        m_driveMotor.setPosition(0);
+
+        m_driveMotor.set(0);
+        m_turnMotor.set(0);
     }
 
     @Override
@@ -81,6 +82,9 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
     @Override
     public void setDesiredState(SwerveModuleState state, boolean optimize) {
         SwerveModuleState optimizedState = optimize ? RevOptimizer.optimize(state, getAngle()) : state;
+
+        // m_driveMotor.setControl(m_driveVelocity.withVelocity(1));
+        // m_turnMotor.setControl(m_turnPosition.withPosition(0.5));
 
         m_driveMotor.setControl(m_driveVelocity.withVelocity(optimizedState.speedMetersPerSecond));
         m_turnMotor.setControl(m_turnPosition.withPosition(optimizedState.angle.getRotations()));
@@ -116,16 +120,16 @@ public class SwerveModuleKrakenTurnKrakenDrive implements SwerveModule {
     @Override
     public SwerveModuleState getState() {
         return new SwerveModuleState(
-            Conversions.wheelRotToWheelM(m_driveVelocitySignal.getValueAsDouble()),
-            Rotation2d.fromRotations(m_turnPositionSignal.getValueAsDouble())
+            Conversions.wheelRotToWheelM(m_driveMotor.getVelocity().getValueAsDouble()),
+            Rotation2d.fromRotations(m_turnMotor.getPosition().getValueAsDouble())
         );
     }
 
     @Override
     public SwerveModulePosition getModulePosition() {
         return new SwerveModulePosition(
-            Conversions.wheelRotToWheelM(m_drivePositionSignal.getValueAsDouble()),
-            Rotation2d.fromRotations(m_turnPositionSignal.getValueAsDouble())
+            Conversions.wheelRotToWheelM(m_driveMotor.getPosition().getValueAsDouble()),
+            Rotation2d.fromRotations(m_turnMotor.getPosition().getValueAsDouble())
         );
     }
 

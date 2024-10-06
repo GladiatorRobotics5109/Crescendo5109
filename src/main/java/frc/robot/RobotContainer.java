@@ -43,7 +43,7 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerve;
   private final ShooterSubsystem m_shooter;
   private final IntakeSubsystem m_intake;
-  private final ClimbSubsystem m_climb;
+  // private final ClimbSubsystem m_climb;
   private final CentralCommandFactory m_centralCommandFactory;
 
   private final SendableChooser<Command> m_autoChooser;
@@ -73,7 +73,7 @@ public class RobotContainer {
     m_shooter = new ShooterSubsystem(() -> m_swerve.getPose());
 
     // Instantiate climb subsystem
-    m_climb = new ClimbSubsystem();
+    // m_climb = new ClimbSubsystem();
 
     // Bind has not trigger to stopping intake and auto aim
     m_shooter.getHasNoteTrigger().onTrue(m_intake.getStopIntakeCommand());
@@ -149,41 +149,24 @@ public class RobotContainer {
    * Configure button bindings for controllers (axis bindings may not be handled by this method)
   */
   private void configureButtonBindings() {
-    // m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
-    // m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
-    // m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
-    // m_driverController.y().onTrue(m_shooter.getSetAngleCommand(30));
-    // m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
-    // m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
+    m_driverController.a().onTrue(m_shooter.getToggleFeederCommand());
+    m_driverController.b().onTrue(m_shooter.getToggleShooterCommand());
+    m_driverController.x().onTrue(m_centralCommandFactory.getToggleAutoAimCommand());
+    m_driverController.y().onTrue(m_shooter.getSetAngleCommand(30));
+    m_driverController.leftBumper().onTrue(m_centralCommandFactory.getToggleIntakeAndFeederCommand());
+    m_driverController.rightBumper().onTrue(m_shooter.getAimAmpCommand());
 
-    // m_operatorJoystick.button(1).onTrue(m_shooter.getToggleBarCommand());
-    // m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShootAmp());
-    // m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
-    // m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
-    // m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
+    m_operatorJoystick.button(1).onTrue(m_shooter.getToggleBarCommand());
+    m_operatorJoystick.button(2).onTrue(m_shooter.getToggleShootAmp());
+    m_operatorJoystick.button(4).whileTrue(m_shooter.getDecreaseAngleCommand());
+    m_operatorJoystick.button(5).whileTrue(m_shooter.getIncreaseAngleCommand());
+    m_operatorJoystick.button(6).onTrue(m_shooter.getResetEncoderMaxCommand());
     // m_operatorJoystick.button(6).onTrue(m_climb.getRetractLeftCommand()).onFalse(m_climb.getStopLeftCommand());
     // m_operatorJoystick.button(7).whileTrue(m_climb.getExtendLeftCommand()).onFalse(m_climb.getStopLeftCommand());
-    // m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
-    // m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand());
+    m_operatorJoystick.button(8).onTrue(m_shooter.getSetOverrideMinMaxAngleCommand(true)).onFalse(m_shooter.getSetOverrideMinMaxAngleCommand(false));
+    m_operatorJoystick.button(9).onTrue(m_shooter.getResetEncoderMinCommand());
     // m_operatorJoystick.button(10).onTrue(m_climb.getRetractRightCommand()).onFalse(m_climb.getStopRightCommand());
     // m_operatorJoystick.button(11).onTrue(m_climb.getExtendRightCommand()).onFalse(m_climb.getStopRightCommand());
-
-    // Every module angle + 90
-    m_driverController.a().onTrue(Commands.runOnce(() -> {
-        SwerveModule[] modules = m_swerve.getSwerveModules();
-        for(SwerveModule module : modules) {
-          module.setDesiredState(
-           new SwerveModuleState(
-             0,
-             module.getAngle().plus(
-               Rotation2d.fromDegrees(90)
-             )
-           )
-         );
-        }
-      },
-      m_swerve
-    ));
   }
 
   /**

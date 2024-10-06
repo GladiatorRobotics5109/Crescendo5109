@@ -76,6 +76,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private final LoggableSwerveModuleStates m_moduleStatesLog;
     private final LoggableSwerveModuleStates m_moduleDesiredStatesLog;
+    private final LoggableSwerveModuleStates m_moduleDesiredStatesNotOptimizedLog;
     
     private final SwerveState m_state;
 
@@ -135,8 +136,9 @@ public class SwerveSubsystem extends SubsystemBase {
         m_autoAimPIDSetpointLog = new LoggableDouble("AutoAimPIDSetpoint", true, false, null);
         m_autoAimStateLog = new LoggableBoolean("AutoAimState", true, true, () -> m_autoAiming);
         m_poseLog = new LoggablePose2d("RobotPose", true, true, this::getPose);
-        m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true, true, this::getStates);
+        m_moduleStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesCurrent", true);
         m_moduleDesiredStatesLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesired", true);
+        m_moduleDesiredStatesNotOptimizedLog = new LoggableSwerveModuleStates("SwerveModuleStatesDesiredNotOptimized", true);
         m_currentMaxSpeedLog = new LoggableDouble("Current Max Speed", true, true, () -> m_currentSpeed);
 
         Logger.addLoggable(m_poseLog);
@@ -164,12 +166,16 @@ public class SwerveSubsystem extends SubsystemBase {
             vrot = calcAutoAim();
         else
             m_autoAimStateLog.log(false);
+
+        // vx *= Math.cos(vrot / (SwerveConstants.kMaxAngularSpeed / 2));
+        // vy *= Math.cos(vrot / (SwerveConstants.kMaxAngularSpeed / 2));
       
         // Rotation2d navXVal = Rotation2d.fromDegrees(getHeading().getDegrees() + 90);
         Optional<Alliance> alliance = DriverStation.getAlliance();
         double offset = (alliance.isEmpty() || alliance.get() == Alliance.Red) ? -180 : 0; 
         Rotation2d rot = Rotation2d.fromDegrees(getPose().getRotation().getDegrees() + offset);
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(fieldRelative ? ChassisSpeeds.fromFieldRelativeSpeeds(vy, vx, vrot, rot) : new ChassisSpeeds(vx, vy, vrot));
+        m_moduleDesiredStatesNotOptimizedLog.log(swerveModuleStates);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, m_currentSpeed);
 
         m_moduleFL.setDesiredState(swerveModuleStates[0]);
@@ -423,18 +429,18 @@ public class SwerveSubsystem extends SubsystemBase {
             fl.dynamic(Direction.kReverse),
             fl.quasistatic(Direction.kForward),
             fl.quasistatic(Direction.kReverse),
-            fr.dynamic(Direction.kForward),
-            fr.dynamic(Direction.kReverse),
-            fr.quasistatic(Direction.kForward),
-            fr.quasistatic(Direction.kReverse),
-            bl.dynamic(Direction.kForward),
-            bl.dynamic(Direction.kReverse),
-            bl.quasistatic(Direction.kForward),
-            bl.quasistatic(Direction.kReverse),
-            br.dynamic(Direction.kForward),
-            br.dynamic(Direction.kReverse),
-            br.quasistatic(Direction.kForward),
-            br.quasistatic(Direction.kReverse),
+            // fr.dynamic(Direction.kForward),
+            // fr.dynamic(Direction.kReverse),
+            // fr.quasistatic(Direction.kForward),
+            // fr.quasistatic(Direction.kReverse),
+            // bl.dynamic(Direction.kForward),
+            // bl.dynamic(Direction.kReverse),
+            // bl.quasistatic(Direction.kForward),
+            // bl.quasistatic(Direction.kReverse),
+            // br.dynamic(Direction.kForward),
+            // br.dynamic(Direction.kReverse),
+            // br.quasistatic(Direction.kForward),
+            // br.quasistatic(Direction.kReverse),
             Commands.print("Swerve Module SysId Complete!")
         );
     }
@@ -530,6 +536,9 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("vx", getSpeeds().vxMetersPerSecond);
         SmartDashboard.putNumber("vy", getSpeeds().vyMetersPerSecond);
         SmartDashboard.putNumber("vrot", getSpeeds().omegaRadiansPerSecond);
+
+        m_moduleStatesLog.log(getStates());
+        // System.out.println("Cur angle: " + getStates()[0].angle.getDegrees());
 
         updatePose();
 

@@ -147,11 +147,15 @@ public final class Constants {
       public static final double kModuleTurnPositionConversionFactor = (2 * Math.PI);
 
       // Define PID constants
+      // public static final double kDriveP = 1;
+      // public static final double kDriveI = 0;
+    // public static final doube kDriveD = 0.05;
       public static final double kDriveP = 1;
       public static final double kDriveI = 0;
-      public static final double kDriveD = 0.05;
+      public static final double kDriveD = 0.0;
   
-      public static final double kTurnP = 1.5;
+      // public static final double kTurnP = 1.5;
+      public static final double kTurnP = 50.0;
       // public static final double kTurnP = 3;
       public static final double kTurnI = 0;
       public static final double kTurnD = 0;
@@ -185,7 +189,7 @@ public final class Constants {
     public static final double kWinchI = 0;
     public static final double kWinchD = 0;
     
-    public static final int kFeederSensorChannel = 0;
+    public static final int kFeederSensorChannel = 3;
     public static final int kLimitSwitchChannel = 1;
     
     public static final double kPivotWinchInitialRadius = 0;

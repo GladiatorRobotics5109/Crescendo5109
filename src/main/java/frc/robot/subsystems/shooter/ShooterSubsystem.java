@@ -182,7 +182,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_feederSensor = new DigitalInput(ShooterConstants.kFeederSensorChannel);
         m_angleLimitSwitch = new DigitalInput(ShooterConstants.kLimitSwitchChannel);
 
-        m_winchEncoder.setPosition((50 - 57.8763) / (-1.07687));
+        m_winchEncoder.setPosition((52 - 57.8763) / (-1.07687));
 
 
         m_feederSensorTrigger = new Trigger(() -> m_feederSensor.get());
